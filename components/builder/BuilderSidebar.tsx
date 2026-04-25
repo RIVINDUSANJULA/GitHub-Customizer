@@ -132,7 +132,10 @@ export function BuilderSidebar() {
                       <span className="text-xs font-bold text-slate-400 uppercase">Analytics Settings</span>
                     </div>
                     <label className="flex items-center justify-between cursor-pointer group">
-                      <span className="text-sm text-slate-700 dark:text-slate-300">Include Contributions</span>
+                      <div className="flex flex-col">
+                        <span className="text-sm text-slate-700 dark:text-slate-300">Include Contributions</span>
+                        <span className="text-[10px] text-slate-400 mt-0.5">Public repositories only for privacy</span>
+                      </div>
                       <div className="relative">
                         <input
                           type="checkbox"

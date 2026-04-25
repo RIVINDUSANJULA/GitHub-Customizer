@@ -35,8 +35,9 @@ export async function fetchUserLanguages(username: string, includeContribs: bool
   const ownedReposQuery = `
     query($username: String!) {
       user(login: $username) {
-        repositories(first: 100, ownerAffiliations: OWNER, orderBy: {field: PUSHED_AT, direction: DESC}) {
+        repositories(first: 100, ownerAffiliations: OWNER, privacy: PUBLIC, orderBy: {field: PUSHED_AT, direction: DESC}) {
           nodes {
+            isPrivate
             languages(first: 10, orderBy: {field: SIZE, direction: DESC}) {
               edges {
                 size
@@ -55,8 +56,9 @@ export async function fetchUserLanguages(username: string, includeContribs: bool
   const contribReposQuery = `
     query($username: String!) {
       user(login: $username) {
-        repositoriesContributedTo(first: 100, contributionTypes: [COMMIT, PULL_REQUEST, REPOSITORY], orderBy: {field: PUSHED_AT, direction: DESC}) {
+        repositoriesContributedTo(first: 100, contributionTypes: [COMMIT, PULL_REQUEST], privacy: PUBLIC, orderBy: {field: PUSHED_AT, direction: DESC}) {
           nodes {
+            isPrivate
             languages(first: 10, orderBy: {field: SIZE, direction: DESC}) {
               edges {
                 size
@@ -73,19 +75,33 @@ export async function fetchUserLanguages(username: string, includeContribs: bool
   `;
 
   try {
-    const ownedResult = await fetchFromGithub(ownedReposQuery);
+    // We can run these in parallel to speed up, but with a total timeout
+    const fetchWithTimeout = async (query: string) => {
+      const controller = new AbortController();
+      const id = setTimeout(() => controller.abort(), 8000); // 8s timeout
+      try {
+        const result = await fetchFromGithub(query);
+        clearTimeout(id);
+        return result;
+      } catch (e) {
+        clearTimeout(id);
+        throw e;
+      }
+    };
+
+    const ownedResult = await fetchWithTimeout(ownedReposQuery);
     if (!ownedResult.data?.user) throw new Error("User not found");
 
     const userData = { ...ownedResult.data.user };
 
     if (includeContribs) {
       try {
-        const contribResult = await fetchFromGithub(contribReposQuery);
+        const contribResult = await fetchWithTimeout(contribReposQuery);
         if (contribResult.data?.user?.repositoriesContributedTo) {
           userData.repositoriesContributedTo = contribResult.data.user.repositoriesContributedTo;
         }
       } catch (e) {
-        console.warn("Failed to fetch contributions, falling back to owned repos only", e);
+        console.warn("Contribution fetch timed out or failed, using owned repos only.");
       }
     }
 
@@ -100,6 +116,9 @@ export function aggregateLanguages(userData: any) {
   const languageMap: Record<string, { size: number; color: string }> = {};
 
   const processRepo = (repo: any) => {
+    // Strict secondary check: Skip if repo is private
+    if (repo.isPrivate) return;
+    
     if (!repo.languages || !repo.languages.edges) return;
     repo.languages.edges.forEach((edge: any) => {
       const { name, color } = edge.node;
@@ -112,8 +131,11 @@ export function aggregateLanguages(userData: any) {
     });
   };
 
-  userData.repositories.nodes.forEach(processRepo);
-  if (userData.repositoriesContributedTo) {
+  if (userData.repositories?.nodes) {
+    userData.repositories.nodes.forEach(processRepo);
+  }
+  
+  if (userData.repositoriesContributedTo?.nodes) {
     userData.repositoriesContributedTo.nodes.forEach(processRepo);
   }
 
