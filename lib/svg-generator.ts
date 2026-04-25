@@ -197,46 +197,80 @@ function generatePieLayout(data: any[], radius: number, speed: number, options: 
   const centerY = 175;
   const holeSize = (options.donutHoleSize ?? 60) / 100;
   const r = 75;
-  const strokeWidth = Math.max(1, r * (1 - holeSize) * 2);
-  const actualRadius = Math.max(0.5, r - strokeWidth / 2);
-  const circumference = 2 * Math.PI * actualRadius;
-  const startAngle = options.startAngle || 0;
+  const innerR = r * holeSize;
+  const startAngleOffset = options.startAngle || 0;
   
-  let currentOffset = 0;
+  let currentAngle = -90 + startAngleOffset;
   let chart = "";
   let legend = "";
 
+  // Helper for arc paths
+  const describeArc = (x: number, y: number, radius: number, startAngle: number, endAngle: number) => {
+    const start = polarToCartesian(x, y, radius, endAngle);
+    const end = polarToCartesian(x, y, radius, startAngle);
+    const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
+    return `M ${start.x} ${start.y} A ${radius} ${radius} 0 ${largeArcFlag} 0 ${end.x} ${end.y}`;
+  };
+
+  const polarToCartesian = (centerX: number, centerY: number, radius: number, angleInDegrees: number) => {
+    const angleInRadians = (angleInDegrees * Math.PI) / 180.0;
+    return {
+      x: centerX + radius * Math.cos(angleInRadians),
+      y: centerY + radius * Math.sin(angleInRadians),
+    };
+  };
+
   data.forEach((lang, i) => {
-    const sliceLength = (lang.percentage / 100) * circumference;
-    const rotation = (currentOffset / circumference) * 360 - 90 + startAngle;
+    const sliceAngle = (lang.percentage / 100) * 360;
+    const endAngle = currentAngle + sliceAngle;
     const glowAttr = options.showGlow ? 'filter="url(#glow)"' : '';
     const safeId = lang.name.toLowerCase().replace(/[^a-z0-9]/g, '-');
     
+    // Path for the donut segment
+    const x1 = centerX + innerR * Math.cos((currentAngle * Math.PI) / 180);
+    const y1 = centerY + innerR * Math.sin((currentAngle * Math.PI) / 180);
+    const x2 = centerX + r * Math.cos((currentAngle * Math.PI) / 180);
+    const y2 = centerY + r * Math.sin((currentAngle * Math.PI) / 180);
+    const x3 = centerX + r * Math.cos((endAngle * Math.PI) / 180);
+    const y3 = centerY + r * Math.sin((endAngle * Math.PI) / 180);
+    const x4 = centerX + innerR * Math.cos((endAngle * Math.PI) / 180);
+    const y4 = centerY + innerR * Math.sin((endAngle * Math.PI) / 180);
+
+    const largeArcFlag = sliceAngle <= 180 ? "0" : "1";
+    
+    const d = `
+      M ${x1} ${y1}
+      L ${x2} ${y2}
+      A ${r} ${r} 0 ${largeArcFlag} 1 ${x3} ${y3}
+      L ${x4} ${y4}
+      A ${innerR} ${innerR} 0 ${largeArcFlag} 0 ${x1} ${y1}
+      Z
+    `;
+
     // Label positioning
     let lx = centerX;
     let ly = centerY;
     let anchor = "middle";
 
     if (options.pieLabelPosition === 'floating') {
-      const midAngle = (rotation + (sliceLength / circumference) * 180) * (Math.PI / 180);
-      const labelRadius = actualRadius + strokeWidth / 2 + 20;
-      lx = centerX + Math.cos(midAngle) * labelRadius;
-      ly = centerY + Math.sin(midAngle) * labelRadius;
+      const midAngle = currentAngle + sliceAngle / 2;
+      const labelRadius = r + 25;
+      lx = centerX + Math.cos((midAngle * Math.PI) / 180) * labelRadius;
+      ly = centerY + Math.sin((midAngle * Math.PI) / 180) * labelRadius;
       anchor = lx > centerX ? "start" : "end";
     }
 
     chart += `
       <g class="segment-group" id="group-${safeId}" color="${lang.color}">
-        <circle class="segment" cx="${centerX}" cy="${centerY}" r="${actualRadius}" fill="transparent" stroke="${lang.color}" 
-          stroke-width="${strokeWidth}" stroke-dasharray="${sliceLength} ${circumference}" 
-          transform="rotate(${rotation} ${centerX} ${centerY})" ${glowAttr} 
-          stroke-linecap="${radius > 0 ? 'round' : 'butt'}"
-          style="--dash-offset: ${sliceLength}; animation: growPie ${1 / speed}s ease forwards; animation-delay: ${i * 0.1 / speed}s" stroke-dashoffset="${sliceLength}"/>
+        <path class="segment" d="${d}" fill="${lang.color}" ${glowAttr} 
+          style="opacity: 0; animation: fadeIn ${0.5 / speed}s ease forwards; animation-delay: ${i * 0.1 / speed}s">
+          <title>${lang.name}: ${lang.percentage.toFixed(1)}%</title>
+        </path>
         
         ${options.pieShowHoverLabels ? `
           <g class="hover-label" pointer-events="none">
-            <text x="${lx}" y="${ly - 5}" fill="${lang.color}" text-anchor="${anchor}" font-weight="700" font-size="14" font-family="'Segoe UI', Ubuntu, Sans-Serif">${lang.name}</text>
-            <text x="${lx}" y="${ly + 12}" fill="${lang.color}" text-anchor="${anchor}" font-size="11" font-family="'Segoe UI', Ubuntu, Sans-Serif" opacity="0.8">${lang.percentage.toFixed(1)}%</text>
+            <text x="${lx}" y="${ly - 5}" fill="${lang.color}" text-anchor="${anchor}" font-weight="800" font-size="16" font-family="'Segoe UI', Ubuntu, Sans-Serif">${lang.name}</text>
+            <text x="${lx}" y="${ly + 12}" fill="${lang.color}" text-anchor="${anchor}" font-weight="600" font-size="12" font-family="'Segoe UI', Ubuntu, Sans-Serif" opacity="0.8">${lang.percentage.toFixed(1)}%</text>
           </g>
         ` : ""}
       </g>`;
@@ -246,16 +280,16 @@ function generatePieLayout(data: any[], radius: number, speed: number, options: 
       legend += `
         <g class="animate" id="legend-${safeId}" style="animation-delay: ${0.5 + i * 0.1 / speed}s">
           <circle cx="280" cy="${legendY - 4}" r="6" fill="${lang.color}" ${glowAttr}/>
-          <text x="300" y="${legendY}" class="lang-name">${lang.name} <tspan class="percentage">${lang.percentage.toFixed(1)}%</tspan></text>
+          <text x="300" y="${legendY}" class="lang-name" font-weight="500">${lang.name} <tspan class="percentage" font-weight="400">${lang.percentage.toFixed(1)}%</tspan></text>
         </g>`;
     }
-    currentOffset += sliceLength;
+    currentAngle = endAngle;
   });
 
   const defaultHole = options.pieShowHoverLabels && options.pieLabelPosition === 'inside' ? `
     <g class="default-hole-text" pointer-events="none">
-      <text x="${centerX}" y="${centerY - 5}" fill="#888" text-anchor="middle" font-weight="600" font-size="10" opacity="0.5">TOP</text>
-      <text x="${centerX}" y="${centerY + 10}" fill="#888" text-anchor="middle" font-weight="700" font-size="12" opacity="0.8">LANGS</text>
+      <text x="${centerX}" y="${centerY - 5}" fill="#888" text-anchor="middle" font-weight="600" font-size="10" opacity="0.4">TOP</text>
+      <text x="${centerX}" y="${centerY + 10}" fill="#888" text-anchor="middle" font-weight="800" font-size="13" opacity="0.7">LANGUAGES</text>
     </g>
   ` : "";
 
