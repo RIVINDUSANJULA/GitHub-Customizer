@@ -4,6 +4,14 @@ import { useBuilderStore } from "@/store/useBuilderStore";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 
+function getSlug(name: string) {
+  return name
+    .toLowerCase()
+    .replace(/\+/g, 'plus')
+    .replace(/\./g, 'dot')
+    .replace(/[^a-z0-9]/g, '');
+}
+
 export function SkillBadgeGrid() {
   const store = useBuilderStore();
   const { 
@@ -13,10 +21,11 @@ export function SkillBadgeGrid() {
     hiddenSkills, 
     badgesConfig,
     analyticsConfig,
-    customIconColor
+    customIconColor,
+    customTextColor
   } = store;
 
-  const { badgeColorMode, badgeSize, elementRadius, useOfficialColors } = badgesConfig;
+  const { badgeColorMode, badgeSize, elementRadius, useOfficialColors, badgeStyle } = badgesConfig;
   const { showGlow } = analyticsConfig;
 
   const visibleAutoLangs = autoLanguages.filter(l => !hiddenLanguages.includes(l.name));
@@ -43,6 +52,10 @@ export function SkillBadgeGrid() {
           const color = customIconColor;
           const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
           
+          const imgSrc = badgeStyle === 'shields' 
+            ? `https://img.shields.io/badge/${encodeURIComponent(skill.name)}-%23${useOfficialColors ? '20232a' : customIconColor}.svg?style=for-the-badge&logo=${getSlug(skill.name)}&logoColor=${useOfficialColors ? 'white' : customTextColor}`
+            : `${baseUrl}/api/badge?name=${encodeURIComponent(skill.name)}&color=${color}&size=${badgeSize}&radius=${elementRadius}&useOfficialColor=${useOfficialColors}&showGlow=${showGlow}`;
+
           return (
             <motion.div
               key={skill.name}
@@ -53,13 +66,14 @@ export function SkillBadgeGrid() {
               transition={{ type: "spring", stiffness: 500, damping: 30 }}
             >
               <img 
-                src={`${baseUrl}/api/badge?name=${encodeURIComponent(skill.name)}&color=${color}&size=${badgeSize}&radius=${elementRadius}&useOfficialColor=${useOfficialColors}&showGlow=${showGlow}`} 
+                src={imgSrc} 
                 alt={skill.name}
+                loading="lazy"
                 className={cn(
                   "shadow-sm hover:shadow-md transition-shadow duration-200 cursor-default",
-                  badgeSize === 'sm' ? "h-[26px]" : "h-[32px]"
+                  badgeStyle === 'shields' ? "h-7" : (badgeSize === 'sm' ? "h-[26px]" : "h-[32px]")
                 )}
-                style={{ borderRadius: `${elementRadius}px` }}
+                style={{ borderRadius: badgeStyle === 'shields' ? '0px' : `${elementRadius}px` }}
               />
             </motion.div>
           );

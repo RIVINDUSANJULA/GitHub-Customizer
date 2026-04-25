@@ -8,6 +8,14 @@ export interface MarkdownResult {
   full: string;
 }
 
+function getSlug(name: string) {
+  return name
+    .toLowerCase()
+    .replace(/\+/g, 'plus')
+    .replace(/\./g, 'dot')
+    .replace(/[^a-z0-9]/g, '');
+}
+
 export function generateMarkdown(state: BuilderState): MarkdownResult {
   const empty = { header: '', customLanguages: '', widgets: '', footer: '', full: '' };
   if (!state.username) {
@@ -60,9 +68,23 @@ export function generateMarkdown(state: BuilderState): MarkdownResult {
 
     if (id === 'badges' && showBadges) {
       widgets += `<div align="center">\n`;
-      manualSkills.filter(s => !hiddenSkills.includes(s)).forEach(skill => {
-        const color = badgesConfig.badgeColorMode === 'brand' ? '' : `&color=${customIconColor}`;
-        widgets += `  <img src="${baseUrl}/api/badge?name=${encodeURIComponent(skill)}${color}&size=${badgesConfig.badgeSize}&radius=${badgesConfig.elementRadius}&useOfficialColor=${badgesConfig.useOfficialColors}&showGlow=${analyticsConfig.showGlow}" alt="${skill}" />\n`;
+      const allSkills = [
+        ...state.autoLanguages.filter(l => !hiddenLanguages.includes(l.name)).map(l => l.name),
+        ...manualSkills.filter(s => !hiddenSkills.includes(s))
+      ];
+
+      allSkills.forEach(skill => {
+        if (badgesConfig.badgeStyle === 'shields') {
+          const slug = getSlug(skill);
+          // Shields.io URL: https://img.shields.io/badge/[Label]-[HexColor]?style=for-the-badge&logo=[LogoName]&logoColor=white
+          // We use %23 for # in the color
+          const color = badgesConfig.useOfficialColors ? '20232a' : customIconColor; // Default to dark for shields if not official
+          const logoColor = badgesConfig.useOfficialColors ? 'white' : customTextColor;
+          widgets += `  <img src="https://img.shields.io/badge/${encodeURIComponent(skill)}-%23${color}.svg?style=for-the-badge&logo=${slug}&logoColor=${logoColor}" alt="${skill}" loading="lazy" />\n`;
+        } else {
+          const color = badgesConfig.badgeColorMode === 'brand' ? '' : `&color=${customIconColor}`;
+          widgets += `  <img src="${baseUrl}/api/badge?name=${encodeURIComponent(skill)}${color}&size=${badgesConfig.badgeSize}&radius=${badgesConfig.elementRadius}&useOfficialColor=${badgesConfig.useOfficialColors}&showGlow=${analyticsConfig.showGlow}" alt="${skill}" loading="lazy" />\n`;
+        }
       });
       widgets += `</div>\n\n`;
     }

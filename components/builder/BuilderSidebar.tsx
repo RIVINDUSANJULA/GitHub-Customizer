@@ -341,6 +341,34 @@ export function BuilderSidebar() {
                       </div>
                     </div>
 
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2.5">Badge Aesthetic</label>
+                      <div className="flex gap-2 p-1 bg-slate-100 dark:bg-zinc-900 rounded-xl">
+                        <button 
+                          onClick={() => store.setBadgesOption('badgeStyle', 'premium')}
+                          className={cn(
+                            "flex-1 py-2 text-[10px] font-black rounded-lg transition-all uppercase tracking-tighter",
+                            store.badgesConfig.badgeStyle === 'premium' 
+                              ? "bg-white dark:bg-zinc-800 text-indigo-600 dark:text-indigo-400 shadow-sm" 
+                              : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+                          )}
+                        >
+                          Premium
+                        </button>
+                        <button 
+                          onClick={() => store.setBadgesOption('badgeStyle', 'shields')}
+                          className={cn(
+                            "flex-1 py-2 text-[10px] font-black rounded-lg transition-all uppercase tracking-tighter",
+                            store.badgesConfig.badgeStyle === 'shields' 
+                              ? "bg-white dark:bg-zinc-800 text-indigo-600 dark:text-indigo-400 shadow-sm" 
+                              : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+                          )}
+                        >
+                          Shields.io
+                        </button>
+                      </div>
+                    </div>
+
                     <label className="flex items-center justify-between cursor-pointer group pt-2">
                       <div className="flex flex-col">
                         <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Official Brand Colors</span>
@@ -358,9 +386,9 @@ export function BuilderSidebar() {
                       </div>
                     </label>
 
-                    {/* Radius for Badges (Independent) */}
-                    <div className="pt-2 space-y-3">
-                       <div className="space-y-1.5">
+                    {store.badgesConfig.badgeStyle === 'premium' && (
+                      <div className="space-y-4 pt-2">
+                        <div className="space-y-1.5">
                           <label className="text-[10px] font-bold text-slate-400">BADGE ROUNDNESS: {store.badgesConfig.elementRadius}PX</label>
                           <input
                             type="range"
@@ -372,7 +400,8 @@ export function BuilderSidebar() {
                             className="w-full h-1 bg-slate-200 dark:bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-emerald-500"
                           />
                         </div>
-                    </div>
+                      </div>
+                    )}
 
                     <div className="max-h-60 overflow-y-auto pr-2 space-y-3 custom-scrollbar border border-slate-200 dark:border-white/10 rounded-xl p-3 bg-white/50 dark:bg-zinc-950/30">
                       {store.autoLanguages.length > 0 && (
