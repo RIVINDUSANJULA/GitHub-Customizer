@@ -70,7 +70,7 @@ function generateCompactLayout(data: any[], titleColor: string, textColor: strin
   data.forEach((lang, i) => {
     const segmentWidth = (lang.percentage / 100) * barWidth;
     barSegments += `<rect x="${currentX}" y="${barY}" width="${segmentWidth}" height="${barHeight}" fill="${lang.color}" ${i === 0 ? 'rx="5"' : ''} ${i === data.length - 1 ? 'rx="5"' : ''}/>`;
-    
+
     // Legend
     const lx = 25 + (i % 3) * 130;
     const ly = 85 + Math.floor(i / 3) * 20;

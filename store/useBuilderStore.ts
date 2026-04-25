@@ -6,7 +6,6 @@ export type StatTheme = 'default' | 'dark' | 'radical' | 'tokyonight' | 'gruvbox
 export interface BuilderState {
   username: string;
   showStats: boolean;
-  showLanguages: boolean;
   showTopRepos: boolean;
   showCustomLanguages: boolean;
   activeWidgetTab: 'analytics' | 'badges' | 'stats' | 'streak' | 'trophies';
@@ -20,7 +19,7 @@ export interface BuilderState {
   includeContributions: boolean;
   languageLimit: number;
   languageLayout: 'compact' | 'pie' | 'list';
-  
+
   // Customization
   theme: StatTheme;
   customBgColor: string;
@@ -29,10 +28,9 @@ export interface BuilderState {
   customBorderColor: string;
   hideBorder: boolean;
   layout: 'stacked' | 'grid';
-  
+
   // Actions
   setUsername: (username: string) => void;
-  toggleModule: (module: keyof Pick<BuilderState, 'showStats' | 'showLanguages' | 'showStreak' | 'showTrophies' | 'showTopRepos'>) => void;
   setTheme: (theme: StatTheme) => void;
   setCustomColor: (key: keyof Pick<BuilderState, 'customBgColor' | 'customTextColor' | 'customIconColor' | 'customBorderColor'>, color: string) => void;
   setHideBorder: (hide: boolean) => void;
@@ -54,7 +52,6 @@ export const useBuilderStore = create<BuilderState>()(
     (set) => ({
       username: '',
       showStats: true,
-      showLanguages: true,
       showStreak: false,
       showTrophies: false,
       showTopRepos: false,
@@ -70,7 +67,7 @@ export const useBuilderStore = create<BuilderState>()(
       includeContributions: true,
       languageLimit: 5,
       languageLayout: 'compact',
-      
+
       theme: 'default',
       customBgColor: '000000',
       customTextColor: 'ffffff',
@@ -87,11 +84,11 @@ export const useBuilderStore = create<BuilderState>()(
       setLayout: (layout) => set({ layout }),
       setLanguageOption: (key, value) => set({ [key]: value }),
       setLanguageDisplayType: (languageDisplayType) => set({ languageDisplayType }),
-      addManualSkill: (skill) => set((state) => ({ 
-        manualSkills: state.manualSkills.includes(skill) ? state.manualSkills : [...state.manualSkills, skill] 
+      addManualSkill: (skill) => set((state) => ({
+        manualSkills: state.manualSkills.includes(skill) ? state.manualSkills : [...state.manualSkills, skill]
       })),
-      removeManualSkill: (skill) => set((state) => ({ 
-        manualSkills: state.manualSkills.filter(s => s !== skill) 
+      removeManualSkill: (skill) => set((state) => ({
+        manualSkills: state.manualSkills.filter(s => s !== skill)
       })),
       toggleLanguageVisibility: (lang) => set((state) => ({
         hiddenLanguages: state.hiddenLanguages.includes(lang)

@@ -41,7 +41,7 @@ export function BuilderSidebar() {
             </div>
             <ChevronDown className={cn("w-5 h-5 text-slate-500 transition-transform", openSection === 'profile' && "rotate-180")} />
           </button>
-          
+
           {openSection === 'profile' && (
             <div className="p-4 border-t border-slate-200 dark:border-white/10">
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">GitHub Username</label>
@@ -65,7 +65,7 @@ export function BuilderSidebar() {
             </div>
             <ChevronDown className={cn("w-5 h-5 text-slate-500 transition-transform", openSection === 'widgets' && "rotate-180")} />
           </button>
-          
+
           {openSection === 'widgets' && (
             <div className="p-4 border-t border-slate-200 dark:border-white/10 space-y-6">
               {/* Visibility Checklist */}
@@ -74,7 +74,6 @@ export function BuilderSidebar() {
                 <div className="grid grid-cols-2 gap-2">
                   {[
                     { id: 'showStats', label: 'Stats' },
-                    { id: 'showLanguages', label: 'Top Langs' },
                     { id: 'showStreak', label: 'Streak' },
                     { id: 'showTrophies', label: 'Trophies' },
                     { id: 'showCustomLanguages', label: 'Adv. Analytics' },
@@ -112,8 +111,8 @@ export function BuilderSidebar() {
                       }}
                       className={cn(
                         "flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all border",
-                        store.activeWidgetTab === tab.id 
-                          ? "bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 border-indigo-200 dark:border-indigo-500/30 shadow-sm" 
+                        store.activeWidgetTab === tab.id
+                          ? "bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 border-indigo-200 dark:border-indigo-500/30 shadow-sm"
                           : "bg-white dark:bg-zinc-900 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-zinc-800"
                       )}
                     >
@@ -147,10 +146,10 @@ export function BuilderSidebar() {
 
                     <div>
                       <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Display Limit: {store.languageLimit}</label>
-                      <input 
-                        type="range" 
-                        min="3" 
-                        max="12" 
+                      <input
+                        type="range"
+                        min="3"
+                        max="12"
                         step="1"
                         value={store.languageLimit}
                         onChange={(e) => store.setLanguageOption('languageLimit', parseInt(e.target.value))}
@@ -167,8 +166,8 @@ export function BuilderSidebar() {
                             onClick={() => store.setLanguageOption('languageLayout', style)}
                             className={cn(
                               "py-2 text-xs font-medium rounded-lg border transition-all capitalize",
-                              store.languageLayout === style 
-                                ? "bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 border-indigo-200 dark:border-indigo-500/30" 
+                              store.languageLayout === style
+                                ? "bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 border-indigo-200 dark:border-indigo-500/30"
                                 : "bg-white dark:bg-zinc-900 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-white/10"
                             )}
                           >
@@ -187,8 +186,8 @@ export function BuilderSidebar() {
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Add Manual Skill</label>
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         placeholder="React, Figma, Docker..."
                         className="w-full px-3 py-2 text-sm bg-white dark:bg-zinc-950 border border-slate-300 dark:border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                         onKeyDown={(e) => {
@@ -226,8 +225,8 @@ export function BuilderSidebar() {
                           <span className="block text-[10px] uppercase font-bold text-slate-400 mb-2">GitHub Detected</span>
                           {store.autoLanguages.map(lang => (
                             <label key={lang.name} className="flex items-center gap-2 cursor-pointer group py-1">
-                              <input 
-                                type="checkbox" 
+                              <input
+                                type="checkbox"
                                 checked={!store.hiddenLanguages.includes(lang.name)}
                                 onChange={() => store.toggleLanguageVisibility(lang.name)}
                                 className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
@@ -245,8 +244,8 @@ export function BuilderSidebar() {
                       {store.manualSkills.length > 0 ? (
                         store.manualSkills.map(skill => (
                           <label key={skill} className="flex items-center gap-2 cursor-pointer group py-1">
-                            <input 
-                              type="checkbox" 
+                            <input
+                              type="checkbox"
                               checked={!store.hiddenSkills.includes(skill)}
                               onChange={() => store.toggleSkillVisibility(skill)}
                               className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
@@ -271,11 +270,11 @@ export function BuilderSidebar() {
 
               {/* Layout Pattern (Moved here as it relates to widgets) */}
               <div className="pt-4 mt-2 border-t border-slate-200 dark:border-white/10">
-                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Overall Layout Pattern</label>
-                 <div className="flex gap-2">
-                   <button onClick={() => store.setLayout('grid')} className={cn("flex-1 py-2 text-sm font-medium rounded-lg transition-colors border", store.layout === 'grid' ? "bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 border-indigo-200 dark:border-indigo-500/30" : "bg-white dark:bg-zinc-900 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-white/10")}>Grid / Inline</button>
-                   <button onClick={() => store.setLayout('stacked')} className={cn("flex-1 py-2 text-sm font-medium rounded-lg transition-colors border", store.layout === 'stacked' ? "bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 border-indigo-200 dark:border-indigo-500/30" : "bg-white dark:bg-zinc-900 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-white/10")}>Stacked</button>
-                 </div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Overall Layout Pattern</label>
+                <div className="flex gap-2">
+                  <button onClick={() => store.setLayout('grid')} className={cn("flex-1 py-2 text-sm font-medium rounded-lg transition-colors border", store.layout === 'grid' ? "bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 border-indigo-200 dark:border-indigo-500/30" : "bg-white dark:bg-zinc-900 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-white/10")}>Grid / Inline</button>
+                  <button onClick={() => store.setLayout('stacked')} className={cn("flex-1 py-2 text-sm font-medium rounded-lg transition-colors border", store.layout === 'stacked' ? "bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 border-indigo-200 dark:border-indigo-500/30" : "bg-white dark:bg-zinc-900 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-white/10")}>Stacked</button>
+                </div>
               </div>
             </div>
           )}
@@ -290,10 +289,10 @@ export function BuilderSidebar() {
             </div>
             <ChevronDown className={cn("w-5 h-5 text-slate-500 transition-transform", openSection === 'appearance' && "rotate-180")} />
           </button>
-          
+
           {openSection === 'appearance' && (
             <div className="p-4 border-t border-slate-200 dark:border-white/10 space-y-4">
-              
+
               <div>
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Theme Presets</label>
                 <div className="grid grid-cols-2 gap-2">
@@ -303,8 +302,8 @@ export function BuilderSidebar() {
                       onClick={() => store.setTheme(theme.id)}
                       className={cn(
                         "flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-all border",
-                        store.theme === theme.id 
-                          ? "bg-indigo-50 dark:bg-indigo-500/20 border-indigo-200 dark:border-indigo-500/50 text-indigo-700 dark:text-indigo-300 font-medium" 
+                        store.theme === theme.id
+                          ? "bg-indigo-50 dark:bg-indigo-500/20 border-indigo-200 dark:border-indigo-500/50 text-indigo-700 dark:text-indigo-300 font-medium"
                           : "bg-white dark:bg-zinc-900 border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400 hover:border-slate-300 dark:hover:border-white/20"
                       )}
                     >
@@ -327,15 +326,15 @@ export function BuilderSidebar() {
                       <span className="text-sm text-slate-600 dark:text-slate-400">{colorSetting.label}</span>
                       <div className="flex items-center gap-2">
                         <span className="text-xs text-slate-400">#</span>
-                        <input 
-                          type="text" 
+                        <input
+                          type="text"
                           maxLength={6}
                           className="w-16 px-2 py-1 text-sm bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-white/10 rounded uppercase"
                           value={store[colorSetting.id as keyof typeof store] as string}
                           onChange={(e) => store.setCustomColor(colorSetting.id as any, e.target.value)}
                         />
-                        <input 
-                          type="color" 
+                        <input
+                          type="color"
                           className="w-6 h-6 p-0 border-0 rounded cursor-pointer"
                           value={`#${store[colorSetting.id as keyof typeof store]}`}
                           onChange={(e) => store.setCustomColor(colorSetting.id as any, e.target.value)}

@@ -49,9 +49,9 @@ export function generateMarkdown(state: BuilderState): MarkdownResult {
   }
 
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://github-customizer.vercel.app';
-  
+
   const header = `<h1 align="center">Hi there, I'm ${username} 👋</h1>\n\n`;
-  
+
   let customLanguages = '';
   if (showCustomLanguages) {
     if (languageDisplayType === 'analytics') {
@@ -69,9 +69,9 @@ export function generateMarkdown(state: BuilderState): MarkdownResult {
   let widgets = '';
   const displayFlex = layout === 'grid' ? '<div align="center">\n' : '';
   const displayFlexEnd = layout === 'grid' ? '</div>\n' : '';
-  
+
   let widgetsContent = '';
-  
+
   if (showTrophies) {
     widgetsContent += `  <img src="https://github-profile-trophy.vercel.app/?username=${username}&theme=${theme === 'custom' ? 'flat' : theme}&no-frame=false&no-bg=true&margin-w=15" alt="trophies" />\n`;
   }
@@ -82,10 +82,6 @@ export function generateMarkdown(state: BuilderState): MarkdownResult {
 
   if (showStreak) {
     widgetsContent += `${layout === 'stacked' ? '  <br/>\n' : '  '}<img src="https://github-readme-streak-stats.herokuapp.com/?user=${username}${themeParams.replace('bg_color', 'background').replace('title_color', 'stroke').replace('text_color', 'currStreakNum').replace('icon_color', 'fire')}" alt="${username}'s GitHub Streak" />\n`;
-  }
-  
-  if (showLanguages) {
-    widgetsContent += `${layout === 'stacked' ? '  <br/>\n' : '  '}<img src="https://github-readme-stats.vercel.app/api/top-langs/?username=${username}&layout=compact${themeParams}" alt="Top Languages" />\n`;
   }
 
   if (showTopRepos) {
