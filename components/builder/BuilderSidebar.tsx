@@ -101,6 +101,86 @@ export function BuilderSidebar() {
           )}
         </div>
 
+        {/* Language Stats Section */}
+        <div className="rounded-2xl border border-slate-200 dark:border-white/10 overflow-hidden bg-slate-50/50 dark:bg-zinc-900/20">
+          <button onClick={() => toggleSection('languages')} className="w-full flex items-center justify-between p-4 bg-white dark:bg-zinc-900/50 hover:bg-slate-50 dark:hover:bg-zinc-900 transition-colors">
+            <div className="flex items-center gap-3">
+              <Code2 className="w-5 h-5 text-blue-500" />
+              <span className="font-semibold text-slate-900 dark:text-white">Language Analytics</span>
+            </div>
+            <ChevronDown className={cn("w-5 h-5 text-slate-500 transition-transform", openSection === 'languages' && "rotate-180")} />
+          </button>
+          
+          {openSection === 'languages' && (
+            <div className="p-4 border-t border-slate-200 dark:border-white/10 space-y-4">
+              <label className="flex items-center justify-between cursor-pointer group">
+                <span className="text-sm text-slate-700 dark:text-slate-300">Show Advanced Analytics</span>
+                <div className="relative">
+                  <input
+                    type="checkbox"
+                    className="sr-only"
+                    checked={store.showCustomLanguages}
+                    onChange={() => store.toggleModule('showCustomLanguages' as any)}
+                  />
+                  <div className={cn("w-10 h-6 rounded-full transition-colors", store.showCustomLanguages ? "bg-indigo-500" : "bg-slate-300 dark:bg-zinc-700")}></div>
+                  <div className={cn("absolute top-1 bg-white w-4 h-4 rounded-full transition-transform shadow-sm", store.showCustomLanguages ? "translate-x-5" : "translate-x-1")}></div>
+                </div>
+              </label>
+
+              {store.showCustomLanguages && (
+                <div className="space-y-4 pt-2 border-t border-slate-200 dark:border-white/10">
+                  <label className="flex items-center justify-between cursor-pointer group">
+                    <span className="text-sm text-slate-700 dark:text-slate-300">Include Contributions</span>
+                    <div className="relative">
+                      <input
+                        type="checkbox"
+                        className="sr-only"
+                        checked={store.includeContributions}
+                        onChange={() => store.setLanguageOption('includeContributions', !store.includeContributions)}
+                      />
+                      <div className={cn("w-10 h-6 rounded-full transition-colors", store.includeContributions ? "bg-indigo-500" : "bg-slate-300 dark:bg-zinc-700")}></div>
+                      <div className={cn("absolute top-1 bg-white w-4 h-4 rounded-full transition-transform shadow-sm", store.includeContributions ? "translate-x-5" : "translate-x-1")}></div>
+                    </div>
+                  </label>
+
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Display Limit: {store.languageLimit}</label>
+                    <input 
+                      type="range" 
+                      min="3" 
+                      max="12" 
+                      step="1"
+                      value={store.languageLimit}
+                      onChange={(e) => store.setLanguageOption('languageLimit', parseInt(e.target.value))}
+                      className="w-full h-1.5 bg-slate-200 dark:bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Visual Style</label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {(['compact', 'list', 'pie'] as const).map((style) => (
+                        <button
+                          key={style}
+                          onClick={() => store.setLanguageOption('languageLayout', style)}
+                          className={cn(
+                            "py-2 text-xs font-medium rounded-lg border transition-all capitalize",
+                            store.languageLayout === style 
+                              ? "bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 border-indigo-200 dark:border-indigo-500/30" 
+                              : "bg-white dark:bg-zinc-900 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-white/10"
+                          )}
+                        >
+                          {style}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
         {/* Appearance Section */}
         <div className="rounded-2xl border border-slate-200 dark:border-white/10 overflow-hidden bg-slate-50/50 dark:bg-zinc-900/20">
           <button onClick={() => toggleSection('appearance')} className="w-full flex items-center justify-between p-4 bg-white dark:bg-zinc-900/50 hover:bg-slate-50 dark:hover:bg-zinc-900 transition-colors">

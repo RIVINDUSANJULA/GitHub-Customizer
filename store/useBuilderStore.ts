@@ -10,6 +10,10 @@ export interface BuilderState {
   showStreak: boolean;
   showTrophies: boolean;
   showTopRepos: boolean;
+  showCustomLanguages: boolean;
+  includeContributions: boolean;
+  languageLimit: number;
+  languageLayout: 'compact' | 'pie' | 'list';
   
   // Customization
   theme: StatTheme;
@@ -27,6 +31,7 @@ export interface BuilderState {
   setCustomColor: (key: keyof Pick<BuilderState, 'customBgColor' | 'customTextColor' | 'customIconColor' | 'customBorderColor'>, color: string) => void;
   setHideBorder: (hide: boolean) => void;
   setLayout: (layout: 'stacked' | 'grid') => void;
+  setLanguageOption: (key: keyof Pick<BuilderState, 'includeContributions' | 'languageLimit' | 'languageLayout'>, value: any) => void;
 }
 
 export const useBuilderStore = create<BuilderState>()(
@@ -38,6 +43,10 @@ export const useBuilderStore = create<BuilderState>()(
       showStreak: false,
       showTrophies: false,
       showTopRepos: false,
+      showCustomLanguages: false,
+      includeContributions: true,
+      languageLimit: 5,
+      languageLayout: 'compact',
       
       theme: 'default',
       customBgColor: '000000',
@@ -53,6 +62,7 @@ export const useBuilderStore = create<BuilderState>()(
       setCustomColor: (key, color) => set({ [key]: color.replace('#', '') }), // Store without #
       setHideBorder: (hideBorder) => set({ hideBorder }),
       setLayout: (layout) => set({ layout }),
+      setLanguageOption: (key, value) => set({ [key]: value }),
     }),
     {
       name: 'github-customizer-storage',

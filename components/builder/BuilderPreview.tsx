@@ -93,8 +93,25 @@ export function BuilderPreview() {
       </div>
       
       <style dangerouslySetInnerHTML={{__html: `
-        .preview-markdown img { max-width: 100%; height: auto; display: inline-block; margin: 4px; }
-        .preview-markdown div[align="center"] { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+        .preview-markdown img { 
+          max-width: 100%; 
+          height: auto; 
+          display: inline-block; 
+          margin: 4px; 
+          border-radius: 8px;
+          min-height: 50px;
+          background: rgba(0,0,0,0.05);
+          transition: opacity 0.3s ease;
+        }
+        .dark .preview-markdown img {
+          background: rgba(255,255,255,0.05);
+        }
+        .preview-markdown div[align="center"] { 
+          display: flex; 
+          flex-wrap: wrap; 
+          justify-content: center; 
+          gap: 8px; 
+        }
       `}} />
     </div>
   );

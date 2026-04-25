@@ -12,6 +12,10 @@ export function generateMarkdown(state: BuilderState): string {
     showStreak,
     showTrophies,
     showTopRepos,
+    includeContributions,
+    languageLimit,
+    languageLayout,
+    showCustomLanguages,
     theme,
     customBgColor,
     customTextColor,
@@ -39,8 +43,14 @@ export function generateMarkdown(state: BuilderState): string {
     markdown += `<div align="center">\n  <img src="https://github-profile-trophy.vercel.app/?username=${username}&theme=${theme === 'custom' ? 'flat' : theme}&no-frame=false&no-bg=true&margin-w=15" alt="trophies" />\n</div>\n\n`;
   }
 
-  if (showStats || showLanguages || showStreak || showTopRepos) {
+  if (showStats || showLanguages || showStreak || showTopRepos || showCustomLanguages) {
     markdown += displayFlex;
+
+    if (showCustomLanguages) {
+      // Note: In production, replace 'http://localhost:3000' with your actual domain
+      const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://github-customizer.vercel.app';
+      markdown += `  <img src="${baseUrl}/api/github-languages?username=${username}&include_contribs=${includeContributions}&limit=${languageLimit}&layout=${languageLayout}${themeParams}" alt="Detailed Language Analytics" />\n`;
+    }
 
     if (showStats) {
       markdown += `  <img src="https://github-readme-stats.vercel.app/api?username=${username}&show_icons=true${themeParams}" alt="${username}'s GitHub Stats" />\n`;
