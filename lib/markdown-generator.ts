@@ -71,7 +71,7 @@ export function generateMarkdown(state: BuilderState): MarkdownResult {
   // Dynamic Widget Generation based on order
   widgetOrder.forEach((id) => {
     if (id === 'languages' && showCustomLanguages && languageDisplayType === 'analytics') {
-      const advancedParams = `&blockRadius=${blockRadius}&elementRadius=${elementRadius}&showGlow=${showGlow}&animationSpeed=${animationSpeed}&donutHoleSize=${donutHoleSize}&startAngle=${startAngle}&barHeight=${barHeight}&lineThickness=${lineThickness}&cardsPerRow=${cardsPerRow}&shadowDepth=${shadowDepth}&bgType=${bgType}&bgColor2=${bgColor2}&pieShowHoverLabels=${pieShowHoverLabels}&pieLabelPosition=${pieLabelPosition}`;
+      const advancedParams = `&blockRadius=${blockRadius}&elementRadius=${elementRadius}&showGlow=${showGlow}&animationSpeed=${animationSpeed}&donutHoleSize=${donutHoleSize}&startAngle=${startAngle}&barHeight=${barHeight}&lineThickness=${lineThickness}&cardsPerRow=${cardsPerRow}&shadowDepth=${shadowDepth}&bgType=${bgType}&bgColor2=${bgColor2}&pieShowHoverLabels=${pieShowHoverLabels}&pieLabelPosition=${pieLabelPosition}&pieHideLegend=${pieHideLegend}`;
       widgets += `<div align="center">\n  <img src="${baseUrl}/api/github-languages?username=${username}&include_contribs=${includeContributions}&limit=${languageLimit}&layout=${languageLayout}${themeParams}${advancedParams}" alt="Detailed Language Analytics" />\n</div>\n\n`;
     }
 

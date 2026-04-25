@@ -22,6 +22,7 @@ export interface SvgOptions {
   shadowDepth?: number;
   pieShowHoverLabels?: boolean;
   pieLabelPosition?: 'inside' | 'floating';
+  pieHideLegend?: boolean;
 }
 
 const THEMES: Record<string, any> = {
@@ -55,11 +56,15 @@ export function generateLanguageSvg(languages: any[], options: SvgOptions) {
   const width = 450;
   
   let height = 250;
-  if (layout === 'list') height = 75 + data.length * 35;
-  else if (layout === 'pie') height = Math.max(300, 100 + data.length * 35);
-  else if (layout === 'modern-bar') height = 85 + data.length * 40;
-  else if (layout === 'soft-cards') height = 65 + Math.ceil(data.length / (options.cardsPerRow || 2)) * 65;
-  else if (layout === 'compact') height = 110 + Math.ceil(data.length / 3) * 25;
+  if (layout === 'list') height = 85 + data.length * 35;
+  else if (layout === 'pie') {
+    height = options.pieHideLegend 
+      ? 300 
+      : Math.max(300, 110 + data.length * 35);
+  }
+  else if (layout === 'modern-bar') height = 95 + data.length * 40;
+  else if (layout === 'soft-cards') height = 75 + Math.ceil(data.length / (options.cardsPerRow || 2)) * 65;
+  else if (layout === 'compact') height = 120 + Math.ceil(data.length / 3) * 25;
   else if (layout === 'minimalist-line') height = 70;
 
   const hoverStyle = options.pieShowHoverLabels ? `
@@ -139,14 +144,14 @@ function generateCompactLayout(data: any[], radius: number, speed: number, optio
 
   data.forEach((lang, i) => {
     const segmentWidth = (lang.percentage / 100) * availableWidth;
-    const glow = options.showGlow ? 'filter="url(#glow)"' : '';
-    barSegments += `<rect x="${currentX}" y="${barY}" width="${segmentWidth}" height="${barHeight}" fill="${lang.color}" 
+    const safeId = lang.name.toLowerCase().replace(/[^a-z0-9]/g, '-');
+    barSegments += `<rect id="bar-${safeId}" x="${currentX}" y="${barY}" width="${segmentWidth}" height="${barHeight}" fill="${lang.color}" 
       rx="${radius}" ${glow} class="bar-animate" style="animation-delay: ${i * 0.1 / speed}s"/>`;
 
     const lx = 25 + (i % 3) * 135;
     const ly = barY + barHeight + 35 + Math.floor(i / 3) * 25;
     legend += `
-      <g class="animate" style="animation-delay: ${0.5 + i * 0.1 / speed}s">
+      <g class="animate" id="legend-${safeId}" style="animation-delay: ${0.5 + i * 0.1 / speed}s">
         <circle cx="${lx}" cy="${ly - 4}" r="5" fill="${lang.color}" ${glow}/>
         <text x="${lx + 15}" y="${ly}" class="lang-name">${lang.name} <tspan class="percentage">${lang.percentage.toFixed(1)}%</tspan></text>
       </g>`;
@@ -162,8 +167,9 @@ function generateListLayout(data: any[], radius: number, speed: number, options:
     const barMaxWidth = 230;
     const barWidth = (lang.percentage / 100) * barMaxWidth;
     const glow = options.showGlow ? 'filter="url(#glow)"' : '';
+    const safeId = lang.name.toLowerCase().replace(/[^a-z0-9]/g, '-');
     list += `
-      <g class="animate" style="animation-delay: ${i * 0.1 / speed}s">
+      <g class="animate" id="lang-${safeId}" style="animation-delay: ${i * 0.1 / speed}s">
         <text x="25" y="${y}" class="lang-name">${lang.name}</text>
         <rect x="135" y="${y - 12}" width="${barMaxWidth}" height="12" rx="${radius}" fill="#888" fill-opacity="0.1"/>
         <rect x="135" y="${y - 12}" width="${barWidth}" height="12" rx="${radius}" fill="${lang.color}" ${glow} class="bar-animate"/>
@@ -174,7 +180,8 @@ function generateListLayout(data: any[], radius: number, speed: number, options:
 }
 
 function generatePieLayout(data: any[], radius: number, speed: number, options: SvgOptions) {
-  const centerX = 130;
+  const hideLegend = options.pieHideLegend;
+  const centerX = hideLegend ? 225 : 130;
   const centerY = 175;
   const holeSize = (options.donutHoleSize ?? 60) / 100;
   const r = 75;
@@ -191,6 +198,7 @@ function generatePieLayout(data: any[], radius: number, speed: number, options: 
     const sliceLength = (lang.percentage / 100) * circumference;
     const rotation = (currentOffset / circumference) * 360 - 90 + startAngle;
     const glowAttr = options.showGlow ? 'filter="url(#glow)"' : '';
+    const safeId = lang.name.toLowerCase().replace(/[^a-z0-9]/g, '-');
     
     // Label positioning
     let lx = centerX;
@@ -206,7 +214,7 @@ function generatePieLayout(data: any[], radius: number, speed: number, options: 
     }
 
     chart += `
-      <g class="segment-group" color="${lang.color}">
+      <g class="segment-group" id="lang-${safeId}" color="${lang.color}">
         <circle class="segment" cx="${centerX}" cy="${centerY}" r="${actualRadius}" fill="transparent" stroke="${lang.color}" 
           stroke-width="${strokeWidth}" stroke-dasharray="${sliceLength} ${circumference}" 
           transform="rotate(${rotation} ${centerX} ${centerY})" ${glowAttr} 
@@ -221,12 +229,14 @@ function generatePieLayout(data: any[], radius: number, speed: number, options: 
         ` : ""}
       </g>`;
 
-    const legendY = 90 + i * 35;
-    legend += `
-      <g class="animate" style="animation-delay: ${0.5 + i * 0.1 / speed}s">
-        <circle cx="280" cy="${legendY - 4}" r="6" fill="${lang.color}" ${glowAttr}/>
-        <text x="300" y="${legendY}" class="lang-name">${lang.name} <tspan class="percentage">${lang.percentage.toFixed(1)}%</tspan></text>
-      </g>`;
+    if (!hideLegend) {
+      const legendY = 90 + i * 35;
+      legend += `
+        <g class="animate" id="legend-${safeId}" style="animation-delay: ${0.5 + i * 0.1 / speed}s">
+          <circle cx="280" cy="${legendY - 4}" r="6" fill="${lang.color}" ${glowAttr}/>
+          <text x="300" y="${legendY}" class="lang-name">${lang.name} <tspan class="percentage">${lang.percentage.toFixed(1)}%</tspan></text>
+        </g>`;
+    }
     currentOffset += sliceLength;
   });
 
@@ -248,8 +258,9 @@ function generateModernBarLayout(data: any[], radius: number, speed: number, opt
     const barMaxWidth = 400;
     const barWidth = (lang.percentage / 100) * barMaxWidth;
     const glowAttr = options.showGlow ? 'filter="url(#glow)"' : '';
+    const safeId = lang.name.toLowerCase().replace(/[^a-z0-9]/g, '-');
     list += `
-      <g class="animate" style="animation-delay: ${i * 0.1 / speed}s">
+      <g class="animate" id="lang-${safeId}" style="animation-delay: ${i * 0.1 / speed}s">
         <text x="25" y="${y - 15}" class="lang-name">${lang.name} <tspan class="percentage">${lang.percentage.toFixed(1)}%</tspan></text>
         <rect x="25" y="${y - (barHeight/2)}" width="${barMaxWidth}" height="${barHeight}" rx="${radius}" fill="#888" fill-opacity="0.1"/>
         <linearGradient id="grad${i}" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -272,8 +283,9 @@ function generateSoftCardsLayout(data: any[], radius: number, speed: number, opt
     const x = 25 + (i % perRow) * (cardWidth + 10);
     const y = 65 + Math.floor(i / perRow) * 65;
     const glowAttr = options.showGlow ? 'filter="url(#glow)"' : '';
+    const safeId = lang.name.toLowerCase().replace(/[^a-z0-9]/g, '-');
     cards += `
-      <g class="animate" style="animation-delay: ${i * 0.1 / speed}s" ${shadowAttr}>
+      <g class="animate" id="lang-${safeId}" style="animation-delay: ${i * 0.1 / speed}s" ${shadowAttr}>
         <rect x="${x}" y="${y}" width="${cardWidth}" height="55" rx="${radius}" fill="#ffffff" fill-opacity="0.05" stroke="#ffffff" stroke-opacity="0.1"/>
         <circle cx="${x + 20}" cy="${y + 22}" r="6" fill="${lang.color}" ${glowAttr}/>
         <text x="${x + 35}" y="${y + 27}" class="lang-name" font-size="12">${lang.name}</text>

@@ -36,6 +36,7 @@ export interface BuilderState {
   widgetOrder: string[];
   pieShowHoverLabels: boolean;
   pieLabelPosition: 'inside' | 'floating';
+  pieHideLegend: boolean;
 
   // Customization
   theme: StatTheme;
@@ -52,7 +53,7 @@ export interface BuilderState {
   setCustomColor: (key: keyof Pick<BuilderState, 'customBgColor' | 'customTextColor' | 'customIconColor' | 'customBorderColor'>, color: string) => void;
   setHideBorder: (hide: boolean) => void;
   setLayout: (layout: 'stacked' | 'grid') => void;
-  setLanguageOption: (key: 'includeContributions' | 'languageLimit' | 'languageLayout' | 'blockRadius' | 'elementRadius' | 'showGlow' | 'animationSpeed' | 'donutHoleSize' | 'startAngle' | 'barHeight' | 'lineThickness' | 'cardsPerRow' | 'shadowDepth' | 'bgType' | 'bgColor2' | 'pieShowHoverLabels' | 'pieLabelPosition', value: any) => void;
+  setLanguageOption: (key: 'includeContributions' | 'languageLimit' | 'languageLayout' | 'blockRadius' | 'elementRadius' | 'showGlow' | 'animationSpeed' | 'donutHoleSize' | 'startAngle' | 'barHeight' | 'lineThickness' | 'cardsPerRow' | 'shadowDepth' | 'bgType' | 'bgColor2' | 'pieShowHoverLabels' | 'pieLabelPosition' | 'pieHideLegend', value: any) => void;
   setWidgetOrder: (order: string[]) => void;
   setLanguageDisplayType: (type: 'analytics' | 'badges') => void;
   addManualSkill: (skill: string) => void;
@@ -101,6 +102,7 @@ export const useBuilderStore = create<BuilderState>()(
       widgetOrder: ['stats', 'streak', 'trophies', 'languages', 'badges'],
       pieShowHoverLabels: true,
       pieLabelPosition: 'inside',
+      pieHideLegend: false,
 
       theme: 'default',
       customBgColor: '000000',

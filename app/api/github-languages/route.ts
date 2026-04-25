@@ -44,6 +44,7 @@ export async function GET(req: NextRequest) {
     shadowDepth: searchParams.get("shadowDepth") ? parseInt(searchParams.get("shadowDepth")!) : undefined,
     pieShowHoverLabels: searchParams.get("pieShowHoverLabels") === "true",
     pieLabelPosition: (searchParams.get("pieLabelPosition") as any) || 'inside',
+    pieHideLegend: searchParams.get("pieHideLegend") === "true",
     bg_type: (searchParams.get("bgType") as any) || 'solid',
     bg_color_2: searchParams.get("bgColor2") || undefined,
   };
