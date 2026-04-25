@@ -108,16 +108,16 @@ function generateCompactLayout(data: any[], radius: number, speed: number, optio
   data.forEach((lang, i) => {
     const segmentWidth = (lang.percentage / 100) * barWidth;
     const glow = options.showGlow ? 'filter="url(#glow)"' : '';
-    barSegments += \`<rect x="\${currentX}" y="\${barY}" width="\${segmentWidth}" height="\${barHeight}" fill="\${lang.color}" 
-      \${i === 0 ? \`rx="\${radius/2}"\` : ""} \${i === data.length - 1 ? \`rx="\${radius/2}"\` : ""} \${glow} class="bar-animate" style="animation-delay: \${i * 0.1 / speed}s"/>\`;
+    barSegments += `<rect x="${currentX}" y="${barY}" width="${segmentWidth}" height="${barHeight}" fill="${lang.color}" 
+      ${i === 0 ? `rx="${radius/2}"` : ""} ${i === data.length - 1 ? `rx="${radius/2}"` : ""} ${glow} class="bar-animate" style="animation-delay: ${i * 0.1 / speed}s"/>`;
 
     const lx = 25 + (i % 3) * 135;
     const ly = barY + barHeight + 35 + Math.floor(i / 3) * 25;
-    legend += \`
-      <g class="animate" style="animation-delay: \${0.5 + i * 0.1 / speed}s">
-        <circle cx="\${lx}" cy="\${ly - 4}" r="5" fill="\${lang.color}" \${glow}/>
-        <text x="\${lx + 15}" y="\${ly}" class="lang-name">\${lang.name} <tspan class="percentage">\${lang.percentage.toFixed(1)}%</tspan></text>
-      </g>\`;
+    legend += `
+      <g class="animate" style="animation-delay: ${0.5 + i * 0.1 / speed}s">
+        <circle cx="${lx}" cy="${ly - 4}" r="5" fill="${lang.color}" ${glow}/>
+        <text x="${lx + 15}" y="${ly}" class="lang-name">${lang.name} <tspan class="percentage">${lang.percentage.toFixed(1)}%</tspan></text>
+      </g>`;
     currentX += segmentWidth;
   });
   return barSegments + legend;
@@ -130,13 +130,13 @@ function generateListLayout(data: any[], radius: number, speed: number, options:
     const barMaxWidth = 230;
     const barWidth = (lang.percentage / 100) * barMaxWidth;
     const glow = options.showGlow ? 'filter="url(#glow)"' : '';
-    list += \`
-      <g class="animate" style="animation-delay: \${i * 0.1 / speed}s">
-        <text x="25" y="\${y}" class="lang-name">\${lang.name}</text>
-        <rect x="135" y="\${y - 12}" width="\${barMaxWidth}" height="12" rx="\${radius/4}" fill="#888" fill-opacity="0.1"/>
-        <rect x="135" y="\${y - 12}" width="\${barWidth}" height="12" rx="\${radius/4}" fill="\${lang.color}" \${glow} class="bar-animate"/>
-        <text x="385" y="\${y}" class="percentage">\${lang.percentage.toFixed(1)}%</text>
-      </g>\`;
+    list += `
+      <g class="animate" style="animation-delay: ${i * 0.1 / speed}s">
+        <text x="25" y="${y}" class="lang-name">${lang.name}</text>
+        <rect x="135" y="${y - 12}" width="${barMaxWidth}" height="12" rx="${radius/4}" fill="#888" fill-opacity="0.1"/>
+        <rect x="135" y="${y - 12}" width="${barWidth}" height="12" rx="${radius/4}" fill="${lang.color}" ${glow} class="bar-animate"/>
+        <text x="385" y="${y}" class="percentage">${lang.percentage.toFixed(1)}%</text>
+      </g>`;
   });
   return list;
 }
@@ -160,16 +160,16 @@ function generatePieLayout(data: any[], radius: number, speed: number, options: 
     const rotation = (currentOffset / circumference) * 360 - 90 + startAngle;
     const glow = options.showGlow ? 'filter="url(#glow)"' : '';
     
-    chart += \`<circle cx="\${centerX}" cy="\${centerY}" r="\${actualRadius}" fill="transparent" stroke="\${lang.color}" stroke-width="\${strokeWidth}" 
-      stroke-dasharray="\${sliceLength} \${circumference}" transform="rotate(\${rotation} \${centerX} \${centerY})" \${glow} 
-      style="--dash-offset: \${sliceLength}; animation: growPie \${1 / speed}s ease forwards; animation-delay: \${i * 0.1 / speed}s" stroke-dashoffset="\${sliceLength}"/>\`;
+    chart += `<circle cx="${centerX}" cy="${centerY}" r="${actualRadius}" fill="transparent" stroke="${lang.color}" stroke-width="${strokeWidth}" 
+      stroke-dasharray="${sliceLength} ${circumference}" transform="rotate(${rotation} ${centerX} ${centerY})" ${glow} 
+      style="--dash-offset: ${sliceLength}; animation: growPie ${1 / speed}s ease forwards; animation-delay: ${i * 0.1 / speed}s" stroke-dashoffset="${sliceLength}"/>`;
 
     const ly = 90 + i * 35;
-    legend += \`
-      <g class="animate" style="animation-delay: \${0.5 + i * 0.1 / speed}s">
-        <circle cx="280" cy="\${ly - 4}" r="6" fill="\${lang.color}" \${glow}/>
-        <text x="300" y="\${ly}" class="lang-name">\${lang.name} <tspan class="percentage">\${lang.percentage.toFixed(1)}%</tspan></text>
-      </g>\`;
+    legend += `
+      <g class="animate" style="animation-delay: ${0.5 + i * 0.1 / speed}s">
+        <circle cx="280" cy="${ly - 4}" r="6" fill="${lang.color}" ${glow}/>
+        <text x="300" y="${ly}" class="lang-name">${lang.name} <tspan class="percentage">${lang.percentage.toFixed(1)}%</tspan></text>
+      </g>`;
     currentOffset += sliceLength;
   });
   return chart + legend;
@@ -183,16 +183,16 @@ function generateModernBarLayout(data: any[], radius: number, speed: number, opt
     const barMaxWidth = 400;
     const barWidth = (lang.percentage / 100) * barMaxWidth;
     const glow = options.showGlow ? 'filter="url(#glow)"' : '';
-    list += \`
-      <g class="animate" style="animation-delay: \${i * 0.1 / speed}s">
-        <text x="25" y="\${y - 15}" class="lang-name">\${lang.name} <tspan class="percentage">\${lang.percentage.toFixed(1)}%</tspan></text>
-        <rect x="25" y="\${y - (barHeight/2)}" width="\${barMaxWidth}" height="\${barHeight}" rx="\${radius/2}" fill="#888" fill-opacity="0.1"/>
-        <linearGradient id="grad\${i}" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" style="stop-color:\${lang.color};stop-opacity:0.8" />
-          <stop offset="100%" style="stop-color:\${lang.color};stop-opacity:1" />
+    list += `
+      <g class="animate" style="animation-delay: ${i * 0.1 / speed}s">
+        <text x="25" y="${y - 15}" class="lang-name">${lang.name} <tspan class="percentage">${lang.percentage.toFixed(1)}%</tspan></text>
+        <rect x="25" y="${y - (barHeight/2)}" width="${barMaxWidth}" height="${barHeight}" rx="${radius/2}" fill="#888" fill-opacity="0.1"/>
+        <linearGradient id="grad${i}" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" style="stop-color:${lang.color};stop-opacity:0.8" />
+          <stop offset="100%" style="stop-color:${lang.color};stop-opacity:1" />
         </linearGradient>
-        <rect x="25" y="\${y - (barHeight/2)}" width="\${barWidth}" height="\${barHeight}" rx="\${radius/2}" fill="url(#grad\${i})" \${glow} class="bar-animate"/>
-      </g>\`;
+        <rect x="25" y="${y - (barHeight/2)}" width="${barWidth}" height="${barHeight}" rx="${radius/2}" fill="url(#grad${i})" ${glow} class="bar-animate"/>
+      </g>`;
   });
   return list;
 }
@@ -206,15 +206,15 @@ function generateSoftCardsLayout(data: any[], radius: number, speed: number, opt
     const x = 25 + (i % perRow) * (cardWidth + 10);
     const y = 65 + Math.floor(i / perRow) * 65;
     const glow = options.showGlow ? 'filter="url(#glow)"' : '';
-    cards += \`
-      <g class="animate" style="animation-delay: \${i * 0.1 / speed}s">
-        <rect x="\${x}" y="\${y}" width="\${cardWidth}" height="55" rx="\${radius/2}" fill="#ffffff" fill-opacity="0.05" stroke="#ffffff" stroke-opacity="0.1"/>
-        <circle cx="\${x + 20}" cy="\${y + 22}" r="6" fill="\${lang.color}" \${glow}/>
-        <text x="\${x + 35}" y="\${y + 27}" class="lang-name" font-size="12">\${lang.name}</text>
-        <text x="\${x + cardWidth - 35}" y="\${y + 27}" class="percentage" font-size="10">\${lang.percentage.toFixed(0)}%</text>
-        <rect x="\${x + 10}" y="\${y + 42}" width="\${cardWidth - 20}" height="4" rx="2" fill="#888" fill-opacity="0.1"/>
-        <rect x="\${x + 10}" y="\${y + 42}" width="\${(lang.percentage / 100) * (cardWidth - 20)}" height="4" rx="2" fill="\${lang.color}" \${glow}/>
-      </g>\`;
+    cards += `
+      <g class="animate" style="animation-delay: ${i * 0.1 / speed}s">
+        <rect x="${x}" y="${y}" width="${cardWidth}" height="55" rx="${radius/2}" fill="#ffffff" fill-opacity="0.05" stroke="#ffffff" stroke-opacity="0.1"/>
+        <circle cx="${x + 20}" cy="${y + 22}" r="6" fill="${lang.color}" ${glow}/>
+        <text x="${x + 35}" y="${y + 27}" class="lang-name" font-size="12">${lang.name}</text>
+        <text x="${x + cardWidth - 35}" y="${y + 27}" class="percentage" font-size="10">${lang.percentage.toFixed(0)}%</text>
+        <rect x="${x + 10}" y="${y + 42}" width="${cardWidth - 20}" height="4" rx="2" fill="#888" fill-opacity="0.1"/>
+        <rect x="${x + 10}" y="${y + 42}" width="${(lang.percentage / 100) * (cardWidth - 20)}" height="4" rx="2" fill="${lang.color}" ${glow}/>
+      </g>`;
   });
   return cards;
 }
@@ -228,7 +228,7 @@ function generateMinimalistLineLayout(data: any[], speed: number) {
 
   data.forEach((lang, i) => {
     const segmentWidth = (lang.percentage / 100) * barWidth;
-    barSegments += \`<rect x="\${currentX}" y="\${barY}" width="\${segmentWidth}" height="\${barHeight}" fill="\${lang.color}" class="bar-animate" style="animation-delay: \${i * 0.1 / speed}s"/>\`;
+    barSegments += `<rect x="${currentX}" y="${barY}" width="${segmentWidth}" height="${barHeight}" fill="${lang.color}" class="bar-animate" style="animation-delay: ${i * 0.1 / speed}s"/>`;
     currentX += segmentWidth;
   });
   return barSegments;
@@ -238,9 +238,9 @@ function createEmptyStateSvg(options: SvgOptions) {
   const theme = THEMES[options.theme || 'default'] || THEMES.default;
   const bg = options.bg_color || theme.bg;
   const radius = options.borderRadius ?? 20;
-  return \`
+  return `
     <svg width="450" height="150" viewBox="0 0 450 150" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect width="450" height="150" rx="\${radius}" fill="#\${bg}" />
+      <rect width="450" height="150" rx="${radius}" fill="#${bg}" />
       <text x="50%" y="50%" text-anchor="middle" font-family="Segoe UI" font-size="16" fill="#888">No language data found yet. Start coding!</text>
-    </svg>\`;
+    </svg>`;
 }
