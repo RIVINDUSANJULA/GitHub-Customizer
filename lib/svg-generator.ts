@@ -121,15 +121,19 @@ function generateCompactLayout(data: any[], radius: number, speed: number, optio
   const barWidth = 400;
   const barHeight = options.barHeight || 18;
   const barY = 55;
+  const gap = radius > 0 ? 2 : 0;
+  const totalGaps = (data.length - 1) * gap;
+  const availableWidth = barWidth - totalGaps;
+  
   let currentX = 25;
   let barSegments = "";
   let legend = "";
 
   data.forEach((lang, i) => {
-    const segmentWidth = (lang.percentage / 100) * barWidth;
+    const segmentWidth = (lang.percentage / 100) * availableWidth;
     const glow = options.showGlow ? 'filter="url(#glow)"' : '';
     barSegments += `<rect x="${currentX}" y="${barY}" width="${segmentWidth}" height="${barHeight}" fill="${lang.color}" 
-      ${i === 0 ? `rx="${radius}"` : ""} ${i === data.length - 1 ? `rx="${radius}"` : ""} ${glow} class="bar-animate" style="animation-delay: ${i * 0.1 / speed}s"/>`;
+      rx="${radius}" ${glow} class="bar-animate" style="animation-delay: ${i * 0.1 / speed}s"/>`;
 
     const lx = 25 + (i % 3) * 135;
     const ly = barY + barHeight + 35 + Math.floor(i / 3) * 25;
@@ -138,7 +142,7 @@ function generateCompactLayout(data: any[], radius: number, speed: number, optio
         <circle cx="${lx}" cy="${ly - 4}" r="5" fill="${lang.color}" ${glow}/>
         <text x="${lx + 15}" y="${ly}" class="lang-name">${lang.name} <tspan class="percentage">${lang.percentage.toFixed(1)}%</tspan></text>
       </g>`;
-    currentX += segmentWidth;
+    currentX += segmentWidth + gap;
   });
   return barSegments + legend;
 }
@@ -180,7 +184,6 @@ function generatePieLayout(data: any[], radius: number, speed: number, options: 
     const rotation = (currentOffset / circumference) * 360 - 90 + startAngle;
     const glow = options.showGlow ? 'filter="url(#glow)"' : '';
     
-    // Using stroke-linecap: round for the rounded caps
     chart += `<circle cx="${centerX}" cy="${centerY}" r="${actualRadius}" fill="transparent" stroke="${lang.color}" 
       stroke-width="${strokeWidth}" stroke-dasharray="${sliceLength} ${circumference}" 
       transform="rotate(${rotation} ${centerX} ${centerY})" ${glow} 
@@ -247,13 +250,17 @@ function generateMinimalistLineLayout(data: any[], speed: number, radius: number
   const barWidth = 400;
   const barHeight = 6;
   const barY = 35;
+  const gap = radius > 0 ? 2 : 0;
+  const totalGaps = (data.length - 1) * gap;
+  const availableWidth = barWidth - totalGaps;
+  
   let currentX = 25;
   let barSegments = "";
 
   data.forEach((lang, i) => {
-    const segmentWidth = (lang.percentage / 100) * barWidth;
+    const segmentWidth = (lang.percentage / 100) * availableWidth;
     barSegments += `<rect x="${currentX}" y="${barY}" width="${segmentWidth}" height="${barHeight}" fill="${lang.color}" rx="${radius}" class="bar-animate" style="animation-delay: ${i * 0.1 / speed}s"/>`;
-    currentX += segmentWidth;
+    currentX += segmentWidth + gap;
   });
   return barSegments;
 }
