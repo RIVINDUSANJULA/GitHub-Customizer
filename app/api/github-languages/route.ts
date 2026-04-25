@@ -39,6 +39,7 @@ export async function GET(req: NextRequest) {
     donutHoleSize: searchParams.get("donutHoleSize") ? parseInt(searchParams.get("donutHoleSize")!) : undefined,
     startAngle: searchParams.get("startAngle") ? parseInt(searchParams.get("startAngle")!) : undefined,
     barHeight: searchParams.get("barHeight") ? parseInt(searchParams.get("barHeight")!) : undefined,
+    lineThickness: searchParams.get("lineThickness") ? parseInt(searchParams.get("lineThickness")!) : undefined,
     cardsPerRow: searchParams.get("cardsPerRow") ? parseInt(searchParams.get("cardsPerRow")!) : undefined,
     shadowDepth: searchParams.get("shadowDepth") ? parseInt(searchParams.get("shadowDepth")!) : undefined,
     bg_type: (searchParams.get("bgType") as any) || 'solid',

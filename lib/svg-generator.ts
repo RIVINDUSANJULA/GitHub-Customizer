@@ -17,6 +17,7 @@ export interface SvgOptions {
   donutHoleSize?: number;
   startAngle?: number;
   barHeight?: number;
+  lineThickness?: number;
   cardsPerRow?: number;
   shadowDepth?: number;
 }
@@ -170,8 +171,8 @@ function generatePieLayout(data: any[], radius: number, speed: number, options: 
   const centerY = 175;
   const holeSize = (options.donutHoleSize ?? 60) / 100;
   const r = 75;
-  const strokeWidth = r * (1 - holeSize) * 2;
-  const actualRadius = r - strokeWidth / 2;
+  const strokeWidth = Math.max(1, r * (1 - holeSize) * 2);
+  const actualRadius = Math.max(0.5, r - strokeWidth / 2);
   const circumference = 2 * Math.PI * actualRadius;
   const startAngle = options.startAngle || 0;
   
@@ -182,18 +183,18 @@ function generatePieLayout(data: any[], radius: number, speed: number, options: 
   data.forEach((lang, i) => {
     const sliceLength = (lang.percentage / 100) * circumference;
     const rotation = (currentOffset / circumference) * 360 - 90 + startAngle;
-    const glow = options.showGlow ? 'filter="url(#glow)"' : '';
+    const glowAttr = options.showGlow ? 'filter="url(#glow)"' : '';
     
     chart += `<circle cx="${centerX}" cy="${centerY}" r="${actualRadius}" fill="transparent" stroke="${lang.color}" 
       stroke-width="${strokeWidth}" stroke-dasharray="${sliceLength} ${circumference}" 
-      transform="rotate(${rotation} ${centerX} ${centerY})" ${glow} 
+      transform="rotate(${rotation} ${centerX} ${centerY})" ${glowAttr} 
       stroke-linecap="${radius > 0 ? 'round' : 'butt'}"
       style="--dash-offset: ${sliceLength}; animation: growPie ${1 / speed}s ease forwards; animation-delay: ${i * 0.1 / speed}s" stroke-dashoffset="${sliceLength}"/>`;
 
     const ly = 90 + i * 35;
     legend += `
       <g class="animate" style="animation-delay: ${0.5 + i * 0.1 / speed}s">
-        <circle cx="280" cy="${ly - 4}" r="6" fill="${lang.color}" ${glow}/>
+        <circle cx="280" cy="${ly - 4}" r="6" fill="${lang.color}" ${glowAttr}/>
         <text x="300" y="${ly}" class="lang-name">${lang.name} <tspan class="percentage">${lang.percentage.toFixed(1)}%</tspan></text>
       </g>`;
     currentOffset += sliceLength;
@@ -208,7 +209,7 @@ function generateModernBarLayout(data: any[], radius: number, speed: number, opt
     const y = 85 + i * 40;
     const barMaxWidth = 400;
     const barWidth = (lang.percentage / 100) * barMaxWidth;
-    const glow = options.showGlow ? 'filter="url(#glow)"' : '';
+    const glowAttr = options.showGlow ? 'filter="url(#glow)"' : '';
     list += `
       <g class="animate" style="animation-delay: ${i * 0.1 / speed}s">
         <text x="25" y="${y - 15}" class="lang-name">${lang.name} <tspan class="percentage">${lang.percentage.toFixed(1)}%</tspan></text>
@@ -217,7 +218,7 @@ function generateModernBarLayout(data: any[], radius: number, speed: number, opt
           <stop offset="0%" style="stop-color:${lang.color};stop-opacity:0.8" />
           <stop offset="100%" style="stop-color:${lang.color};stop-opacity:1" />
         </linearGradient>
-        <rect x="25" y="${y - (barHeight/2)}" width="${barWidth}" height="${barHeight}" rx="${radius}" fill="url(#grad${i})" ${glow} class="bar-animate"/>
+        <rect x="25" y="${y - (barHeight/2)}" width="${barWidth}" height="${barHeight}" rx="${radius}" fill="url(#grad${i})" ${glowAttr} class="bar-animate"/>
       </g>`;
   });
   return list;
@@ -227,39 +228,40 @@ function generateSoftCardsLayout(data: any[], radius: number, speed: number, opt
   let cards = "";
   const perRow = options.cardsPerRow || 2;
   const cardWidth = (400 - (perRow - 1) * 10) / perRow;
-  const shadow = options.shadowDepth && options.shadowDepth > 0 ? 'filter="url(#shadow)"' : '';
+  const shadowAttr = options.shadowDepth && options.shadowDepth > 0 ? 'filter="url(#shadow)"' : '';
   
   data.forEach((lang, i) => {
     const x = 25 + (i % perRow) * (cardWidth + 10);
     const y = 65 + Math.floor(i / perRow) * 65;
-    const glow = options.showGlow ? 'filter="url(#glow)"' : '';
+    const glowAttr = options.showGlow ? 'filter="url(#glow)"' : '';
     cards += `
-      <g class="animate" style="animation-delay: ${i * 0.1 / speed}s" ${shadow}>
+      <g class="animate" style="animation-delay: ${i * 0.1 / speed}s" ${shadowAttr}>
         <rect x="${x}" y="${y}" width="${cardWidth}" height="55" rx="${radius}" fill="#ffffff" fill-opacity="0.05" stroke="#ffffff" stroke-opacity="0.1"/>
-        <circle cx="${x + 20}" cy="${y + 22}" r="6" fill="${lang.color}" ${glow}/>
+        <circle cx="${x + 20}" cy="${y + 22}" r="6" fill="${lang.color}" ${glowAttr}/>
         <text x="${x + 35}" y="${y + 27}" class="lang-name" font-size="12">${lang.name}</text>
         <text x="${x + cardWidth - 35}" y="${y + 27}" class="percentage" font-size="10">${lang.percentage.toFixed(0)}%</text>
         <rect x="${x + 10}" y="${y + 42}" width="${cardWidth - 20}" height="4" rx="2" fill="#888" fill-opacity="0.1"/>
-        <rect x="${x + 10}" y="${y + 42}" width="${(lang.percentage / 100) * (cardWidth - 20)}" height="4" rx="2" fill="${lang.color}" ${glow}/>
+        <rect x="${x + 10}" y="${y + 42}" width="${(lang.percentage / 100) * (cardWidth - 20)}" height="4" rx="2" fill="${lang.color}" ${glowAttr}/>
       </g>`;
   });
   return cards;
 }
 
-function generateMinimalistLineLayout(data: any[], speed: number, radius: number) {
+function generateMinimalistLineLayout(data: any[], speed: number, radius: number, options: SvgOptions) {
   const barWidth = 400;
-  const barHeight = 6;
+  const barHeight = options.lineThickness || 6;
   const barY = 35;
   const gap = radius > 0 ? 2 : 0;
   const totalGaps = (data.length - 1) * gap;
   const availableWidth = barWidth - totalGaps;
+  const glowAttr = options.showGlow ? 'filter="url(#glow)"' : '';
   
   let currentX = 25;
   let barSegments = "";
 
   data.forEach((lang, i) => {
     const segmentWidth = (lang.percentage / 100) * availableWidth;
-    barSegments += `<rect x="${currentX}" y="${barY}" width="${segmentWidth}" height="${barHeight}" fill="${lang.color}" rx="${radius}" class="bar-animate" style="animation-delay: ${i * 0.1 / speed}s"/>`;
+    barSegments += `<rect x="${currentX}" y="${barY}" width="${segmentWidth}" height="${barHeight}" fill="${lang.color}" rx="${radius}" ${glowAttr} class="bar-animate" style="animation-delay: ${i * 0.1 / speed}s"/>`;
     currentX += segmentWidth + gap;
   });
   return barSegments;

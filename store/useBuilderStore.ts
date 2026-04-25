@@ -28,10 +28,12 @@ export interface BuilderState {
   donutHoleSize: number;
   startAngle: number;
   barHeight: number;
+  lineThickness: number;
   cardsPerRow: number;
   shadowDepth: number;
   bgType: 'solid' | 'gradient';
   bgColor2: string;
+  widgetOrder: string[];
 
   // Customization
   theme: StatTheme;
@@ -48,7 +50,8 @@ export interface BuilderState {
   setCustomColor: (key: keyof Pick<BuilderState, 'customBgColor' | 'customTextColor' | 'customIconColor' | 'customBorderColor'>, color: string) => void;
   setHideBorder: (hide: boolean) => void;
   setLayout: (layout: 'stacked' | 'grid') => void;
-  setLanguageOption: (key: 'includeContributions' | 'languageLimit' | 'languageLayout' | 'blockRadius' | 'elementRadius' | 'showGlow' | 'animationSpeed' | 'donutHoleSize' | 'startAngle' | 'barHeight' | 'cardsPerRow' | 'shadowDepth' | 'bgType' | 'bgColor2', value: any) => void;
+  setLanguageOption: (key: 'includeContributions' | 'languageLimit' | 'languageLayout' | 'blockRadius' | 'elementRadius' | 'showGlow' | 'animationSpeed' | 'donutHoleSize' | 'startAngle' | 'barHeight' | 'lineThickness' | 'cardsPerRow' | 'shadowDepth' | 'bgType' | 'bgColor2', value: any) => void;
+  setWidgetOrder: (order: string[]) => void;
   setLanguageDisplayType: (type: 'analytics' | 'badges') => void;
   addManualSkill: (skill: string) => void;
   removeManualSkill: (skill: string) => void;
@@ -88,10 +91,12 @@ export const useBuilderStore = create<BuilderState>()(
       donutHoleSize: 60,
       startAngle: 0,
       barHeight: 18,
+      lineThickness: 6,
       cardsPerRow: 2,
       shadowDepth: 5,
       bgType: 'solid',
       bgColor2: 'f1f5f9',
+      widgetOrder: ['stats', 'streak', 'trophies', 'languages', 'badges'],
 
       theme: 'default',
       customBgColor: '000000',
@@ -109,6 +114,7 @@ export const useBuilderStore = create<BuilderState>()(
         set({ [key]: color.replace('#', '') }), // Store without #
       setHideBorder: (hideBorder: boolean) => set({ hideBorder }),
       setLayout: (layout: 'stacked' | 'grid') => set({ layout }),
+      setWidgetOrder: (widgetOrder: string[]) => set({ widgetOrder }),
       setLanguageOption: (key: keyof Pick<BuilderState, 'includeContributions' | 'languageLimit' | 'languageLayout' | 'borderRadius' | 'showGlow' | 'animationSpeed' | 'donutHoleSize' | 'startAngle' | 'barHeight' | 'cardsPerRow'>, value: any) => 
         set({ [key]: value }),
       setLanguageDisplayType: (languageDisplayType) => set({ languageDisplayType }),

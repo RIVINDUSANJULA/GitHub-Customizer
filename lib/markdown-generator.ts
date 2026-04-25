@@ -44,10 +44,12 @@ export function generateMarkdown(state: BuilderState): MarkdownResult {
     donutHoleSize,
     startAngle,
     barHeight,
+    lineThickness,
     cardsPerRow,
     shadowDepth,
     bgType,
-    bgColor2
+    bgColor2,
+    widgetOrder
   } = state;
 
   let themeParams = `&theme=${theme}`;
@@ -62,54 +64,44 @@ export function generateMarkdown(state: BuilderState): MarkdownResult {
 
   const header = `<h1 align="center">Hi there, I'm ${username} 👋</h1>\n\n`;
 
-  let customLanguages = '';
-  if (showCustomLanguages) {
-    if (languageDisplayType === 'analytics') {
-      const advancedParams = `&blockRadius=${blockRadius}&elementRadius=${elementRadius}&showGlow=${showGlow}&animationSpeed=${animationSpeed}&donutHoleSize=${donutHoleSize}&startAngle=${startAngle}&barHeight=${barHeight}&cardsPerRow=${cardsPerRow}&shadowDepth=${shadowDepth}&bgType=${bgType}&bgColor2=${bgColor2}`;
-      customLanguages = `<div align="center">\n  <img src="${baseUrl}/api/github-languages?username=${username}&include_contribs=${includeContributions}&limit=${languageLimit}&layout=${languageLayout}${themeParams}${advancedParams}" alt="Detailed Language Analytics" />\n</div>\n\n`;
-    } else {
-      customLanguages = `<div align="center">\n`;
+  let widgets = '';
+  
+  // Dynamic Widget Generation based on order
+  widgetOrder.forEach((id) => {
+    if (id === 'languages' && showCustomLanguages && languageDisplayType === 'analytics') {
+      const advancedParams = `&blockRadius=${blockRadius}&elementRadius=${elementRadius}&showGlow=${showGlow}&animationSpeed=${animationSpeed}&donutHoleSize=${donutHoleSize}&startAngle=${startAngle}&barHeight=${barHeight}&lineThickness=${lineThickness}&cardsPerRow=${cardsPerRow}&shadowDepth=${shadowDepth}&bgType=${bgType}&bgColor2=${bgColor2}`;
+      widgets += `<div align="center">\n  <img src="${baseUrl}/api/github-languages?username=${username}&include_contribs=${includeContributions}&limit=${languageLimit}&layout=${languageLayout}${themeParams}${advancedParams}" alt="Detailed Language Analytics" />\n</div>\n\n`;
+    }
+
+    if (id === 'badges' && showCustomLanguages && languageDisplayType === 'badges') {
+      widgets += `<div align="center">\n`;
       manualSkills.filter(s => !hiddenSkills.includes(s)).forEach(skill => {
         const color = badgeColorMode === 'brand' ? '' : `&color=${customIconColor}`;
-        customLanguages += `  <img src="${baseUrl}/api/badge?name=${encodeURIComponent(skill)}${color}&size=${badgeSize}" alt="${skill}" />\n`;
+        widgets += `  <img src="${baseUrl}/api/badge?name=${encodeURIComponent(skill)}${color}&size=${badgeSize}" alt="${skill}" />\n`;
       });
-      customLanguages += `</div>\n\n`;
+      widgets += `</div>\n\n`;
     }
-  }
 
-  let widgets = '';
-  const displayFlex = layout === 'grid' ? '<div align="center">\n' : '';
-  const displayFlexEnd = layout === 'grid' ? '</div>\n' : '';
+    if (id === 'stats' && showStats) {
+      widgets += `<div align="center">\n  <img src="https://github-readme-stats.vercel.app/api?username=${username}&show_icons=true${themeParams}" alt="${username}'s GitHub Stats" />\n</div>\n\n`;
+    }
 
-  let widgetsContent = '';
+    if (id === 'streak' && showStreak) {
+      widgets += `<div align="center">\n  <img src="https://github-readme-streak-stats.herokuapp.com/?user=${username}${themeParams.replace('bg_color', 'background').replace('title_color', 'stroke').replace('text_color', 'currStreakNum').replace('icon_color', 'fire')}" alt="${username}'s GitHub Streak" />\n</div>\n\n`;
+    }
 
-  if (showTrophies) {
-    widgetsContent += `  <img src="https://github-profile-trophy.vercel.app/?username=${username}&theme=${theme === 'custom' ? 'flat' : theme}&no-frame=false&no-bg=true&margin-w=15" alt="trophies" />\n`;
-  }
-
-  if (showStats) {
-    widgetsContent += `  <img src="https://github-readme-stats.vercel.app/api?username=${username}&show_icons=true${themeParams}" alt="${username}'s GitHub Stats" />\n`;
-  }
-
-  if (showStreak) {
-    widgetsContent += `${layout === 'stacked' ? '  <br/>\n' : '  '}<img src="https://github-readme-streak-stats.herokuapp.com/?user=${username}${themeParams.replace('bg_color', 'background').replace('title_color', 'stroke').replace('text_color', 'currStreakNum').replace('icon_color', 'fire')}" alt="${username}'s GitHub Streak" />\n`;
-  }
-
-  if (showTopRepos) {
-    widgetsContent += `${layout === 'stacked' ? '  <br/>\n' : '  '}<img src="https://github-readme-stats.vercel.app/api/pin/?username=${username}&repo=github-readme-stats${themeParams}" alt="Pinned Repo" />\n`;
-  }
-
-  if (widgetsContent) {
-    widgets = `${displayFlex}${widgetsContent}${displayFlexEnd}`;
-  }
+    if (id === 'trophies' && showTrophies) {
+      widgets += `<div align="center">\n  <img src="https://github-profile-trophy.vercel.app/?username=${username}&theme=${theme === 'custom' ? 'flat' : theme}&no-frame=false&no-bg=true&margin-w=15" alt="trophies" />\n</div>\n\n`;
+    }
+  });
 
   const footer = `\n<!-- Generated by GitCustomize (github-customizer.vercel.app) -->\n`;
 
   return {
     header,
-    customLanguages,
+    customLanguages: '', // Merged into widgets for order
     widgets,
     footer,
-    full: `${header}${customLanguages}${widgets}${footer}`
+    full: `${header}${widgets}${footer}`
   };
 }

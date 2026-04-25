@@ -1,10 +1,10 @@
 "use client";
 
 import { useBuilderStore, StatTheme } from "@/store/useBuilderStore";
-import { User, Palette, Settings, Layout, Check, ChevronDown, Code2, BarChart3, Tags, Zap, Trophy, PieChart } from "lucide-react";
+import { User, Palette, Settings, Layout, Check, ChevronDown, Code2, BarChart3, Tags, Zap, Trophy, PieChart, GripVertical, Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, Reorder } from "framer-motion";
 
 const THEMES: { id: StatTheme; name: string }[] = [
   { id: "default", name: "Default" },
@@ -124,6 +124,63 @@ export function BuilderSidebar() {
                 </div>
               </div>
 
+              {/* Layout Manager */}
+              <div className="space-y-3 mb-6">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Layout Manager</span>
+                </div>
+                <Reorder.Group axis="y" values={store.widgetOrder} onReorder={store.setWidgetOrder} className="space-y-2">
+                  {store.widgetOrder.map((id) => {
+                    const isVisible = id === 'languages' ? store.showCustomLanguages : 
+                                    id === 'badges' ? (store.manualSkills.length > 0 || store.autoLanguages.length > 0) :
+                                    id === 'stats' ? store.showStats :
+                                    id === 'streak' ? store.showStreak :
+                                    id === 'trophies' ? store.showTrophies : true;
+                    
+                    const label = id === 'languages' ? 'Language Analytics' :
+                                 id === 'badges' ? 'Skill Badges' :
+                                 id === 'stats' ? 'GitHub Stats' :
+                                 id === 'streak' ? 'Streak Stats' :
+                                 id === 'trophies' ? 'GitHub Trophies' : id;
+
+                    return (
+                      <Reorder.Item
+                        key={id}
+                        value={id}
+                        className={cn(
+                          "group flex items-center justify-between p-2 rounded-lg border bg-white dark:bg-zinc-900 transition-all",
+                          "border-slate-200 dark:border-white/5 hover:border-indigo-300 dark:hover:border-indigo-500/50",
+                          !isVisible && "opacity-50 grayscale-[0.5]"
+                        )}
+                        whileDrag={{ 
+                          scale: 1.02, 
+                          boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)",
+                          borderColor: "rgb(99 102 241)" 
+                        }}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="cursor-grab active:cursor-grabbing text-slate-300 dark:text-zinc-700 group-hover:text-indigo-400 transition-colors">
+                            <GripVertical className="w-4 h-4" />
+                          </div>
+                          <span className="text-xs font-medium text-slate-700 dark:text-slate-300">{label}</span>
+                        </div>
+                        <button
+                          onClick={() => {
+                            if (id === 'languages') store.toggleModule('showCustomLanguages');
+                            else if (id === 'stats') store.toggleModule('showStats');
+                            else if (id === 'streak') store.toggleModule('showStreak');
+                            else if (id === 'trophies') store.toggleModule('showTrophies');
+                          }}
+                          className="p-1 rounded hover:bg-slate-100 dark:hover:bg-zinc-800 text-slate-400 hover:text-indigo-500 transition-all"
+                        >
+                          {isVisible ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+                        </button>
+                      </Reorder.Item>
+                    );
+                  })}
+                </Reorder.Group>
+              </div>
+
               {/* Dynamic Customization Panel */}
               <div className="pt-4 border-t border-slate-200 dark:border-white/10">
                 {store.activeWidgetTab === 'analytics' && (
@@ -210,7 +267,7 @@ export function BuilderSidebar() {
                               </label>
                             </div>
 
-                            {/* Radius Settings */}
+                            {/* Radius Settings - Shared by most, but context-aware */}
                             <div className="space-y-3">
                               <div>
                                 <div className="flex justify-between mb-1">
@@ -226,21 +283,42 @@ export function BuilderSidebar() {
                                   className="w-full h-1.5 bg-slate-200 dark:bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
                                 />
                               </div>
+                              
+                              {store.languageLayout !== 'minimalist-line' && (
+                                <div>
+                                  <div className="flex justify-between mb-1">
+                                    <label className="text-xs font-medium text-slate-600 dark:text-slate-400">Internal Element Radius: {store.elementRadius}px</label>
+                                  </div>
+                                  <input
+                                    type="range"
+                                    min="0"
+                                    max="20"
+                                    step="1"
+                                    value={store.elementRadius}
+                                    onChange={(e) => store.setLanguageOption('elementRadius', parseInt(e.target.value))}
+                                    className="w-full h-1.5 bg-slate-200 dark:bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                                  />
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Line Thickness for Minimalist */}
+                            {store.languageLayout === 'minimalist-line' && (
                               <div>
                                 <div className="flex justify-between mb-1">
-                                  <label className="text-xs font-medium text-slate-600 dark:text-slate-400">Internal Element Radius: {store.elementRadius}px</label>
+                                  <label className="text-xs font-medium text-slate-600 dark:text-slate-400">Line Thickness: {store.lineThickness}px</label>
                                 </div>
                                 <input
                                   type="range"
-                                  min="0"
-                                  max="20"
+                                  min="2"
+                                  max="12"
                                   step="1"
-                                  value={store.elementRadius}
-                                  onChange={(e) => store.setLanguageOption('elementRadius', parseInt(e.target.value))}
+                                  value={store.lineThickness}
+                                  onChange={(e) => store.setLanguageOption('lineThickness', parseInt(e.target.value))}
                                   className="w-full h-1.5 bg-slate-200 dark:bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
                                 />
                               </div>
-                            </div>
+                            )}
 
                             {/* Conditional: Pie Settings */}
                             {store.languageLayout === 'pie' && (

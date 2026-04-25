@@ -96,34 +96,56 @@ export function BuilderPreview() {
           {activeTab === 'preview' ? (
             <div className="p-8 prose dark:prose-invert max-w-none">
               {store.username ? (
-                <div className="preview-markdown flex flex-col gap-8">
-                  <div className="flex flex-col gap-6">
-                    <div dangerouslySetInnerHTML={{ __html: header.replace(/\n/g, '<br/>') }} />
+                  <div className="flex flex-col gap-8">
+                    <motion.div layout dangerouslySetInnerHTML={{ __html: header.replace(/\n/g, '<br/>') }} />
                     
-                    <AnimatePresence mode="wait">
-                      {store.showCustomLanguages && (
-                        <motion.div
-                          key={store.languageDisplayType}
-                          initial={{ opacity: 0, y: 20, filter: 'blur(10px)' }}
-                          animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-                          exit={{ opacity: 0, y: -20, filter: 'blur(10px)' }}
-                          transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
-                        >
-                          {store.languageDisplayType === 'badges' ? (
-                            <SkillBadgeGrid />
-                          ) : (
-                            <div className="flex justify-center" dangerouslySetInnerHTML={{ __html: customLanguages.replace(/\n/g, '<br/>') }} />
-                          )}
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                    <div className="flex flex-col gap-8">
+                      <AnimatePresence mode="popLayout">
+                        {store.widgetOrder.map((id) => {
+                          const isVisible = id === 'languages' ? store.showCustomLanguages && store.languageDisplayType === 'analytics' : 
+                                          id === 'badges' ? store.showCustomLanguages && store.languageDisplayType === 'badges' :
+                                          id === 'stats' ? store.showStats :
+                                          id === 'streak' ? store.showStreak :
+                                          id === 'trophies' ? store.showTrophies : false;
 
-                    <div 
-                      className="flex flex-col gap-4"
-                      dangerouslySetInnerHTML={{ __html: widgets.replace(/\n/g, '<br/>') }} 
-                    />
+                          if (!isVisible) return null;
+
+                          const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+                          let themeParams = `&theme=${store.theme}`;
+                          if (store.theme === 'custom') {
+                            themeParams = `&bg_color=${store.customBgColor}&title_color=${store.customTextColor}&text_color=${store.customTextColor}&icon_color=${store.customIconColor}&border_color=${store.customBorderColor}`;
+                          }
+                          if (store.hideBorder) themeParams += '&hide_border=true';
+
+                          return (
+                            <motion.div
+                              key={id}
+                              layout
+                              initial={{ opacity: 0, y: 20 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, scale: 0.95 }}
+                              transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                              className="w-full flex justify-center"
+                            >
+                              {id === 'languages' && (
+                                <div dangerouslySetInnerHTML={{ __html: `<img src="${baseUrl}/api/github-languages?username=${store.username}&include_contribs=${store.includeContributions}&limit=${store.languageLimit}&layout=${store.languageLayout}${themeParams}&blockRadius=${store.blockRadius}&elementRadius=${store.elementRadius}&showGlow=${store.showGlow}&animationSpeed=${store.animationSpeed}&donutHoleSize=${store.donutHoleSize}&startAngle=${store.startAngle}&barHeight=${store.barHeight}&lineThickness=${store.lineThickness}&cardsPerRow=${store.cardsPerRow}&shadowDepth=${store.shadowDepth}&bgType=${store.bgType}&bgColor2=${store.bgColor2}" alt="Languages" />` }} />
+                              )}
+                              {id === 'badges' && <SkillBadgeGrid />}
+                              {id === 'stats' && (
+                                <div dangerouslySetInnerHTML={{ __html: `<img src="https://github-readme-stats.vercel.app/api?username=${store.username}&show_icons=true${themeParams}" alt="Stats" />` }} />
+                              )}
+                              {id === 'streak' && (
+                                <div dangerouslySetInnerHTML={{ __html: `<img src="https://github-readme-streak-stats.herokuapp.com/?user=${store.username}${themeParams.replace('bg_color', 'background').replace('title_color', 'stroke').replace('text_color', 'currStreakNum').replace('icon_color', 'fire')}" alt="Streak" />` }} />
+                              )}
+                              {id === 'trophies' && (
+                                <div dangerouslySetInnerHTML={{ __html: `<img src="https://github-profile-trophy.vercel.app/?username=${store.username}&theme=${store.theme === 'custom' ? 'flat' : store.theme}&no-frame=false&no-bg=true&margin-w=15" alt="Trophies" />` }} />
+                              )}
+                            </motion.div>
+                          );
+                        })}
+                      </AnimatePresence>
+                    </div>
                   </div>
-                </div>
               ) : (
                 <div className="flex flex-col items-center justify-center h-64 text-slate-400 dark:text-slate-500">
                   <p>Enter your GitHub username to see the preview.</p>
