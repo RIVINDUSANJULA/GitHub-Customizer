@@ -1,6 +1,8 @@
 export interface SvgOptions {
   theme?: string;
   bg_color?: string;
+  bg_color_2?: string;
+  bg_type?: 'solid' | 'gradient';
   title_color?: string;
   text_color?: string;
   icon_color?: string;
@@ -8,13 +10,15 @@ export interface SvgOptions {
   hide_border?: boolean;
   limit?: number;
   layout?: 'compact' | 'pie' | 'list' | 'modern-bar' | 'soft-cards' | 'minimalist-line';
-  borderRadius?: number;
+  blockRadius?: number;
+  elementRadius?: number;
   showGlow?: boolean;
   animationSpeed?: number;
   donutHoleSize?: number;
   startAngle?: number;
   barHeight?: number;
   cardsPerRow?: number;
+  shadowDepth?: number;
 }
 
 const THEMES: Record<string, any> = {
@@ -34,12 +38,14 @@ export function generateLanguageSvg(languages: any[], options: SvgOptions) {
 
   const theme = THEMES[options.theme || 'default'] || THEMES.default;
   const bg = options.bg_color || theme.bg;
+  const bg2 = options.bg_color_2 || bg;
   const titleColor = options.title_color || theme.title;
   const textColor = options.text_color || theme.text;
   const borderColor = options.border_color || theme.border;
   const limit = options.limit || 5;
   const layout = options.layout || 'compact';
-  const radius = options.borderRadius ?? 20;
+  const blockRadius = options.blockRadius ?? 20;
+  const elementRadius = options.elementRadius ?? 10;
   const speed = options.animationSpeed || 1;
 
   const data = languages.slice(0, limit);
@@ -62,23 +68,38 @@ export function generateLanguageSvg(languages: any[], options: SvgOptions) {
   }
 
   let content = "";
-  if (layout === 'compact') content = generateCompactLayout(data, radius, speed, options);
-  else if (layout === 'pie') content = generatePieLayout(data, radius, speed, options);
-  else if (layout === 'list') content = generateListLayout(data, radius, speed, options);
-  else if (layout === 'modern-bar') content = generateModernBarLayout(data, radius, speed, options);
-  else if (layout === 'soft-cards') content = generateSoftCardsLayout(data, radius, speed, options);
-  else if (layout === 'minimalist-line') content = generateMinimalistLineLayout(data, speed);
+  if (layout === 'compact') content = generateCompactLayout(data, elementRadius, speed, options);
+  else if (layout === 'pie') content = generatePieLayout(data, elementRadius, speed, options);
+  else if (layout === 'list') content = generateListLayout(data, elementRadius, speed, options);
+  else if (layout === 'modern-bar') content = generateModernBarLayout(data, elementRadius, speed, options);
+  else if (layout === 'soft-cards') content = generateSoftCardsLayout(data, elementRadius, speed, options);
+  else if (layout === 'minimalist-line') content = generateMinimalistLineLayout(data, speed, elementRadius);
 
   const glowFilter = options.showGlow ? `
-    <defs>
       <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
         <feGaussianBlur stdDeviation="3" result="blur" />
         <feComposite in="SourceGraphic" in2="blur" operator="over" />
-      </filter>
-    </defs>` : "";
+      </filter>` : "";
+
+  const shadowFilter = options.layout === 'soft-cards' ? `
+      <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="0" dy="${options.shadowDepth || 5}" stdDeviation="3" flood-opacity="0.2"/>
+      </filter>` : "";
+
+  const bgFill = options.bg_type === 'gradient' 
+    ? `url(#bgGradient)` 
+    : `#${bg}`;
 
   return `
     <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        ${glowFilter}
+        ${shadowFilter}
+        <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#${bg}" />
+          <stop offset="100%" stop-color="#${bg2}" />
+        </linearGradient>
+      </defs>
       <style>
         .header { font: 600 18px 'Segoe UI', Ubuntu, Sans-Serif; fill: #${titleColor}; }
         .lang-name { font: 400 14px 'Segoe UI', Ubuntu, Sans-Serif; fill: #${textColor}; }
@@ -89,8 +110,7 @@ export function generateLanguageSvg(languages: any[], options: SvgOptions) {
         .animate { animation: fadeIn ${0.5 / speed}s ease forwards; }
         .bar-animate { transform-origin: left; animation: scaleIn ${0.8 / speed}s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
       </style>
-      ${glowFilter}
-      <rect x="0.5" y="0.5" width="${width - 1}" height="${height - 1}" rx="${radius}" fill="#${bg}" stroke="#${borderColor}" stroke-opacity="${options.hide_border ? 0 : 1}"/>
+      <rect x="0.5" y="0.5" width="${width - 1}" height="${height - 1}" rx="${blockRadius}" fill="${bgFill}" stroke="#${borderColor}" stroke-opacity="${options.hide_border ? 0 : 1}"/>
       ${layout !== 'minimalist-line' ? `<text x="25" y="35" class="header animate">Most Used Languages</text>` : ""}
       ${content}
     </svg>
@@ -109,7 +129,7 @@ function generateCompactLayout(data: any[], radius: number, speed: number, optio
     const segmentWidth = (lang.percentage / 100) * barWidth;
     const glow = options.showGlow ? 'filter="url(#glow)"' : '';
     barSegments += `<rect x="${currentX}" y="${barY}" width="${segmentWidth}" height="${barHeight}" fill="${lang.color}" 
-      ${i === 0 ? `rx="${radius/2}"` : ""} ${i === data.length - 1 ? `rx="${radius/2}"` : ""} ${glow} class="bar-animate" style="animation-delay: ${i * 0.1 / speed}s"/>`;
+      ${i === 0 ? `rx="${radius}"` : ""} ${i === data.length - 1 ? `rx="${radius}"` : ""} ${glow} class="bar-animate" style="animation-delay: ${i * 0.1 / speed}s"/>`;
 
     const lx = 25 + (i % 3) * 135;
     const ly = barY + barHeight + 35 + Math.floor(i / 3) * 25;
@@ -133,8 +153,8 @@ function generateListLayout(data: any[], radius: number, speed: number, options:
     list += `
       <g class="animate" style="animation-delay: ${i * 0.1 / speed}s">
         <text x="25" y="${y}" class="lang-name">${lang.name}</text>
-        <rect x="135" y="${y - 12}" width="${barMaxWidth}" height="12" rx="${radius/4}" fill="#888" fill-opacity="0.1"/>
-        <rect x="135" y="${y - 12}" width="${barWidth}" height="12" rx="${radius/4}" fill="${lang.color}" ${glow} class="bar-animate"/>
+        <rect x="135" y="${y - 12}" width="${barMaxWidth}" height="12" rx="${radius}" fill="#888" fill-opacity="0.1"/>
+        <rect x="135" y="${y - 12}" width="${barWidth}" height="12" rx="${radius}" fill="${lang.color}" ${glow} class="bar-animate"/>
         <text x="385" y="${y}" class="percentage">${lang.percentage.toFixed(1)}%</text>
       </g>`;
   });
@@ -160,8 +180,11 @@ function generatePieLayout(data: any[], radius: number, speed: number, options: 
     const rotation = (currentOffset / circumference) * 360 - 90 + startAngle;
     const glow = options.showGlow ? 'filter="url(#glow)"' : '';
     
-    chart += `<circle cx="${centerX}" cy="${centerY}" r="${actualRadius}" fill="transparent" stroke="${lang.color}" stroke-width="${strokeWidth}" 
-      stroke-dasharray="${sliceLength} ${circumference}" transform="rotate(${rotation} ${centerX} ${centerY})" ${glow} 
+    // Using stroke-linecap: round for the rounded caps
+    chart += `<circle cx="${centerX}" cy="${centerY}" r="${actualRadius}" fill="transparent" stroke="${lang.color}" 
+      stroke-width="${strokeWidth}" stroke-dasharray="${sliceLength} ${circumference}" 
+      transform="rotate(${rotation} ${centerX} ${centerY})" ${glow} 
+      stroke-linecap="${radius > 0 ? 'round' : 'butt'}"
       style="--dash-offset: ${sliceLength}; animation: growPie ${1 / speed}s ease forwards; animation-delay: ${i * 0.1 / speed}s" stroke-dashoffset="${sliceLength}"/>`;
 
     const ly = 90 + i * 35;
@@ -186,12 +209,12 @@ function generateModernBarLayout(data: any[], radius: number, speed: number, opt
     list += `
       <g class="animate" style="animation-delay: ${i * 0.1 / speed}s">
         <text x="25" y="${y - 15}" class="lang-name">${lang.name} <tspan class="percentage">${lang.percentage.toFixed(1)}%</tspan></text>
-        <rect x="25" y="${y - (barHeight/2)}" width="${barMaxWidth}" height="${barHeight}" rx="${radius/2}" fill="#888" fill-opacity="0.1"/>
+        <rect x="25" y="${y - (barHeight/2)}" width="${barMaxWidth}" height="${barHeight}" rx="${radius}" fill="#888" fill-opacity="0.1"/>
         <linearGradient id="grad${i}" x1="0%" y1="0%" x2="100%" y2="0%">
           <stop offset="0%" style="stop-color:${lang.color};stop-opacity:0.8" />
           <stop offset="100%" style="stop-color:${lang.color};stop-opacity:1" />
         </linearGradient>
-        <rect x="25" y="${y - (barHeight/2)}" width="${barWidth}" height="${barHeight}" rx="${radius/2}" fill="url(#grad${i})" ${glow} class="bar-animate"/>
+        <rect x="25" y="${y - (barHeight/2)}" width="${barWidth}" height="${barHeight}" rx="${radius}" fill="url(#grad${i})" ${glow} class="bar-animate"/>
       </g>`;
   });
   return list;
@@ -201,14 +224,15 @@ function generateSoftCardsLayout(data: any[], radius: number, speed: number, opt
   let cards = "";
   const perRow = options.cardsPerRow || 2;
   const cardWidth = (400 - (perRow - 1) * 10) / perRow;
+  const shadow = options.shadowDepth && options.shadowDepth > 0 ? 'filter="url(#shadow)"' : '';
   
   data.forEach((lang, i) => {
     const x = 25 + (i % perRow) * (cardWidth + 10);
     const y = 65 + Math.floor(i / perRow) * 65;
     const glow = options.showGlow ? 'filter="url(#glow)"' : '';
     cards += `
-      <g class="animate" style="animation-delay: ${i * 0.1 / speed}s">
-        <rect x="${x}" y="${y}" width="${cardWidth}" height="55" rx="${radius/2}" fill="#ffffff" fill-opacity="0.05" stroke="#ffffff" stroke-opacity="0.1"/>
+      <g class="animate" style="animation-delay: ${i * 0.1 / speed}s" ${shadow}>
+        <rect x="${x}" y="${y}" width="${cardWidth}" height="55" rx="${radius}" fill="#ffffff" fill-opacity="0.05" stroke="#ffffff" stroke-opacity="0.1"/>
         <circle cx="${x + 20}" cy="${y + 22}" r="6" fill="${lang.color}" ${glow}/>
         <text x="${x + 35}" y="${y + 27}" class="lang-name" font-size="12">${lang.name}</text>
         <text x="${x + cardWidth - 35}" y="${y + 27}" class="percentage" font-size="10">${lang.percentage.toFixed(0)}%</text>
@@ -219,7 +243,7 @@ function generateSoftCardsLayout(data: any[], radius: number, speed: number, opt
   return cards;
 }
 
-function generateMinimalistLineLayout(data: any[], speed: number) {
+function generateMinimalistLineLayout(data: any[], speed: number, radius: number) {
   const barWidth = 400;
   const barHeight = 6;
   const barY = 35;
@@ -228,7 +252,7 @@ function generateMinimalistLineLayout(data: any[], speed: number) {
 
   data.forEach((lang, i) => {
     const segmentWidth = (lang.percentage / 100) * barWidth;
-    barSegments += `<rect x="${currentX}" y="${barY}" width="${segmentWidth}" height="${barHeight}" fill="${lang.color}" class="bar-animate" style="animation-delay: ${i * 0.1 / speed}s"/>`;
+    barSegments += `<rect x="${currentX}" y="${barY}" width="${segmentWidth}" height="${barHeight}" fill="${lang.color}" rx="${radius}" class="bar-animate" style="animation-delay: ${i * 0.1 / speed}s"/>`;
     currentX += segmentWidth;
   });
   return barSegments;
@@ -237,7 +261,7 @@ function generateMinimalistLineLayout(data: any[], speed: number) {
 function createEmptyStateSvg(options: SvgOptions) {
   const theme = THEMES[options.theme || 'default'] || THEMES.default;
   const bg = options.bg_color || theme.bg;
-  const radius = options.borderRadius ?? 20;
+  const radius = options.blockRadius ?? 20;
   return `
     <svg width="450" height="150" viewBox="0 0 450 150" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect width="450" height="150" rx="${radius}" fill="#${bg}" />

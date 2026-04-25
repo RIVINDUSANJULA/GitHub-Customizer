@@ -21,13 +21,17 @@ export interface BuilderState {
   includeContributions: boolean;
   languageLimit: number;
   languageLayout: 'compact' | 'pie' | 'list' | 'modern-bar' | 'soft-cards' | 'minimalist-line';
-  borderRadius: number;
+  blockRadius: number;
+  elementRadius: number;
   showGlow: boolean;
   animationSpeed: number;
   donutHoleSize: number;
   startAngle: number;
   barHeight: number;
   cardsPerRow: number;
+  shadowDepth: number;
+  bgType: 'solid' | 'gradient';
+  bgColor2: string;
 
   // Customization
   theme: StatTheme;
@@ -44,7 +48,7 @@ export interface BuilderState {
   setCustomColor: (key: keyof Pick<BuilderState, 'customBgColor' | 'customTextColor' | 'customIconColor' | 'customBorderColor'>, color: string) => void;
   setHideBorder: (hide: boolean) => void;
   setLayout: (layout: 'stacked' | 'grid') => void;
-  setLanguageOption: (key: keyof Pick<BuilderState, 'includeContributions' | 'languageLimit' | 'languageLayout' | 'borderRadius' | 'showGlow' | 'animationSpeed' | 'donutHoleSize' | 'startAngle' | 'barHeight' | 'cardsPerRow'>, value: any) => void;
+  setLanguageOption: (key: 'includeContributions' | 'languageLimit' | 'languageLayout' | 'blockRadius' | 'elementRadius' | 'showGlow' | 'animationSpeed' | 'donutHoleSize' | 'startAngle' | 'barHeight' | 'cardsPerRow' | 'shadowDepth' | 'bgType' | 'bgColor2', value: any) => void;
   setLanguageDisplayType: (type: 'analytics' | 'badges') => void;
   addManualSkill: (skill: string) => void;
   removeManualSkill: (skill: string) => void;
@@ -77,13 +81,17 @@ export const useBuilderStore = create<BuilderState>()(
       includeContributions: true,
       languageLimit: 5,
       languageLayout: 'compact',
-      borderRadius: 20,
-      showGlow: false,
+      blockRadius: 20,
+      elementRadius: 10,
+      showGlow: true,
       animationSpeed: 1,
       donutHoleSize: 60,
       startAngle: 0,
       barHeight: 18,
       cardsPerRow: 2,
+      shadowDepth: 5,
+      bgType: 'solid',
+      bgColor2: 'f1f5f9',
 
       theme: 'default',
       customBgColor: '000000',

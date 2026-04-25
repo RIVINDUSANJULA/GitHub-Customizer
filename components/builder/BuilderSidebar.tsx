@@ -210,27 +210,41 @@ export function BuilderSidebar() {
                               </label>
                             </div>
 
-                            {/* Conditional: Corner Radius (Hide for PIE) */}
-                            {store.languageLayout !== 'pie' && (
+                            {/* Radius Settings */}
+                            <div className="space-y-3">
                               <div>
                                 <div className="flex justify-between mb-1">
-                                  <label className="text-xs font-medium text-slate-600 dark:text-slate-400">Corner Radius: {store.borderRadius}px</label>
+                                  <label className="text-xs font-medium text-slate-600 dark:text-slate-400">Outer Block Radius: {store.blockRadius}px</label>
                                 </div>
                                 <input
                                   type="range"
                                   min="0"
                                   max="40"
                                   step="2"
-                                  value={store.borderRadius}
-                                  onChange={(e) => store.setLanguageOption('borderRadius', parseInt(e.target.value))}
+                                  value={store.blockRadius}
+                                  onChange={(e) => store.setLanguageOption('blockRadius', parseInt(e.target.value))}
                                   className="w-full h-1.5 bg-slate-200 dark:bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
                                 />
                               </div>
-                            )}
+                              <div>
+                                <div className="flex justify-between mb-1">
+                                  <label className="text-xs font-medium text-slate-600 dark:text-slate-400">Internal Element Radius: {store.elementRadius}px</label>
+                                </div>
+                                <input
+                                  type="range"
+                                  min="0"
+                                  max="20"
+                                  step="1"
+                                  value={store.elementRadius}
+                                  onChange={(e) => store.setLanguageOption('elementRadius', parseInt(e.target.value))}
+                                  className="w-full h-1.5 bg-slate-200 dark:bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                                />
+                              </div>
+                            </div>
 
                             {/* Conditional: Pie Settings */}
                             {store.languageLayout === 'pie' && (
-                              <>
+                              <div className="space-y-4">
                                 <div>
                                   <div className="flex justify-between mb-1">
                                     <label className="text-xs font-medium text-slate-600 dark:text-slate-400">Donut Hole Size: {store.donutHoleSize}%</label>
@@ -259,7 +273,7 @@ export function BuilderSidebar() {
                                     className="w-full h-1.5 bg-slate-200 dark:bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
                                   />
                                 </div>
-                              </>
+                              </div>
                             )}
 
                             {/* Conditional: Bar Height */}
@@ -280,23 +294,85 @@ export function BuilderSidebar() {
                               </div>
                             )}
 
-                            {/* Conditional: Cards per Row */}
+                            {/* Conditional: Cards per Row & Shadow */}
                             {store.languageLayout === 'soft-cards' && (
-                              <div>
-                                <div className="flex justify-between mb-1">
-                                  <label className="text-xs font-medium text-slate-600 dark:text-slate-400">Cards per Row: {store.cardsPerRow}</label>
+                              <div className="space-y-4">
+                                <div>
+                                  <div className="flex justify-between mb-1">
+                                    <label className="text-xs font-medium text-slate-600 dark:text-slate-400">Cards per Row: {store.cardsPerRow}</label>
+                                  </div>
+                                  <input
+                                    type="range"
+                                    min="1"
+                                    max="4"
+                                    step="1"
+                                    value={store.cardsPerRow}
+                                    onChange={(e) => store.setLanguageOption('cardsPerRow', parseInt(e.target.value))}
+                                    className="w-full h-1.5 bg-slate-200 dark:bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                                  />
                                 </div>
-                                <input
-                                  type="range"
-                                  min="1"
-                                  max="4"
-                                  step="1"
-                                  value={store.cardsPerRow}
-                                  onChange={(e) => store.setLanguageOption('cardsPerRow', parseInt(e.target.value))}
-                                  className="w-full h-1.5 bg-slate-200 dark:bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
-                                />
+                                <div>
+                                  <div className="flex justify-between mb-1">
+                                    <label className="text-xs font-medium text-slate-600 dark:text-slate-400">Shadow Depth: {store.shadowDepth}px</label>
+                                  </div>
+                                  <input
+                                    type="range"
+                                    min="0"
+                                    max="20"
+                                    step="1"
+                                    value={store.shadowDepth}
+                                    onChange={(e) => store.setLanguageOption('shadowDepth', parseInt(e.target.value))}
+                                    className="w-full h-1.5 bg-slate-200 dark:bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                                  />
+                                </div>
                               </div>
                             )}
+
+                            {/* Background Type & Gradient */}
+                            <div className="pt-2 border-t border-slate-200 dark:border-white/5 space-y-3">
+                              <div className="flex items-center justify-between">
+                                <label className="text-xs font-medium text-slate-600 dark:text-slate-400">Background Type</label>
+                                <div className="flex p-0.5 bg-slate-100 dark:bg-zinc-800 rounded-md">
+                                  {(['solid', 'gradient'] as const).map((type) => (
+                                    <button
+                                      key={type}
+                                      onClick={() => store.setLanguageOption('bgType', type)}
+                                      className={cn(
+                                        "px-2 py-1 text-[9px] font-bold rounded transition-all uppercase",
+                                        store.bgType === type 
+                                          ? "bg-white dark:bg-zinc-700 text-indigo-600 dark:text-indigo-400 shadow-sm"
+                                          : "text-slate-500"
+                                      )}
+                                    >
+                                      {type}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                              
+                              {store.bgType === 'gradient' && (
+                                <div className="flex items-center gap-2">
+                                  <div className="flex-1">
+                                    <label className="text-[10px] text-slate-400 block mb-1">Start Color</label>
+                                    <input 
+                                      type="color" 
+                                      value={`#${store.customBgColor}`}
+                                      onChange={(e) => store.setCustomColor('customBgColor', e.target.value.replace('#', ''))}
+                                      className="w-full h-6 rounded cursor-pointer border-none bg-transparent"
+                                    />
+                                  </div>
+                                  <div className="flex-1">
+                                    <label className="text-[10px] text-slate-400 block mb-1">End Color</label>
+                                    <input 
+                                      type="color" 
+                                      value={`#${store.bgColor2}`}
+                                      onChange={(e) => store.setLanguageOption('bgColor2', e.target.value.replace('#', ''))}
+                                      className="w-full h-6 rounded cursor-pointer border-none bg-transparent"
+                                    />
+                                  </div>
+                                </div>
+                              )}
+                            </div>
 
                             <div>
                               <div className="flex justify-between mb-1">

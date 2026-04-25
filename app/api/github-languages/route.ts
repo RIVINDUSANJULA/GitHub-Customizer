@@ -32,13 +32,17 @@ export async function GET(req: NextRequest) {
     hide_border: searchParams.get("hide_border") === "true",
     limit,
     layout,
-    borderRadius: searchParams.get("borderRadius") ? parseInt(searchParams.get("borderRadius")!) : undefined,
+    blockRadius: searchParams.get("blockRadius") ? parseInt(searchParams.get("blockRadius")!) : undefined,
+    elementRadius: searchParams.get("elementRadius") ? parseInt(searchParams.get("elementRadius")!) : undefined,
     showGlow: searchParams.get("showGlow") === "true",
     animationSpeed: searchParams.get("animationSpeed") ? parseFloat(searchParams.get("animationSpeed")!) : undefined,
     donutHoleSize: searchParams.get("donutHoleSize") ? parseInt(searchParams.get("donutHoleSize")!) : undefined,
     startAngle: searchParams.get("startAngle") ? parseInt(searchParams.get("startAngle")!) : undefined,
     barHeight: searchParams.get("barHeight") ? parseInt(searchParams.get("barHeight")!) : undefined,
     cardsPerRow: searchParams.get("cardsPerRow") ? parseInt(searchParams.get("cardsPerRow")!) : undefined,
+    shadowDepth: searchParams.get("shadowDepth") ? parseInt(searchParams.get("shadowDepth")!) : undefined,
+    bg_type: (searchParams.get("bgType") as any) || 'solid',
+    bg_color_2: searchParams.get("bgColor2") || undefined,
   };
 
   try {
