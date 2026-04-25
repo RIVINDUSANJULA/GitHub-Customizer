@@ -244,3 +244,25 @@ function createEmptyStateSvg(options: SvgOptions) {
       <text x="50%" y="50%" text-anchor="middle" font-family="Segoe UI" font-size="16" fill="#888">No language data found yet. Start coding!</text>
     </svg>`;
 }
+
+export function generateErrorSvg(message: string, themeId: string = 'default') {
+  const theme = THEMES[themeId] || THEMES.default;
+  return `
+    <svg width="450" height="120" viewBox="0 0 450 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="450" height="120" rx="20" fill="#${theme.bg}" stroke="#ff4d4d" stroke-width="2"/>
+      <text x="50%" y="45%" text-anchor="middle" font-family="Segoe UI" font-weight="bold" font-size="18" fill="#ff4d4d">Error Fetching Data</text>
+      <text x="50%" y="70%" text-anchor="middle" font-family="Segoe UI" font-size="14" fill="#${theme.text}" opacity="0.8">${message}</text>
+    </svg>`;
+}
+
+export function generateLoadingSvg(themeId: string = 'default') {
+  const theme = THEMES[themeId] || THEMES.default;
+  return `
+    <svg width="450" height="120" viewBox="0 0 450 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="450" height="120" rx="20" fill="#${theme.bg}" />
+      <circle cx="225" cy="60" r="15" stroke="#${theme.title}" stroke-width="3" stroke-dasharray="70 30">
+        <animateTransform attributeName="transform" type="rotate" from="0 225 60" to="360 225 60" dur="1s" repeatCount="indefinite" />
+      </circle>
+      <text x="225" y="95%" text-anchor="middle" font-family="Segoe UI" font-size="12" fill="#${theme.text}" opacity="0.5">Profile Data Loading...</text>
+    </svg>`;
+}

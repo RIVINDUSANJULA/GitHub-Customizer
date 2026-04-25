@@ -3,15 +3,36 @@ const GITHUB_GRAPHQL_API = "https://api.github.com/graphql";
 export async function fetchUserLanguages(username: string, includeContribs: boolean) {
   const token = process.env.GITHUB_TOKEN;
   if (!token) {
-    // Return a mock or empty if token is missing during dev, but throw in production
     if (process.env.NODE_ENV === 'production') {
       throw new Error("GITHUB_TOKEN is not set");
     }
-    console.warn("GITHUB_TOKEN is missing. Returning mock data.");
     return getMockData();
   }
 
-  const query = `
+  // Helper to fetch data via GraphQL
+  const fetchFromGithub = async (query: string) => {
+    const response = await fetch(GITHUB_GRAPHQL_API, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ query, variables: { username } }),
+      next: { revalidate: 3600 } 
+    });
+
+    const json = await response.json();
+    if (json.errors) {
+      // If we hit a rate limit or other major error, throw it
+      if (json.errors.some((e: any) => e.type === 'RATE_LIMITED' || e.message.includes('rate limit'))) {
+        throw new Error("GitHub Rate Limit Exceeded");
+      }
+      return { data: json.data, errors: json.errors };
+    }
+    return { data: json.data };
+  };
+
+  const ownedReposQuery = `
     query($username: String!) {
       user(login: $username) {
         repositories(first: 100, ownerAffiliations: OWNER, orderBy: {field: PUSHED_AT, direction: DESC}) {
@@ -27,7 +48,13 @@ export async function fetchUserLanguages(username: string, includeContribs: bool
             }
           }
         }
-        ${includeContribs ? `
+      }
+    }
+  `;
+
+  const contribReposQuery = `
+    query($username: String!) {
+      user(login: $username) {
         repositoriesContributedTo(first: 100, contributionTypes: [COMMIT, PULL_REQUEST, REPOSITORY], orderBy: {field: PUSHED_AT, direction: DESC}) {
           nodes {
             languages(first: 10, orderBy: {field: SIZE, direction: DESC}) {
@@ -41,32 +68,28 @@ export async function fetchUserLanguages(username: string, includeContribs: bool
             }
           }
         }
-        ` : ""}
       }
     }
   `;
 
   try {
-    const response = await fetch(GITHUB_GRAPHQL_API, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ query, variables: { username } }),
-      next: { revalidate: 3600 } // Cache for 1 hour
-    });
+    const ownedResult = await fetchFromGithub(ownedReposQuery);
+    if (!ownedResult.data?.user) throw new Error("User not found");
 
-    const json = await response.json();
-    if (json.errors) {
-      throw new Error(json.errors[0].message);
+    const userData = { ...ownedResult.data.user };
+
+    if (includeContribs) {
+      try {
+        const contribResult = await fetchFromGithub(contribReposQuery);
+        if (contribResult.data?.user?.repositoriesContributedTo) {
+          userData.repositoriesContributedTo = contribResult.data.user.repositoriesContributedTo;
+        }
+      } catch (e) {
+        console.warn("Failed to fetch contributions, falling back to owned repos only", e);
+      }
     }
 
-    if (!json.data || !json.data.user) {
-      throw new Error("User not found or data missing");
-    }
-
-    return json.data.user;
+    return userData;
   } catch (error) {
     console.error("GitHub API Error:", error);
     throw error;

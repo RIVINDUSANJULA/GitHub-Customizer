@@ -1,13 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fetchUserLanguages, aggregateLanguages } from "@/lib/github-api";
-import { generateLanguageSvg, SvgOptions } from "@/lib/svg-generator";
+import { generateLanguageSvg, generateErrorSvg, SvgOptions } from "@/lib/svg-generator";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl;
   const username = searchParams.get("username");
 
+  // Default headers for SVG and Caching
+  const headers = {
+    "Content-Type": "image/svg+xml",
+    "Access-Control-Allow-Origin": "*",
+    "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400",
+  };
+
   if (!username) {
-    return new NextResponse("Username is required", { status: 400 });
+    return new NextResponse(generateErrorSvg("Username is required"), { status: 200, headers });
   }
 
   const includeContribs = searchParams.get("include_contribs") === "true";
@@ -39,20 +46,10 @@ export async function GET(req: NextRequest) {
     const aggregated = aggregateLanguages(userData);
     const svg = generateLanguageSvg(aggregated, options);
 
-    return new NextResponse(svg, {
-      headers: {
-        "Content-Type": "image/svg+xml",
-        "Cache-Control": "public, max-age=3600, s-maxage=3600",
-      },
-    });
+    return new NextResponse(svg, { headers });
   } catch (error: any) {
     console.error("API Route Error:", error);
-    return new NextResponse(`<svg width="400" height="100" xmlns="http://www.w3.org/2000/svg">
-      <rect width="400" height="100" fill="#f8d7da" rx="8"/>
-      <text x="20" y="55" fill="#721c24" font-family="sans-serif">Error: ${error.message}</text>
-    </svg>`, { 
-      status: 200, // Return 200 so it still renders as an image
-      headers: { "Content-Type": "image/svg+xml" } 
-    });
+    const errorMsg = error.message || "Failed to fetch data";
+    return new NextResponse(generateErrorSvg(errorMsg, theme), { status: 200, headers });
   }
 }
