@@ -36,7 +36,10 @@ export function generateMarkdown(state: BuilderState): MarkdownResult {
     customIconColor,
     customBorderColor,
     hideBorder,
-    layout
+    layout,
+    borderRadius,
+    showGlow,
+    animationSpeed
   } = state;
 
   let themeParams = `&theme=${theme}`;
@@ -54,7 +57,8 @@ export function generateMarkdown(state: BuilderState): MarkdownResult {
   let customLanguages = '';
   if (showCustomLanguages) {
     if (languageDisplayType === 'analytics') {
-      customLanguages = `<div align="center">\n  <img src="${baseUrl}/api/github-languages?username=${username}&include_contribs=${includeContributions}&limit=${languageLimit}&layout=${languageLayout}${themeParams}" alt="Detailed Language Analytics" />\n</div>\n\n`;
+      const advancedParams = `&borderRadius=${borderRadius}&showGlow=${showGlow}&animationSpeed=${animationSpeed}`;
+      customLanguages = `<div align="center">\n  <img src="${baseUrl}/api/github-languages?username=${username}&include_contribs=${includeContributions}&limit=${languageLimit}&layout=${languageLayout}${themeParams}${advancedParams}" alt="Detailed Language Analytics" />\n</div>\n\n`;
     } else {
       customLanguages = `<div align="center">\n`;
       manualSkills.filter(s => !hiddenSkills.includes(s)).forEach(skill => {

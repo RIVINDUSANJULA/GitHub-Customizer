@@ -25,6 +25,9 @@ export async function GET(req: NextRequest) {
     hide_border: searchParams.get("hide_border") === "true",
     limit,
     layout,
+    borderRadius: searchParams.get("borderRadius") ? parseInt(searchParams.get("borderRadius")!) : undefined,
+    showGlow: searchParams.get("showGlow") === "true",
+    animationSpeed: searchParams.get("animationSpeed") ? parseFloat(searchParams.get("animationSpeed")!) : undefined,
   };
 
   try {

@@ -20,7 +20,10 @@ export interface BuilderState {
   autoLanguages: { name: string, color: string, percentage: number }[];
   includeContributions: boolean;
   languageLimit: number;
-  languageLayout: 'compact' | 'pie' | 'list';
+  languageLayout: 'compact' | 'pie' | 'list' | 'modern-bar' | 'soft-cards' | 'minimalist-line';
+  borderRadius: number;
+  showGlow: boolean;
+  animationSpeed: number;
 
   // Customization
   theme: StatTheme;
@@ -37,7 +40,7 @@ export interface BuilderState {
   setCustomColor: (key: keyof Pick<BuilderState, 'customBgColor' | 'customTextColor' | 'customIconColor' | 'customBorderColor'>, color: string) => void;
   setHideBorder: (hide: boolean) => void;
   setLayout: (layout: 'stacked' | 'grid') => void;
-  setLanguageOption: (key: keyof Pick<BuilderState, 'includeContributions' | 'languageLimit' | 'languageLayout'>, value: any) => void;
+  setLanguageOption: (key: keyof Pick<BuilderState, 'includeContributions' | 'languageLimit' | 'languageLayout' | 'borderRadius' | 'showGlow' | 'animationSpeed'>, value: any) => void;
   setLanguageDisplayType: (type: 'analytics' | 'badges') => void;
   addManualSkill: (skill: string) => void;
   removeManualSkill: (skill: string) => void;
@@ -70,6 +73,9 @@ export const useBuilderStore = create<BuilderState>()(
       includeContributions: true,
       languageLimit: 5,
       languageLayout: 'compact',
+      borderRadius: 8,
+      showGlow: false,
+      animationSpeed: 1,
 
       theme: 'default',
       customBgColor: '000000',

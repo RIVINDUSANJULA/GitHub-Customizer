@@ -160,20 +160,69 @@ export function BuilderSidebar() {
                     <div>
                       <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Visual Style</label>
                       <div className="grid grid-cols-3 gap-2">
-                        {(['compact', 'list', 'pie'] as const).map((style) => (
+                        {(['compact', 'list', 'pie', 'modern-bar', 'soft-cards', 'minimalist-line'] as const).map((style) => (
                           <button
                             key={style}
                             onClick={() => store.setLanguageOption('languageLayout', style)}
                             className={cn(
-                              "py-2 text-xs font-medium rounded-lg border transition-all capitalize",
+                              "py-2 text-[10px] font-bold rounded-lg border transition-all uppercase tracking-wider",
                               store.languageLayout === style
-                                ? "bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 border-indigo-200 dark:border-indigo-500/30"
-                                : "bg-white dark:bg-zinc-900 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-white/10"
+                                ? "bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 border-indigo-200 dark:border-indigo-500/30 shadow-sm"
+                                : "bg-white dark:bg-zinc-900 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-white/10 hover:border-slate-300"
                             )}
                           >
-                            {style}
+                            {style.replace('-', ' ')}
                           </button>
                         ))}
+                      </div>
+                    </div>
+
+                    <div className="pt-4 space-y-4 border-t border-slate-200 dark:border-white/10">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-slate-400 uppercase">Advanced Styling</span>
+                      </div>
+                      
+                      <div>
+                        <div className="flex justify-between mb-1">
+                          <label className="text-xs font-medium text-slate-600 dark:text-slate-400">Corner Radius: {store.borderRadius}px</label>
+                        </div>
+                        <input
+                          type="range"
+                          min="0"
+                          max="20"
+                          step="2"
+                          value={store.borderRadius}
+                          onChange={(e) => store.setLanguageOption('borderRadius', parseInt(e.target.value))}
+                          className="w-full h-1.5 bg-slate-200 dark:bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                        />
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs font-medium text-slate-600 dark:text-slate-400">Neon Glow Effect</label>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input 
+                            type="checkbox" 
+                            className="sr-only peer" 
+                            checked={store.showGlow}
+                            onChange={(e) => store.setLanguageOption('showGlow', e.target.checked)}
+                          />
+                          <div className="w-9 h-5 bg-slate-200 dark:bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-500"></div>
+                        </label>
+                      </div>
+
+                      <div>
+                        <div className="flex justify-between mb-1">
+                          <label className="text-xs font-medium text-slate-600 dark:text-slate-400">Animation Speed: {store.animationSpeed}x</label>
+                        </div>
+                        <input
+                          type="range"
+                          min="0.5"
+                          max="2"
+                          step="0.1"
+                          value={store.animationSpeed}
+                          onChange={(e) => store.setLanguageOption('animationSpeed', parseFloat(e.target.value))}
+                          className="w-full h-1.5 bg-slate-200 dark:bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                        />
                       </div>
                     </div>
                   </div>
