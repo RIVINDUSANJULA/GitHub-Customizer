@@ -74,14 +74,26 @@ export function generateSocialSVG(options: SocialCardOptions) {
       return `<image x="${x}" y="${y}" width="${size}" height="${size}" href="${avatarUrl}" clip-path="url(#${clipId})" />`;
     }
     
-    // CUSTOM STYLIZED AVATAR
+    // ELITE DEFAULT USER ICON (Futuristic 3D Silhouette)
     const initial = (username[0] || '?').toUpperCase();
     return `
       <g clip-path="url(#${clipId})" transform="translate(${x}, ${y})">
         <rect width="${size}" height="${size}" fill="#${avatarThemeColor}" fill-opacity="0.1" />
-        <circle cx="${size/2}" cy="${size/2}" r="${size/2.5}" fill="#${avatarThemeColor}" fill-opacity="0.2" class="pulse-ring" />
-        <text x="${size/2}" y="${size/2 + (size/10)}" fill="#${avatarThemeColor}" font-family="Arial" font-size="${size/2}" font-weight="900" text-anchor="middle" dominant-baseline="middle" opacity="0.8">${initial}</text>
-        <path d="M ${size/2} ${size/4} A ${size/8} ${size/8} 0 1 1 ${size/2} ${size/2} M ${size/4} ${size*0.8} A ${size/4} ${size/4} 0 0 1 ${size*0.75} ${size*0.8}" stroke="#${avatarThemeColor}" stroke-width="2" fill="none" opacity="0.5" />
+        
+        <!-- Animated Scanline -->
+        <rect width="${size}" height="2" fill="#${avatarThemeColor}" fill-opacity="0.3" class="scanline">
+          <animateTransform attributeName="transform" type="translate" from="0 0" to="0 ${size}" dur="3s" repeatCount="indefinite" />
+        </rect>
+
+        <circle cx="${size/2}" cy="${size/2}" r="${size/2.5}" fill="#${avatarThemeColor}" fill-opacity="0.15" class="pulse-ring" />
+        
+        <!-- 3D Silhouette Path -->
+        <g transform="translate(${size/4}, ${size/4}) scale(${size/100})">
+           <path d="M50 20 C65 20 75 35 75 50 C75 65 65 80 50 80 C35 80 25 65 25 50 C25 35 35 20 50 20 M10 120 C10 100 30 85 50 85 C70 85 90 100 90 120 L90 140 L10 140 Z" 
+                 fill="#${avatarThemeColor}" fill-opacity="0.6" stroke="#${avatarThemeColor}" stroke-width="2" />
+        </g>
+
+        <text x="${size/2}" y="${size/2 + (size/15)}" fill="white" font-family="Arial" font-size="${size/4}" font-weight="900" text-anchor="middle" dominant-baseline="middle" opacity="0.3">${initial}</text>
       </g>
     `;
   };

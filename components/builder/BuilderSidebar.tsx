@@ -935,6 +935,55 @@ export function BuilderSidebar() {
                                              {profile.isVisible ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
                                            </button>
                                          </div>
+
+                                         {/* Identity Import Controls */}
+                                         <div className="space-y-3 pt-4 border-t border-slate-100 dark:border-white/5">
+                                           <div className="flex items-center justify-between">
+                                             <div className="flex flex-col">
+                                               <span className="text-[10px] font-black uppercase text-slate-700 dark:text-slate-300">Identity Source</span>
+                                               <span className="text-[8px] text-slate-400 uppercase">Auto vs Manual</span>
+                                             </div>
+                                             <div className="flex bg-slate-100 dark:bg-zinc-800 p-1 rounded-lg">
+                                               <button 
+                                                 onClick={() => store.updateSocialProfile(profile.platform, { avatarMode: 'auto' })}
+                                                 className={cn(
+                                                   "px-2 py-1 text-[8px] font-black uppercase rounded-md transition-all",
+                                                   (profile.avatarMode || 'auto') === 'auto' ? "bg-white dark:bg-zinc-700 text-rose-500 shadow-sm" : "text-slate-400"
+                                                 )}
+                                               >
+                                                 Auto
+                                               </button>
+                                               <button 
+                                                 onClick={() => store.updateSocialProfile(profile.platform, { avatarMode: 'custom' })}
+                                                 className={cn(
+                                                   "px-2 py-1 text-[8px] font-black uppercase rounded-md transition-all",
+                                                   profile.avatarMode === 'custom' ? "bg-white dark:bg-zinc-700 text-rose-500 shadow-sm" : "text-slate-400"
+                                                 )}
+                                               >
+                                                 Custom
+                                               </button>
+                                             </div>
+                                           </div>
+
+                                           {profile.avatarMode === 'custom' && (
+                                             <div className="space-y-1">
+                                               <span className="text-[9px] font-bold text-slate-500 uppercase tracking-tight">Custom Image URL</span>
+                                               <div className="relative group">
+                                                 <input 
+                                                   type="text" 
+                                                   value={profile.customAvatarUrl || ''} 
+                                                   onChange={(e) => store.updateSocialProfile(profile.platform, { customAvatarUrl: e.target.value })}
+                                                   placeholder="https://..."
+                                                   className="w-full h-8 pl-8 pr-3 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-white/10 rounded-lg text-xs focus:ring-1 focus:ring-rose-500/50 outline-none transition-all"
+                                                 />
+                                                 <ImageIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 group-focus-within:text-rose-500 transition-colors" />
+                                               </div>
+                                               <p className="text-[7px] text-slate-400 uppercase leading-tight italic">
+                                                 Proxied via our engine to bypass GitHub Camo & CORS.
+                                               </p>
+                                             </div>
+                                           )}
+                                         </div>
                                        </div>
                                      </motion.div>
                                    )}

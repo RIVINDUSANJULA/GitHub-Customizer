@@ -131,6 +131,10 @@ export function generateMarkdown(state: BuilderState): MarkdownResult {
           // AGGRESSIVE CACHE BUSTING: Hash the handle + style + timestamp
           const cacheKey = Buffer.from(`${platform}-${username}-${profile.style || 'badge'}-${Date.now()}`).toString('base64').substring(0, 12);
           
+          const avatarUrl = profile.avatarMode === 'custom' && profile.customAvatarUrl
+            ? `${baseUrl}/api/proxy-image?url=${encodeURIComponent(profile.customAvatarUrl)}`
+            : null;
+
           const query = new URLSearchParams({
             username,
             style: profile.style || 'badge',
@@ -143,6 +147,7 @@ export function generateMarkdown(state: BuilderState): MarkdownResult {
             t: Date.now().toString()
           });
           
+          if (avatarUrl) query.set('customAvatarUrl', avatarUrl);
           if (profile.customColor) query.set('color', profile.customColor);
           
           const imageUrl = `${baseUrl}/api/social-card?platform=${platform}&${query.toString()}`;

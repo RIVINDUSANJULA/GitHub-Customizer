@@ -62,6 +62,8 @@ export interface SocialProfile {
   isVerified?: boolean;
   isDefault?: boolean;
   avatarUrl?: string;
+  avatarMode?: 'auto' | 'custom';
+  customAvatarUrl?: string;
   liveData?: {
     followers?: string;
     status?: string;

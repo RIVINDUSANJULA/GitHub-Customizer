@@ -14,6 +14,7 @@ export async function GET(req: NextRequest) {
   const themeColor = searchParams.get("color") || undefined;
   const useAvatar = searchParams.get("useAvatar") === "true";
   const syncAvatarColor = searchParams.get("syncAvatarColor") === "true";
+  const customAvatarUrl = searchParams.get("customAvatarUrl");
 
   // Fetch real-time identity data
   const identity = await fetchSocialIdentity(platform, username);
@@ -21,9 +22,9 @@ export async function GET(req: NextRequest) {
   const data = {
     followers: identity.followers || searchParams.get("subs") || null,
     status: identity.status || searchParams.get("status") || "Active",
-    avatarUrl: useAvatar ? identity.avatar : null,
+    avatarUrl: customAvatarUrl || (useAvatar ? identity.avatar : null),
     verified: identity.verified,
-    isDefault: identity.isDefault
+    isDefault: customAvatarUrl ? false : identity.isDefault
   };
 
   const svg = generateSocialSVG({

@@ -44,6 +44,10 @@ export function SocialHubPreview() {
             // UNIQUE KEY: Force clean re-render if content changes
             const uniqueKey = `${platform}-${profile.username}-${profile.style}-${socialsConfig.layout}`;
             
+            const avatarUrl = profile.avatarMode === 'custom' && profile.customAvatarUrl
+              ? `${baseUrl}/api/proxy-image?url=${encodeURIComponent(profile.customAvatarUrl)}`
+              : null;
+
             const query = new URLSearchParams({
               platform,
               username: profile.username || 'username',
@@ -56,6 +60,8 @@ export function SocialHubPreview() {
               color: profile.customColor || '',
               v: Date.now().toString() // Local cache bust
             });
+
+            if (avatarUrl) query.set('customAvatarUrl', avatarUrl);
 
             const imgSrc = `${baseUrl}/api/social-card?${query.toString()}`;
             const profileUrl = getProfileUrl(platform, profile.username);
