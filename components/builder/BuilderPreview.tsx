@@ -2,7 +2,7 @@
 
 import { useBuilderStore } from "@/store/useBuilderStore";
 import { generateMarkdown } from "@/lib/markdown-generator";
-import { Copy, Download, Check } from "lucide-react";
+import { Copy, Download, Check, AlertCircle } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -19,6 +19,7 @@ export function BuilderPreview() {
   
   const [copied, setCopied] = useState(false);
   const [activeTab, setActiveTab] = useState<'preview' | 'code'>('preview');
+  const [syncError, setSyncError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!store.username) return;
@@ -27,11 +28,18 @@ export function BuilderPreview() {
       try {
         const isForceRefresh = store.refreshTrigger > 0;
         const res = await fetch(`/api/github-user-data?username=${store.username}&include_contribs=${store.analyticsConfig.includeContributions}${isForceRefresh ? '&forceRefresh=true' : ''}`);
-        if (res.ok) {
-          const data = await res.json();
-          if (data.languages) store.setAutoLanguages(data.languages);
-          if (data.skills) store.setAutoSkills(data.skills);
+        
+        if (!res.ok) {
+          const text = await res.text();
+          if (text === "USER_TRACE_FAILED") setSyncError("User Trace Failed: Handle not found");
+          else setSyncError("Aggregator Offline: Try again later");
+          return;
         }
+
+        const data = await res.json();
+        setSyncError(null);
+        if (data.languages) store.setAutoLanguages(data.languages);
+        if (data.skills) store.setAutoSkills(data.skills);
       } catch (err) {
         console.error("Failed to fetch auto languages:", err);
       }
@@ -94,7 +102,37 @@ export function BuilderPreview() {
       </div>
 
       {/* Content Area */}
-      <div className="flex-1 overflow-auto custom-scrollbar p-6 md:p-10">
+      <div className="flex-1 overflow-auto custom-scrollbar p-6 md:p-10 relative">
+        <AnimatePresence>
+          {syncError && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 z-50 flex items-center justify-center p-6 bg-slate-50/50 dark:bg-zinc-950/50 backdrop-blur-sm"
+            >
+              <div className="max-w-md w-full bg-white dark:bg-zinc-900 border border-rose-500/30 rounded-2xl p-8 shadow-2xl text-center space-y-6">
+                <div className="w-16 h-16 bg-rose-500/10 rounded-full flex items-center justify-center mx-auto">
+                  <AlertCircle className="w-8 h-8 text-rose-500" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-slate-900 dark:text-white">User Trace Failed</h2>
+                  <p className="text-sm text-slate-500 mt-2">{syncError}</p>
+                </div>
+                <button 
+                  onClick={() => {
+                    setSyncError(null);
+                    store.setRefreshTrigger(store.refreshTrigger + 1);
+                  }}
+                  className="w-full py-3 bg-rose-500 text-white rounded-xl font-bold uppercase tracking-widest hover:bg-rose-600 transition-all"
+                >
+                  Try Again
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <div className="max-w-4xl mx-auto w-full bg-white dark:bg-zinc-900 border border-slate-200 dark:border-white/10 rounded-xl shadow-sm overflow-hidden min-h-[500px]">
           {activeTab === 'preview' ? (
             <div className="p-8 prose dark:prose-invert max-w-none">

@@ -173,7 +173,7 @@ export interface BuilderState {
   copyAnalyticsThemeToBadges: () => void;
   setActiveWidgetTab: (tab: string) => void;
   setAboutMeOption: (key: keyof BuilderState['aboutMeConfig'], value: any) => void;
-  applyAboutMePreset: (preset: 'none' | 'matrix' | 'frost' | 'ember') => void;
+  applyAboutMePreset: (preset: 'none' | 'matrix' | 'frost' | 'ember' | 'plasma' | 'toxic' | 'magma' | 'stealth') => void;
   updateAboutMe: (content: string) => void;
   setTitle: (title: string) => void;
 }

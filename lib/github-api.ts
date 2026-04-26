@@ -7,75 +7,75 @@ const CACHE_TTL = 60 * 60 * 1000; // 60 minutes
 export async function fetchUserLanguages(username: string, includeContribs: boolean, forceRefresh = false) {
   const cacheKey = `${username}-${includeContribs}`;
   
-  // 1. Try to serve from cache first (if not force refresh)
   if (!forceRefresh && cache[cacheKey] && Date.now() - cache[cacheKey].timestamp < CACHE_TTL) {
     return cache[cacheKey].data;
   }
 
   const token = process.env.GITHUB_TOKEN;
   
-  try {
-    // If no token, use the Pro REST Aggregator (Zero-Key)
-    if (!token) {
-      const data = await fetchResilientPublicData(username);
-      cache[cacheKey] = { data, timestamp: Date.now() };
-      return data;
-    }
+  if (!token) {
+    // If no token, fall back to the resilient REST scraper
+    const data = await fetchResilientPublicData(username);
+    cache[cacheKey] = { data, timestamp: Date.now() };
+    return data;
+  }
 
-    // GraphQL path (preserved for token users)
-    const fetchFromGithub = async (query: string) => {
-      const response = await fetch(GITHUB_GRAPHQL_API, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ query, variables: { username } }),
-        next: { revalidate: 3600 } 
-      });
-
-      const json = await response.json();
-      if (json.errors) {
-        if (json.errors.some((e: any) => e.type === 'RATE_LIMITED' || e.message.includes('rate limit'))) {
-          // Failure-Proof: Return stale cache on rate limit
-          if (cache[cacheKey]) return cache[cacheKey].data;
-          throw new Error("GitHub Rate Limit Exceeded");
-        }
-        return { data: json.data, errors: json.errors };
-      }
-      return { data: json.data };
-    };
-
-    const ownedReposQuery = `
-      query($username: String!) {
-        user(login: $username) {
-          repositories(first: 100, ownerAffiliations: OWNER, privacy: PUBLIC, orderBy: {field: PUSHED_AT, direction: DESC}) {
-            nodes {
-              isPrivate
-              stargazerCount
-              languages(first: 10, orderBy: {field: SIZE, direction: DESC}) {
-                edges {
-                  size
-                  node {
-                    name
-                    color
-                  }
-                }
+  const query = `
+    query ($username: String!) {
+      user(login: $username) {
+        repositories(first: 100, ownerAffiliations: OWNER, isFork: false, orderBy: {field: UPDATED, direction: DESC}) {
+          nodes {
+            isPrivate
+            stargazerCount
+            repositoryTopics(first: 10) {
+              nodes {
+                topic { name }
+              }
+            }
+            languages(first: 10, orderBy: {field: SIZE, direction: DESC}) {
+              edges {
+                size
+                node { name color }
               }
             }
           }
         }
       }
-    `;
+    }
+  `;
 
-    const ownedResult = await fetchFromGithub(ownedReposQuery);
-    if (!ownedResult.data?.user) throw new Error("User not found");
-    const userData = { ...ownedResult.data.user };
-    cache[cacheKey] = { data: userData, timestamp: Date.now() };
-    return userData;
-  } catch (error) {
-    console.error("GitHub API Error:", error);
-    // Failure-Proof: Return stale cache on any error
+  try {
+    const response = await fetch(GITHUB_GRAPHQL_API, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ query, variables: { username } }),
+      next: { revalidate: 600 } // 10 minute Vercel cache as requested
+    });
+
+    const json = await response.json();
+    
+    if (json.errors) {
+      const isNotFound = json.errors.some((e: any) => e.type === 'NOT_FOUND' || e.message.includes('Could not resolve to a User'));
+      if (isNotFound) throw new Error("USER_TRACE_FAILED");
+      
+      const isRateLimited = json.errors.some((e: any) => e.type === 'RATE_LIMITED' || e.message.includes('rate limit'));
+      if (isRateLimited) {
+        if (cache[cacheKey]) return cache[cacheKey].data;
+        throw new Error("RATE_LIMIT_EXCEEDED");
+      }
+      throw new Error(json.errors[0].message);
+    }
+
+    if (!json.data?.user) throw new Error("USER_TRACE_FAILED");
+
+    const data = json.data.user;
+    cache[cacheKey] = { data, timestamp: Date.now() };
+    return data;
+  } catch (error: any) {
+    console.error("GraphQL Aggregator Error:", error);
     if (cache[cacheKey]) return cache[cacheKey].data;
     throw error;
   }
@@ -165,14 +165,26 @@ async function fetchResilientPublicData(username: string) {
 export function aggregateSkills(userData: any) {
   const skillCount: Record<string, number> = {};
   
-  // 1. Process topics (from REST API path)
+  // 1. Process topics (from REST API path or GraphQL)
   if (userData.topics) {
     userData.topics.forEach((topic: string) => {
       skillCount[topic] = (skillCount[topic] || 0) + 1;
     });
   }
 
-  // 2. Process languages (as secondary skills)
+  // 2. Process topics from GraphQL repositories
+  if (userData.repositories?.nodes) {
+    userData.repositories.nodes.forEach((repo: any) => {
+      if (repo.repositoryTopics?.nodes) {
+        repo.repositoryTopics.nodes.forEach((node: any) => {
+          const topic = node.topic.name;
+          skillCount[topic] = (skillCount[topic] || 0) + 1;
+        });
+      }
+    });
+  }
+
+  // 3. Process languages (as secondary skills)
   const langs = aggregateLanguages(userData);
   langs.forEach(l => {
     const name = l.name.toLowerCase();

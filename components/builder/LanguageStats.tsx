@@ -2,7 +2,6 @@
 
 import { useBuilderStore } from "@/store/useBuilderStore";
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
 interface LanguageData {
@@ -14,23 +13,13 @@ interface LanguageData {
 export function LanguageStats() {
   const store = useBuilderStore();
   const languages = Array.isArray(store.autoLanguages) ? store.autoLanguages : [];
+  const layout = store.analyticsConfig.layout || 'modern-bar';
   
   // Determine loading/syncing state
-  // If we have a username but no languages yet, we are syncing
   const isSyncing = store.username && languages.length === 0;
 
   if (isSyncing) {
-    return (
-      <div className="w-full space-y-4 p-8 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl flex flex-col items-center justify-center min-h-[200px]">
-        <div className="relative w-12 h-12">
-          <div className="absolute inset-0 rounded-full border-2 border-indigo-500/20 border-t-indigo-500 animate-spin" />
-          <div className="absolute inset-2 rounded-full border-2 border-rose-500/20 border-b-rose-500 animate-spin-slow" />
-        </div>
-        <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 animate-pulse mt-4">
-          // SCANNING_REPOSITORIES
-        </p>
-      </div>
-    );
+    return <SkeletonShimmer layout={layout} />;
   }
 
   if (languages.length === 0) {
@@ -43,10 +32,6 @@ export function LanguageStats() {
       </div>
     );
   }
-
-  // Get accent color from store for neon glow
-  const layout = store.analyticsConfig.layout || 'modern-bar';
-  const accent = `#${store.aboutMeConfig.accentColor || 'f43f5e'}`;
 
   return (
     <div className="w-full space-y-6 p-6 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl relative overflow-hidden group">
@@ -76,8 +61,46 @@ export function LanguageStats() {
           GitInfo Aggregator v2.0
         </p>
         <p className="text-[7px] font-mono text-slate-500 uppercase tracking-tight">
-          Real-time Byte-Count Analysis
+          Real-time GraphQL Analysis
         </p>
+      </div>
+    </div>
+  );
+}
+
+function SkeletonShimmer({ layout }: { layout: string }) {
+  return (
+    <div className="w-full p-6 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-shimmer" />
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <div className="h-2 w-24 bg-white/10 rounded animate-pulse" />
+          <div className="h-2 w-12 bg-white/10 rounded animate-pulse" />
+        </div>
+
+        {layout === 'pie' ? (
+          <div className="flex items-center justify-center gap-8 py-4">
+            <div className="w-40 h-40 rounded-full border-8 border-white/10 animate-pulse" />
+            <div className="space-y-2">
+              {[1, 2, 3].map(i => <div key={i} className="h-2 w-20 bg-white/10 rounded animate-pulse" />)}
+            </div>
+          </div>
+        ) : layout === 'soft-cards' ? (
+          <div className="grid grid-cols-2 gap-3">
+            {[1, 2, 3, 4].map(i => (
+              <div key={i} className="h-24 bg-white/10 rounded-xl animate-pulse" />
+            ))}
+          </div>
+        ) : (
+          <div className="space-y-5">
+            {[1, 2, 3, 4, 5].map(i => (
+              <div key={i} className="space-y-2">
+                <div className="h-2 w-32 bg-white/10 rounded animate-pulse" />
+                <div className="h-2 w-full bg-white/10 rounded-full animate-pulse" />
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -112,6 +135,8 @@ function CompactList({ languages }: { languages: LanguageData[] }) {
 }
 
 function ModernBars({ languages }: { languages: LanguageData[] }) {
+  const store = useBuilderStore();
+  const barHeight = store.analyticsConfig.barHeight || 18;
   if (!Array.isArray(languages)) return null;
   return (
     <div className="space-y-5">
@@ -127,7 +152,7 @@ function ModernBars({ languages }: { languages: LanguageData[] }) {
             <span className="text-[11px] font-bold text-slate-200 uppercase tracking-wider">{lang.name}</span>
             <span className="text-[10px] font-mono text-slate-400">{lang.percentage.toFixed(1)}%</span>
           </div>
-          <div className="relative h-2 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
+          <div className="relative w-full bg-white/5 rounded-full overflow-hidden border border-white/5" style={{ height: `${barHeight}px` }}>
             <motion.div 
               initial={{ width: 0 }}
               animate={{ width: `${lang.percentage}%` }}
@@ -135,7 +160,7 @@ function ModernBars({ languages }: { languages: LanguageData[] }) {
               className="absolute inset-y-0 left-0 rounded-full"
               style={{ 
                 backgroundColor: lang.color,
-                boxShadow: `0 0 20px ${lang.color}44`
+                boxShadow: store.analyticsConfig.showGlow ? `0 0 20px ${lang.color}44` : undefined
               }}
             >
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
@@ -148,6 +173,8 @@ function ModernBars({ languages }: { languages: LanguageData[] }) {
 }
 
 function PieChart({ languages }: { languages: LanguageData[] }) {
+  const store = useBuilderStore();
+  const donutHoleSize = store.analyticsConfig.donutHoleSize || 60;
   if (!Array.isArray(languages)) return null;
   const radius = 35;
   const circumference = 2 * Math.PI * radius;
@@ -175,24 +202,26 @@ function PieChart({ languages }: { languages: LanguageData[] }) {
                 initial={{ strokeDashoffset: circumference }}
                 animate={{ strokeDashoffset }}
                 transition={{ duration: 1.5, ease: [0.19, 1, 0.22, 1], delay: i * 0.1 }}
-                style={{ filter: `drop-shadow(0 0 8px ${lang.color}44)` }}
+                style={{ filter: store.analyticsConfig.showGlow ? `drop-shadow(0 0 8px ${lang.color}44)` : undefined }}
                 className="hover:stroke-[14px] transition-all duration-300 cursor-pointer"
               />
             );
           })}
-          {/* Inner glass circle */}
-          <circle cx="50" cy="50" r={radius - 12} fill="rgba(255,255,255,0.03)" className="backdrop-blur-xl" />
+          {/* Inner glass circle (Donut hole) */}
+          <circle cx="50" cy="50" r={radius * (donutHoleSize / 100)} fill="rgba(255,255,255,0.03)" className="backdrop-blur-xl" />
         </svg>
       </div>
-      <div className="space-y-2">
-        {languages.map((lang, i) => (
-          <div key={lang.name} className="flex items-center gap-3">
-            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: lang.color }} />
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">{lang.name}</span>
-            <span className="text-[9px] font-mono text-slate-600">{lang.percentage.toFixed(0)}%</span>
-          </div>
-        ))}
-      </div>
+      {!store.analyticsConfig.pieHideLegend && (
+        <div className="space-y-2">
+          {languages.map((lang, i) => (
+            <div key={lang.name} className="flex items-center gap-3">
+              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: lang.color }} />
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">{lang.name}</span>
+              <span className="text-[9px] font-mono text-slate-600">{lang.percentage.toFixed(0)}%</span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
