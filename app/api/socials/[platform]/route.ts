@@ -16,9 +16,9 @@ async function fetchWithCache(key: string, fetcher: () => Promise<any>) {
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { platform: string } }
+  { params }: { params: Promise<{ platform: string }> }
 ) {
-  const { platform } = params;
+  const { platform } = await params;
   const { searchParams } = req.nextUrl;
   const username = searchParams.get("username");
 
