@@ -1,4 +1,4 @@
-# Contributing to the Next-Gen GitHub Profile & Identity Suite
+# Contributing to the Next-Gen GitHub Profile & GitInfo
 
 First off, thank you for considering contributing to this project! It's people like you that make the open-source community such an amazing place to learn, inspire, and create. 
 
@@ -28,7 +28,7 @@ If you find a bug, please open an issue in the repository. Include as much detai
 * **Screenshots:** Visual proof of UI/UX breaks (especially related to the Glassmorphism engine).
 
 ### 2. Suggesting Enhancements
-We are always looking to expand the **Identity Suite**. If you have an idea for a new widget, a better layout engine mechanism, or a new social media proxy integration, please open an "Enhancement" issue to discuss it before you start coding.
+We are always looking to expand the **GitInfo**. If you have an idea for a new widget, a better layout engine mechanism, or a new social media proxy integration, please open an "Enhancement" issue to discuss it before you start coding.
 
 ### 3. Submitting Pull Requests
 To contribute code, follow this standard GitHub workflow:
