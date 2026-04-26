@@ -23,7 +23,7 @@ export async function fetchUserLanguages(username: string, includeContribs: bool
   const query = `
     query ($username: String!) {
       user(login: $username) {
-        repositories(first: 100, ownerAffiliations: OWNER, isFork: false, orderBy: {field: UPDATED, direction: DESC}) {
+        repositories(first: 100, ownerAffiliations: OWNER, isFork: false, orderBy: {field: PUSHED_AT, direction: DESC}) {
           nodes {
             isPrivate
             stargazerCount
