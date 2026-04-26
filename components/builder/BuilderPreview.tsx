@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 
 import { SkillBadgeGrid } from "./SkillBadgeGrid";
 import { SocialHubPreview } from "./SocialHubPreview";
+import AboutMePreview from "./AboutMePreview";
 
 export function BuilderPreview() {
   const store = useBuilderStore();
@@ -110,7 +111,8 @@ export function BuilderPreview() {
                                            id === 'stats' ? store.showStats :
                                            id === 'streak' ? store.showStreak :
                                            id === 'trophies' ? store.showTrophies :
-                                           id === 'socials' ? store.showSocials : false;
+                                           id === 'socials' ? store.showSocials :
+                                           id === 'aboutme' ? store.showAboutMe : false;
 
                           if (!isVisible) return null;
 
@@ -143,8 +145,9 @@ export function BuilderPreview() {
                                   </object>
                                 </div>
                               )}
-                              {id === 'badges' && <SkillBadgeGrid />}
-                              {id === 'socials' && <SocialHubPreview />}
+                                {id === 'aboutme' && <AboutMePreview />}
+                               {id === 'badges' && <SkillBadgeGrid />}
+                               {id === 'socials' && <SocialHubPreview />}
                               {id === 'stats' && (
                                 <div dangerouslySetInnerHTML={{ __html: `<img src="https://github-readme-stats.vercel.app/api?username=${store.username}&show_icons=true${themeParams}" alt="Stats" />` }} />
                               )}

@@ -86,7 +86,18 @@ export interface BuilderState {
   showLanguages: boolean;
   showBadges: boolean;
   showSocials: boolean;
+  showAboutMe: boolean;
   
+  aboutMe: string;
+  aboutMeConfig: {
+    content: string;
+    vibe: 'professional' | 'creative' | 'minimalist' | 'technical';
+    format: 'paragraph' | 'bullets' | 'mixed';
+    length: 'short' | 'medium' | 'long';
+    showGlow: boolean;
+    blockRadius: number;
+  };
+
   analyticsConfig: AnalyticsConfig;
   badgesConfig: BadgesConfig;
 
@@ -130,6 +141,8 @@ export interface BuilderState {
   setAllSkillsOrder: (order: string[]) => void;
   copyAnalyticsThemeToBadges: () => void;
   setActiveWidgetTab: (tab: string) => void;
+  setAboutMeOption: <K extends keyof BuilderState['aboutMeConfig']>(key: K, value: BuilderState['aboutMeConfig'][K]) => void;
+  updateAboutMe: (content: string) => void;
 }
 
 export const useBuilderStore = create<BuilderState>()(
@@ -143,7 +156,18 @@ export const useBuilderStore = create<BuilderState>()(
       showLanguages: true,
       showBadges: true,
       showSocials: true,
+      showAboutMe: true,
       activeWidgetTab: 'stats',
+
+      aboutMe: '',
+      aboutMeConfig: {
+        content: "Hi there! I'm a developer building cool things on GitHub.",
+        vibe: 'professional',
+        format: 'mixed',
+        length: 'medium',
+        showGlow: true,
+        blockRadius: 20,
+      },
 
       analyticsConfig: {
         languageLimit: 5,
@@ -202,7 +226,7 @@ export const useBuilderStore = create<BuilderState>()(
       hiddenSkills: [],
       autoLanguages: [],
       allSkillsOrder: [],
-      widgetOrder: ['stats', 'streak', 'trophies', 'languages', 'badges', 'socials'],
+      widgetOrder: ['aboutme', 'stats', 'streak', 'trophies', 'languages', 'badges', 'socials'],
 
       theme: 'default',
       customBgColor: '000000',
@@ -235,6 +259,11 @@ export const useBuilderStore = create<BuilderState>()(
         set((state) => ({
           socialsConfig: { ...state.socialsConfig, [key]: value }
         })),
+      setAboutMeOption: (key, value) =>
+        set((state) => ({
+          aboutMeConfig: { ...state.aboutMeConfig, [key]: value }
+        })),
+      updateAboutMe: (content) => set({ aboutMe: content }),
       updateSocialProfile: (platform, updates) =>
         set((state) => ({
           socialProfiles: state.socialProfiles.map(p => p.platform === platform ? { ...p, ...updates } : p)

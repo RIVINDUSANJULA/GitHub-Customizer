@@ -33,6 +33,7 @@ import {
   MessageSquare, 
   Plus, 
   ExternalLink,
+  Bot,
   Image as ImageIcon
 } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
@@ -1136,6 +1137,142 @@ export function BuilderSidebar() {
                   )}
                 </AnimatePresence>
               </div>
+
+              {/* 🤖 AI About Me Section */}
+              <div className={cn("rounded-2xl border overflow-hidden transition-all", store.showAboutMe ? "border-rose-200 dark:border-rose-500/30 bg-rose-50/20 dark:bg-rose-500/5" : "border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-zinc-900/20")}>
+                <button onClick={() => toggleSection('aboutme')} className="w-full flex items-center justify-between p-4 bg-white dark:bg-zinc-900/50 hover:bg-slate-50 dark:hover:bg-zinc-900 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <Bot className={cn("w-5 h-5", store.showAboutMe ? "text-rose-500" : "text-slate-400")} />
+                    <span className="font-semibold text-slate-900 dark:text-white">AI About Me</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <input 
+                      type="checkbox" 
+                      checked={store.showAboutMe} 
+                      onChange={() => store.toggleModule('showAboutMe')}
+                      onClick={(e) => e.stopPropagation()}
+                      className="w-4 h-4 rounded border-slate-300 text-rose-600 focus:ring-rose-500"
+                    />
+                    <ChevronDown className={cn("w-5 h-5 text-slate-500 transition-transform", isSectionOpen('aboutme') && "rotate-180")} />
+                  </div>
+                </button>
+
+                <AnimatePresence>
+                  {isSectionOpen('aboutme') && (
+                    <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} className="overflow-hidden border-t border-slate-200 dark:border-white/10">
+                      <div className="p-4 space-y-6 bg-white dark:bg-zinc-950/20">
+                        {/* Generation Controls */}
+                        <div className="space-y-4">
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Bio Vibe</label>
+                            <div className="grid grid-cols-2 gap-2">
+                              {['professional', 'creative', 'minimalist', 'technical'].map((v) => (
+                                <button
+                                  key={v}
+                                  onClick={() => store.setAboutMeOption('vibe', v as any)}
+                                  className={cn(
+                                    "px-2 py-1.5 text-[9px] font-bold uppercase rounded-lg border transition-all",
+                                    store.aboutMeConfig.vibe === v 
+                                      ? "bg-rose-500 border-rose-500 text-white shadow-lg shadow-rose-500/20" 
+                                      : "bg-slate-50 dark:bg-zinc-900 border-slate-200 dark:border-white/5 text-slate-400 hover:border-rose-500/30"
+                                  )}
+                                >
+                                  {v}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Structure</label>
+                            <div className="grid grid-cols-3 gap-2">
+                              {['paragraph', 'bullets', 'mixed'].map((f) => (
+                                <button
+                                  key={f}
+                                  onClick={() => store.setAboutMeOption('format', f as any)}
+                                  className={cn(
+                                    "px-2 py-1.5 text-[9px] font-bold uppercase rounded-lg border transition-all",
+                                    store.aboutMeConfig.format === f
+                                      ? "bg-rose-500 border-rose-500 text-white shadow-lg shadow-rose-500/20" 
+                                      : "bg-slate-50 dark:bg-zinc-900 border-slate-200 dark:border-white/5 text-slate-400 hover:border-rose-500/30"
+                                  )}
+                                >
+                                  {f}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+
+                          <div className="space-y-1.5">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Detail Level: {store.aboutMeConfig.length}</label>
+                            <input 
+                              type="range" 
+                              min="0" 
+                              max="2" 
+                              step="1" 
+                              value={store.aboutMeConfig.length === 'short' ? 0 : store.aboutMeConfig.length === 'medium' ? 1 : 2}
+                              onChange={(e) => {
+                                const val = parseInt(e.target.value);
+                                store.setAboutMeOption('length', val === 0 ? 'short' : val === 1 ? 'medium' : 'long');
+                              }}
+                              className="w-full h-1 bg-slate-200 dark:bg-zinc-800 rounded-full appearance-none cursor-pointer accent-rose-500"
+                            />
+                          </div>
+
+                          <button
+                            onClick={async () => {
+                              const btn = document.getElementById('gen-bio-btn');
+                              if (btn) btn.innerHTML = '<span class="animate-pulse">Generating...</span>';
+                              
+                              try {
+                                const res = await fetch('/api/generate-about', {
+                                  method: 'POST',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({
+                                    username: store.username,
+                                    title: store.title,
+                                    skills: combinedSkills.map(s => s.name),
+                                    socials: store.socialProfiles.map(p => p.platform),
+                                    vibe: store.aboutMeConfig.vibe,
+                                    format: store.aboutMeConfig.format,
+                                    length: store.aboutMeConfig.length
+                                  })
+                                });
+                                const data = await res.json();
+                                if (data.content) {
+                                  store.updateAboutMe(data.content);
+                                }
+                              } catch (e) {
+                                console.error(e);
+                              } finally {
+                                if (btn) btn.innerHTML = 'Regenerate Bio';
+                              }
+                            }}
+                            id="gen-bio-btn"
+                            className="w-full py-3 bg-zinc-900 dark:bg-white text-white dark:text-black text-[10px] font-black uppercase tracking-widest rounded-xl hover:shadow-xl transition-all border border-white/10 flex items-center justify-center gap-2 group"
+                          >
+                            <Sparkles className="w-3.5 h-3.5 group-hover:animate-spin" />
+                            {store.aboutMe ? 'Regenerate Bio' : 'Generate with AI'}
+                          </button>
+                        </div>
+
+                        {/* Editable Area */}
+                        {store.aboutMe && (
+                          <div className="space-y-2 pt-4 border-t border-slate-100 dark:border-white/5">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Edit Generated Bio</label>
+                            <textarea
+                              value={store.aboutMe}
+                              onChange={(e) => store.updateAboutMe(e.target.value)}
+                              className="w-full h-40 p-3 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-white/10 rounded-xl text-xs font-medium text-slate-600 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-rose-500/50 transition-all custom-scrollbar resize-none"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
               <div className="rounded-2xl border border-slate-200 dark:border-white/10 overflow-hidden bg-slate-50/50 dark:bg-zinc-900/20">
                 <button onClick={() => toggleSection('layout')} className="w-full flex items-center justify-between p-4 bg-white dark:bg-zinc-900/50 hover:bg-slate-50 dark:hover:bg-zinc-900 transition-colors">
                   <div className="flex items-center gap-3">

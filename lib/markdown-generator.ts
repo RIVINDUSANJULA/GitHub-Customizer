@@ -109,6 +109,9 @@ export function generateMarkdown(state: BuilderState): MarkdownResult {
         widgets += `</div>\n\n`;
       }
     }
+    if (id === 'aboutme' && state.showAboutMe && state.aboutMe) {
+      widgets += `${state.aboutMe}\n\n`;
+    }
 
     if (id === 'stats' && showStats) {
       widgets += `<div align="center">\n  <img src="https://github-readme-stats.vercel.app/api?username=${username}&show_icons=true${themeParams}" alt="${username}'s GitHub Stats" />\n</div>\n\n`;
