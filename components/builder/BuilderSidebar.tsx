@@ -1385,7 +1385,7 @@ export function BuilderSidebar() {
                                        id === 'streak' ? 'Streak Stats' :
                                        id === 'trophies' ? 'GitHub Trophies' :
                                        id === 'socials' ? 'Social Connectivity' :
-                                       id === 'aboutme' ? 'AI About Me' : id;
+                                       id === 'aboutme' ? 'About Me' : id;
 
                           return (
                             <Reorder.Item
