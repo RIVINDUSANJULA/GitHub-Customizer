@@ -224,7 +224,13 @@ export function BuilderSidebar() {
   };
 
   const combinedSkills = useMemo(() => {
-    const auto = Array.isArray(store.autoLanguages) ? store.autoLanguages.map(l => ({ name: l.name, isAuto: true, iconUrl: undefined })) : [];
+    const auto = Array.isArray(store.autoLanguages) 
+      ? store.autoLanguages.map(l => ({ 
+          name: l.name, 
+          isAuto: true, 
+          iconUrl: mapToArtisticIcon(l.name) 
+        })) 
+      : [];
     const manual = store.manualSkills.map(s => ({ name: s.name, isAuto: false, iconUrl: s.iconUrl }));
     const all = [...auto, ...manual];
 

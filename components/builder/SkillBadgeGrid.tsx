@@ -14,6 +14,12 @@ function getSlug(name: string) {
     'html5': 'html',
     'css3': 'css',
     'google cloud': 'gcp',
+    'c++': 'cpp',
+    'c#': 'csharp',
+    'objective-c': 'objectivec',
+    'jupyter notebook': 'jupyter',
+    'shell': 'bash',
+    'powershell': 'powershell',
   };
 
   const lower = name.toLowerCase();
@@ -58,8 +64,18 @@ export function SkillBadgeGrid() {
   const visibleManualSkills = safeManualSkills.filter(s => !hiddenSkills.includes(s.name));
 
   const allVisibleSkills = [
-    ...visibleAutoLangs.map(l => ({ name: l.name, type: 'auto' as const, iconUrl: undefined, color: undefined })),
-    ...visibleManualSkills.map(s => ({ name: s.name, type: 'manual' as const, iconUrl: s.iconUrl, color: s.color }))
+    ...visibleAutoLangs.map(l => ({ 
+      name: l.name, 
+      type: 'auto' as const, 
+      iconUrl: `https://cdn.simpleicons.org/${getSlug(l.name)}/white`, 
+      color: l.color?.replace('#', '') 
+    })),
+    ...visibleManualSkills.map(s => ({ 
+      name: s.name, 
+      type: 'manual' as const, 
+      iconUrl: s.iconUrl, 
+      color: s.color 
+    }))
   ];
 
   // Apply unified order
