@@ -1,11 +1,12 @@
 
 async function toBase64(url: string) {
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 3000); // 3s timeout
+  const timeoutId = setTimeout(() => controller.abort(), 2500); // 2.5s timeout
 
   try {
     const res = await fetch(url, { signal: controller.signal });
     clearTimeout(timeoutId);
+    if (!res.ok) return null;
     const buffer = await res.arrayBuffer();
     const base64 = Buffer.from(buffer).toString('base64');
     const contentType = res.headers.get('content-type') || 'image/png';
@@ -39,7 +40,7 @@ function isDefaultAvatar(url: string, platform: string): boolean {
 
 export async function fetchSocialIdentity(platform: string, username: string) {
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 3500); // 3.5s timeout for scraper
+  const timeoutId = setTimeout(() => controller.abort(), 3000); // 3s total timeout
 
   try {
     let avatarUrl = `https://unavatar.io/${platform}/${username}`;
@@ -48,7 +49,11 @@ export async function fetchSocialIdentity(platform: string, username: string) {
     let verified = false;
     let isDefault = false;
 
-    const fetchOptions = { signal: controller.signal, headers: { 'User-Agent': 'Mozilla/5.0' } };
+    const fetchOptions = { 
+      signal: controller.signal, 
+      headers: { 'User-Agent': 'Mozilla/5.0' },
+      next: { revalidate: 3600 } // Cache for 1 hour
+    };
 
     switch (platform.toLowerCase()) {
       case 'discord': {
@@ -66,7 +71,7 @@ export async function fetchSocialIdentity(platform: string, username: string) {
       case 'youtube': {
         const res = await fetch(`https://www.youtube.com/@${username}`, fetchOptions);
         if (res.ok) {
-          verified = true; // Profile exists
+          verified = true;
           const html = await res.text();
           const avatarMatch = html.match(/"avatar":{"thumbnails":\[{"url":"([^"]+)"/);
           const subsMatch = html.match(/"subscriberCountText":{"simpleText":"([^"]+)"/);
@@ -90,13 +95,16 @@ export async function fetchSocialIdentity(platform: string, username: string) {
       }
 
       default: {
-        // Aggressive HTTP discovery
-        const res = await fetch(`https://unavatar.io/${platform}/${username}`, { method: 'HEAD', ...fetchOptions });
-        if (res.ok) verified = true;
+        // Quick discovery check
+        try {
+          const res = await fetch(`https://unavatar.io/${platform}/${username}`, { method: 'HEAD', ...fetchOptions });
+          if (res.ok) verified = true;
+        } catch (e) {
+          // Ignore fetch errors for discovery
+        }
       }
     }
 
-    // HIJACK: If image is a default platform silhouette, force our custom avatar
     if (isDefaultAvatar(avatarUrl, platform)) {
       isDefault = true;
     }
@@ -113,10 +121,12 @@ export async function fetchSocialIdentity(platform: string, username: string) {
     };
   } catch (e) {
     clearTimeout(timeoutId);
-    console.error("Discovery failed:", e);
+    // Log only non-abort errors
+    if (e instanceof Error && e.name !== 'AbortError') {
+      console.error("Discovery error:", e.message);
+    }
   }
 
-  // Catch-all: Verify by username pattern if possible, else return safe default
   return {
     avatar: null,
     verified: username.length > 2, 
