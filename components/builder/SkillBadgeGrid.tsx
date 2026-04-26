@@ -54,10 +54,14 @@ export function SkillBadgeGrid() {
 
   const skillMap = new Map<string, any>();
   
+  const autoLangs = Array.isArray(autoLanguages) ? autoLanguages : [];
+  const autoSks = Array.isArray(autoSkills) ? autoSkills : [];
+  const manualSks = Array.isArray(manualSkills) ? manualSkills : [];
+
   // Filter visibility
-  const visibleAutoLangs = autoLanguages.filter(l => !hiddenLanguages.includes(l.name));
-  const visibleAutoSkills = autoSkills.filter(s => !hiddenSkills.includes(s.name));
-  const visibleManualSkills = manualSkills.filter(s => !hiddenSkills.includes(s.name));
+  const visibleAutoLangs = autoLangs.filter(l => !hiddenLanguages.includes(l.name));
+  const visibleAutoSkills = autoSks.filter(s => !hiddenSkills.includes(s.name));
+  const visibleManualSkills = manualSks.filter(s => !hiddenSkills.includes(s.name));
 
   // 1. Auto Languages
   visibleAutoLangs.forEach(l => {

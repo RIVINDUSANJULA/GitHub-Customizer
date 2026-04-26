@@ -96,7 +96,6 @@ export default function AboutMePreview() {
       className="relative group w-full"
     >
       <motion.div
-        style={{ rotateX: config.useHoverTilt ? rotateX : 0, rotateY: config.useHoverTilt ? rotateY : 0 }}
         className={cn(
           "relative overflow-hidden transition-all duration-700 shadow-2xl",
           fontClass,
@@ -107,6 +106,8 @@ export default function AboutMePreview() {
           !aboutMe && !isGenerating && "border-dashed opacity-60"
         )}
         style={{ 
+          rotateX: config.useHoverTilt ? rotateX : 0, 
+          rotateY: config.useHoverTilt ? rotateY : 0,
           borderRadius: `${config.blockRadius}px`,
           backgroundColor: `${tint}${Math.round(config.glassOpacity * 255).toString(16).padStart(2, '0')}`,
           border: `${config.borderStyle} var(--bio-stroke) transparent`,

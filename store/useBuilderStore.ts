@@ -330,73 +330,81 @@ export const useBuilderStore = create<BuilderState>()(
         set((state) => {
           const config = { ...state.aboutMeConfig, preset };
           
-          if (preset === 'matrix') {
-            config.headerLabel = '[SECURE_ACCESS]';
-            config.showGlow = true;
-            config.glowSpread = 40;
-            config.borderOpacity = 0.6;
-            config.glassBlur = 12;
-            config.glassOpacity = 0.4;
-            config.borderStyle = 'solid';
-            config.strokeWeight = 1;
-            config.showNoise = false;
-            config.showGrid = false;
-            config.lineHeight = 1.6;
-            config.letterSpacing = 2;
-            config.alignment = 'left';
-          } else if (preset === 'frost') {
-            config.headerLabel = '// IDENTITY';
-            config.showGlow = true;
-            config.glowSpread = 60;
-            config.borderOpacity = 0.2;
-            config.glassBlur = 40;
-            config.glassOpacity = 0.05;
-            config.borderStyle = 'solid';
-            config.strokeWeight = 0.5;
-            config.showNoise = true;
-            config.showGrid = false;
-            config.lineHeight = 1.8;
-            config.letterSpacing = 0;
-            config.alignment = 'center';
-          } else if (preset === 'ember') {
-            config.headerLabel = '> SYSTEM_LOG';
-            config.showGlow = true;
-            config.glowSpread = 50;
-            config.borderOpacity = 0.8;
-            config.glassBlur = 10;
-            config.glassOpacity = 0.6;
-            config.borderStyle = 'double';
-            config.strokeWeight = 2;
-            config.showNoise = false;
-            config.showGrid = true;
-            config.lineHeight = 1.6;
-            config.letterSpacing = 0.5;
-            config.alignment = 'left';
-          } else if (preset === 'plasma') {
-            config.accentColor = '22d3ee';
-            config.borderGradientColor2 = 'c084fc';
-            config.useBorderGradient = true;
-            config.glowSpread = 50;
-            config.glowOpacity = 0.6;
-          } else if (preset === 'toxic') {
-            config.accentColor = 'a3e635';
-            config.headerTextColor = 'a3e635';
-            config.glassTint = '052e16';
-            config.glowSpread = 60;
-            config.luminanceBoost = true;
-          } else if (preset === 'magma') {
-            config.accentColor = 'f97316';
-            config.borderGradientColor2 = '7f1d1d';
-            config.useBorderGradient = true;
-            config.glassTint = '450a0a';
-            config.glowSpread = 40;
-          } else if (preset === 'stealth') {
-            config.accentColor = 'ffffff';
-            config.borderOpacity = 0.1;
-            config.glassTint = '000000';
-            config.glassOpacity = 0.8;
-            config.glowSpread = 0;
-            config.headerTextColor = '525252';
+          switch (preset) {
+            case 'matrix':
+              config.headerLabel = '[SECURE_ACCESS]';
+              config.showGlow = true;
+              config.glowSpread = 40;
+              config.borderOpacity = 0.6;
+              config.glassBlur = 12;
+              config.glassOpacity = 0.4;
+              config.borderStyle = 'solid';
+              config.strokeWeight = 1;
+              config.showNoise = false;
+              config.showGrid = false;
+              config.lineHeight = 1.6;
+              config.letterSpacing = 2;
+              config.alignment = 'left';
+              break;
+            case 'frost':
+              config.headerLabel = '// IDENTITY';
+              config.showGlow = true;
+              config.glowSpread = 60;
+              config.borderOpacity = 0.2;
+              config.glassBlur = 40;
+              config.glassOpacity = 0.05;
+              config.borderStyle = 'solid';
+              config.strokeWeight = 0.5;
+              config.showNoise = true;
+              config.showGrid = false;
+              config.lineHeight = 1.8;
+              config.letterSpacing = 0;
+              config.alignment = 'center';
+              break;
+            case 'ember':
+              config.headerLabel = '> SYSTEM_LOG';
+              config.showGlow = true;
+              config.glowSpread = 50;
+              config.borderOpacity = 0.8;
+              config.glassBlur = 10;
+              config.glassOpacity = 0.6;
+              config.borderStyle = 'double';
+              config.strokeWeight = 2;
+              config.showNoise = false;
+              config.showGrid = true;
+              config.lineHeight = 1.6;
+              config.letterSpacing = 0.5;
+              config.alignment = 'left';
+              break;
+            case 'plasma':
+              config.accentColor = '22d3ee';
+              config.borderGradientColor2 = 'c084fc';
+              config.useBorderGradient = true;
+              config.glowSpread = 50;
+              config.glowOpacity = 0.6;
+              break;
+            case 'toxic':
+              config.accentColor = 'a3e635';
+              config.headerTextColor = 'a3e635';
+              config.glassTint = '052e16';
+              config.glowSpread = 60;
+              config.luminanceBoost = true;
+              break;
+            case 'magma':
+              config.accentColor = 'f97316';
+              config.borderGradientColor2 = '7f1d1d';
+              config.useBorderGradient = true;
+              config.glassTint = '450a0a';
+              config.glowSpread = 40;
+              break;
+            case 'stealth':
+              config.accentColor = 'ffffff';
+              config.borderOpacity = 0.1;
+              config.glassTint = '000000';
+              config.glassOpacity = 0.8;
+              config.glowSpread = 0;
+              config.headerTextColor = '525252';
+              break;
           }
           
           return { aboutMeConfig: config };

@@ -1,7 +1,7 @@
 "use client";
 
 import { useBuilderStore, StatTheme } from "@/store/useBuilderStore";
-import { User, Palette, Settings, Layout, Check, ChevronDown, Code2, BarChart3, Tags, Zap, Trophy, PieChart, GripVertical, Eye, EyeOff, Boxes, Layers, Sparkles, Shield, Diamond, Brush, Search, Trash2, Copy, Share2, Disc, Github, MessageSquare, Plus, Camera, Send, Play, Briefcase } from "lucide-react";
+import { User, Palette, Settings, Layout, Check, ChevronDown, Code2, BarChart3, Tags, Zap, Trophy, PieChart, GripVertical, Eye, EyeOff, Boxes, Layers, Sparkles, Shield, Diamond, Brush, Search, Trash2, Copy, Share2, Disc, MessageSquare, Plus, Camera, Send, Play, Briefcase, Github as Code } from "lucide-react";
 import { useState, useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence, Reorder, LayoutGroup } from "framer-motion";
@@ -220,7 +220,7 @@ export function BuilderSidebar() {
                           </label>
 
                           <button 
-                            onClick={() => store.setRefreshTrigger(store.refreshTrigger + 1)}
+                            onClick={() => store.triggerRefresh()}
                             className="w-full flex items-center justify-center gap-2 py-2 text-[10px] font-black text-indigo-500 bg-indigo-500/10 rounded-xl border border-indigo-500/20 hover:bg-indigo-500 hover:text-white transition-all uppercase tracking-widest"
                           >
                             <Zap className="w-3.5 h-3.5" />
