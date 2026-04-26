@@ -2,7 +2,7 @@
 
 import { useBuilderStore, StatTheme, ManualSkill, SocialProfile } from "@/store/useBuilderStore";
 import { User, Palette, Settings, Layout, Check, ChevronDown, Code2, BarChart3, Tags, Zap, Trophy, PieChart, GripVertical, Eye, EyeOff, Boxes, Layers, Sparkles, Shield, Diamond, Brush, Search, Trash2, Copy, Share2, Video, Disc, Camera, MessageSquare, Plus, ExternalLink } from "lucide-react";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence, Reorder, LayoutGroup } from "framer-motion";
 
@@ -22,6 +22,13 @@ export function BuilderSidebar() {
   const [openSection, setOpenSection] = useState<string>("profile");
   const [skillInput, setSkillInput] = useState("");
   const [socialSearch, setSocialSearch] = useState("");
+  
+  // Ensure socials is in the widget order (for users with existing persisted state)
+  useEffect(() => {
+    if (!store.widgetOrder.includes('socials')) {
+      store.setWidgetOrder([...store.widgetOrder, 'socials']);
+    }
+  }, [store.widgetOrder, store.setWidgetOrder]);
 
   const PLATFORMS = [
     { id: 'youtube', name: 'YouTube', color: 'FF0000', icon: 'youtube' },
