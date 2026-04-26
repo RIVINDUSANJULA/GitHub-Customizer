@@ -727,7 +727,7 @@ export function BuilderSidebar() {
                                     if (!isActive) {
                                       store.setSocialProfiles([...store.socialProfiles, { platform: p.id as any, username: "", isVisible: true, style: 'badge' }]);
                                     }
-                                    setOpenSection(`social-${p.id}`);
+                                    setOpenSections(prev => ({ ...prev, [`social-${p.id}`]: true }));
                                   }}
                                   className={cn(
                                     "w-10 h-10 rounded-xl flex items-center justify-center transition-all border relative group",
