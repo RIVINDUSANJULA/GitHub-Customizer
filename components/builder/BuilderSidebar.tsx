@@ -34,12 +34,26 @@ export function BuilderSidebar() {
     setTimeout(() => setCopiedId(null), 2000);
   };
   
-  // Ensure socials is in the widget order
+  // Ensure socials is in the widget order and config is up to date
   useEffect(() => {
     if (!store.widgetOrder.includes('socials')) {
       store.setWidgetOrder([...store.widgetOrder, 'socials']);
     }
-  }, [store.widgetOrder, store.setWidgetOrder]);
+    
+    // Repair socialsConfig if missing new fields
+    if (store.socialsConfig.useAvatar === undefined) {
+      store.setSocialsOption('useAvatar', true);
+    }
+    if (store.socialsConfig.showBlurBackground === undefined) {
+      store.setSocialsOption('showBlurBackground', true);
+    }
+    if (!store.socialsConfig.layout) {
+      store.setSocialsOption('layout', 'bento');
+    }
+    if (!store.socialsConfig.cardStyle) {
+      store.setSocialsOption('cardStyle', 'glass');
+    }
+  }, [store.widgetOrder, store.setWidgetOrder, store.socialsConfig]);
 
   // Auto-verification logic
   useEffect(() => {
@@ -950,7 +964,7 @@ export function BuilderSidebar() {
                                         <span className="text-[8px] text-slate-400 uppercase">Fetch real images</span>
                                       </div>
                                       <div className="relative">
-                                        <input type="checkbox" className="sr-only peer" checked={store.socialsConfig.useAvatar} onChange={(e) => store.setSocialsOption('useAvatar', e.target.checked)} />
+                                        <input type="checkbox" className="sr-only peer" checked={store.socialsConfig.useAvatar ?? true} onChange={(e) => store.setSocialsOption('useAvatar', e.target.checked)} />
                                         <div className="w-8 h-4 bg-slate-200 dark:bg-zinc-800 rounded-full peer peer-checked:bg-rose-500 transition-colors"></div>
                                         <div className="absolute top-0.5 left-0.5 w-3 h-3 bg-white rounded-full peer-checked:translate-x-4 transition-transform"></div>
                                       </div>
@@ -962,7 +976,7 @@ export function BuilderSidebar() {
                                         <span className="text-[8px] text-slate-400 uppercase">Glassmorphism glow</span>
                                       </div>
                                       <div className="relative">
-                                        <input type="checkbox" className="sr-only peer" checked={store.socialsConfig.showBlurBackground} onChange={(e) => store.setSocialsOption('showBlurBackground', e.target.checked)} />
+                                        <input type="checkbox" className="sr-only peer" checked={store.socialsConfig.showBlurBackground ?? true} onChange={(e) => store.setSocialsOption('showBlurBackground', e.target.checked)} />
                                         <div className="w-8 h-4 bg-slate-200 dark:bg-zinc-800 rounded-full peer peer-checked:bg-rose-500 transition-colors"></div>
                                         <div className="absolute top-0.5 left-0.5 w-3 h-3 bg-white rounded-full peer-checked:translate-x-4 transition-transform"></div>
                                       </div>

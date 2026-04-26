@@ -38,10 +38,10 @@ export function SocialHubPreview() {
               platform: profile.platform,
               username: profile.username || 'username',
               style: profile.style || 'badge',
-              blockRadius: socialsConfig.blockRadius.toString(),
-              elementRadius: socialsConfig.elementRadius.toString(),
-              showGlow: socialsConfig.showGlow.toString(),
-              useAvatar: socialsConfig.useAvatar.toString(),
+              blockRadius: (socialsConfig.blockRadius ?? 20).toString(),
+              elementRadius: (socialsConfig.elementRadius ?? 10).toString(),
+              showGlow: (socialsConfig.showGlow ?? true).toString(),
+              useAvatar: (socialsConfig.useAvatar ?? true).toString(),
               color: profile.customColor || ''
             });
 
