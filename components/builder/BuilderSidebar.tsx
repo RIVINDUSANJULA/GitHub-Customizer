@@ -1,7 +1,7 @@
 "use client";
 
 import { useBuilderStore, StatTheme } from "@/store/useBuilderStore";
-import { User, Palette, Settings, Layout, Check, ChevronDown, Code2, BarChart3, Tags, Zap, Trophy, PieChart, GripVertical, Eye, EyeOff, Boxes, Layers, Sparkles, Shield, Diamond, Brush, Search, Trash2, Copy, Share2, Youtube, Disc, Twitter, Instagram, Linkedin, Github, MessageSquare, Plus } from "lucide-react";
+import { User, Palette, Settings, Layout, Check, ChevronDown, Code2, BarChart3, Tags, Zap, Trophy, PieChart, GripVertical, Eye, EyeOff, Boxes, Layers, Sparkles, Shield, Diamond, Brush, Search, Trash2, Copy, Share2, Disc, Github, MessageSquare, Plus, Camera, Send, Play, Briefcase } from "lucide-react";
 import { useState, useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence, Reorder, LayoutGroup } from "framer-motion";
@@ -1002,11 +1002,11 @@ export function BuilderSidebar() {
 
                 <div className="space-y-2">
                    {store.socialProfiles.map((profile) => {
-                     const Icon = profile.platform === 'youtube' ? Youtube :
+                     const Icon = profile.platform === 'youtube' ? Play :
                                 profile.platform === 'discord' ? Disc :
-                                profile.platform === 'twitter' ? Twitter :
-                                profile.platform === 'instagram' ? Instagram :
-                                profile.platform === 'linkedin' ? Linkedin :
+                                profile.platform === 'twitter' ? Send :
+                                profile.platform === 'instagram' ? Camera :
+                                profile.platform === 'linkedin' ? Briefcase :
                                 profile.platform === 'career' ? Zap : MessageSquare;
                      
                      return (
