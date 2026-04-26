@@ -28,7 +28,12 @@ export function BuilderPreview() {
         const res = await fetch(`/api/github-user-data?username=${store.username}&include_contribs=${store.analyticsConfig.includeContributions}`);
         if (res.ok) {
           const data = await res.json();
-          store.setAutoLanguages(data);
+          if (data.languages) {
+            store.setAutoLanguages(data.languages);
+          }
+          if (data.skills) {
+            store.setAutoSkills(data.skills);
+          }
         }
       } catch (err) {
         console.error("Failed to fetch auto languages:", err);

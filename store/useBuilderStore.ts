@@ -134,6 +134,7 @@ export interface BuilderState {
   hiddenLanguages: string[];
   hiddenSkills: string[];
   autoLanguages: { name: string, color: string, percentage: number }[];
+  autoSkills: { name: string, count: number }[];
   allSkillsOrder: string[];
   socialsConfig: SocialsConfig;
   socialProfiles: SocialProfile[];
@@ -166,6 +167,7 @@ export interface BuilderState {
   toggleLanguageVisibility: (lang: string) => void;
   toggleSkillVisibility: (skill: string) => void;
   setAutoLanguages: (langs: { name: string, color: string, percentage: number }[]) => void;
+  setAutoSkills: (skills: { name: string, count: number }[]) => void;
   setManualSkills: (skills: ManualSkill[]) => void;
   setAllSkillsOrder: (order: string[]) => void;
   copyAnalyticsThemeToBadges: () => void;
@@ -285,6 +287,7 @@ export const useBuilderStore = create<BuilderState>()(
       hiddenLanguages: [],
       hiddenSkills: [],
       autoLanguages: [],
+      autoSkills: [],
       allSkillsOrder: [],
       widgetOrder: ['aboutme', 'stats', 'streak', 'trophies', 'languages', 'badges', 'socials'],
 
@@ -425,6 +428,7 @@ export const useBuilderStore = create<BuilderState>()(
           : [...state.hiddenSkills, skill]
       })),
       setAutoLanguages: (autoLanguages) => set({ autoLanguages }),
+      setAutoSkills: (autoSkills) => set({ autoSkills }),
       setManualSkills: (manualSkills) => set({ manualSkills }),
       setAllSkillsOrder: (allSkillsOrder) => set({ allSkillsOrder }),
       copyAnalyticsThemeToBadges: () => set((state) => ({

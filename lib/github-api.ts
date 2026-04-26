@@ -147,14 +147,41 @@ async function fetchResilientPublicData(username: string) {
 
     const allNodes = [...topNodes.filter(Boolean), ...otherNodes];
 
+    // Extract topics from all repos for Skill Badges
+    const topics = repos.flatMap((repo: any) => repo.topics || []);
+    
     return {
-      repositories: { nodes: allNodes }
+      repositories: { nodes: allNodes },
+      topics
     };
   } catch (error: any) {
-    if (error.message === 'RATE_LIMIT') throw error; // Pass up to trigger stale cache return
+    if (error.message === 'RATE_LIMIT') throw error;
     console.error("Resilient Fetch Error:", error);
-    return { repositories: { nodes: [] } };
+    return { repositories: { nodes: [] }, topics: [] };
   }
+}
+
+export function aggregateSkills(userData: any) {
+  const skillCount: Record<string, number> = {};
+  
+  // 1. Process topics (from REST API path)
+  if (userData.topics) {
+    userData.topics.forEach((topic: string) => {
+      skillCount[topic] = (skillCount[topic] || 0) + 1;
+    });
+  }
+
+  // 2. Process languages (as secondary skills)
+  const langs = aggregateLanguages(userData);
+  langs.forEach(l => {
+    const name = l.name.toLowerCase();
+    skillCount[name] = (skillCount[name] || 0) + 2; // Weight languages slightly higher
+  });
+
+  return Object.entries(skillCount)
+    .map(([name, count]) => ({ name, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 15); // Top 15 skills
 }
 
 export function aggregateLanguages(userData: any) {
