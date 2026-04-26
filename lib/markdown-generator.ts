@@ -125,15 +125,15 @@ export function generateMarkdown(state: BuilderState): MarkdownResult {
       widgets += `<div align="center">\n`;
       state.socialProfiles.filter(p => p.isVisible).forEach((profile) => {
         const query = new URLSearchParams({
-          platform: profile.platform,
-          username: profile.username,
+          username: profile.username || 'username',
           style: profile.style || 'badge',
           blockRadius: state.socialsConfig.blockRadius.toString(),
           elementRadius: state.socialsConfig.elementRadius.toString(),
           showGlow: state.socialsConfig.showGlow.toString(),
-          color: profile.customColor || ''
         });
-        widgets += `  <img src="${baseUrl}/api/social-card?${query.toString()}" alt="${profile.platform}" />\n`;
+        if (profile.customColor) query.set('color', profile.customColor);
+        
+        widgets += `  <img src="${baseUrl}/api/social-card?platform=${profile.platform}&${query.toString()}" alt="${profile.platform}" />\n`;
       });
       widgets += `</div>\n\n`;
     }

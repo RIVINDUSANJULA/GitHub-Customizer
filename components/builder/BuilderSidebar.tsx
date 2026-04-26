@@ -22,6 +22,24 @@ export function BuilderSidebar() {
   const [openSection, setOpenSection] = useState<string>("profile");
   const [skillInput, setSkillInput] = useState("");
   const [activeTab, setActiveTab] = useState<'widgets' | 'socials'>('widgets');
+  const [socialSearch, setSocialSearch] = useState("");
+
+  const PLATFORMS = [
+    { id: 'youtube', name: 'YouTube', color: 'FF0000', icon: 'youtube' },
+    { id: 'twitter', name: 'X / Twitter', color: '000000', icon: 'twitter' },
+    { id: 'linkedin', name: 'LinkedIn', color: '0A66C2', icon: 'linkedin' },
+    { id: 'discord', name: 'Discord', color: '5865F2', icon: 'discord' },
+    { id: 'instagram', name: 'Instagram', color: 'E4405F', icon: 'instagram' },
+    { id: 'github', name: 'GitHub', color: '181717', icon: 'github' },
+    { id: 'tiktok', name: 'TikTok', color: '000000', icon: 'tiktok' },
+    { id: 'career', name: 'Hire Me', color: '10b981', icon: 'briefcase' },
+  ];
+
+  const getPlatformIcon = (platformId: string) => {
+    const p = PLATFORMS.find(pl => pl.id === platformId);
+    if (platformId === 'career') return `https://api.iconify.design/lucide:briefcase.svg?color=%2310b981`;
+    return `https://api.iconify.design/simple-icons:${p?.icon || platformId}.svg?color=%23${p?.color || 'ffffff'}`;
+  };
 
   const toggleSection = (section: string) => {
     setOpenSection(openSection === section ? "" : section);
@@ -857,153 +875,267 @@ export function BuilderSidebar() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="space-y-4"
+              className="space-y-6"
             >
-              {/* Socials Configuration */}
-              <div className="rounded-2xl border border-slate-200 dark:border-white/10 overflow-hidden bg-slate-50/50 dark:bg-zinc-900/20">
-                <button onClick={() => toggleSection('social-config')} className="w-full flex items-center justify-between p-4 bg-white dark:bg-zinc-900/50 hover:bg-slate-50 dark:hover:bg-zinc-900 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <Settings className="w-5 h-5 text-rose-500" />
-                    <span className="font-semibold text-slate-900 dark:text-white">Socials Hub Config</span>
-                  </div>
-                  <ChevronDown className={cn("w-5 h-5 text-slate-500 transition-transform", openSection === 'social-config' && "rotate-180")} />
-                </button>
-                {openSection === 'social-config' && (
-                  <div className="p-4 border-t border-slate-200 dark:border-white/10 space-y-4">
-                    <div className="space-y-2">
-                      <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Layout Architecture</label>
-                      <div className="flex p-1 bg-slate-100 dark:bg-zinc-900 rounded-xl gap-1">
-                        {[
-                          { id: 'list', label: 'List', icon: Layout },
-                          { id: 'bento', label: 'Bento', icon: Boxes },
-                          { id: 'inline', label: 'Inline', icon: Layers },
-                        ].map((layout) => (
-                          <button
-                            key={layout.id}
-                            onClick={() => store.setSocialsOption('layout', layout.id as any)}
-                            className={cn(
-                              "flex-1 flex flex-col items-center justify-center gap-1 py-2 text-[9px] font-black rounded-lg transition-all uppercase tracking-tighter border",
-                              store.socialsConfig.layout === layout.id
-                                ? "bg-white dark:bg-zinc-800 text-rose-600 shadow-sm border-rose-500/20"
-                                : "text-slate-500 border-transparent hover:text-slate-700"
-                            )}
-                          >
-                            <layout.icon className="w-3.5 h-3.5" />
-                            {layout.label}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3">
-                        <div className="space-y-1.5">
-                          <label className="text-[10px] font-bold text-slate-400 uppercase">Block Radius: {store.socialsConfig.blockRadius}px</label>
-                          <input
-                            type="range"
-                            min="0"
-                            max="40"
-                            step="2"
-                            value={store.socialsConfig.blockRadius || 20}
-                            onChange={(e) => store.setSocialsOption('blockRadius', parseInt(e.target.value))}
-                            className="w-full h-1 bg-slate-200 dark:bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-rose-500"
-                          />
+              {/* Quick-Add Bar */}
+              <div className="space-y-3">
+                <span className="text-[10px] font-black text-rose-500 uppercase tracking-widest px-1">Quick-Add Platforms</span>
+                <div className="flex flex-wrap gap-2 p-3 bg-slate-100 dark:bg-zinc-900/50 rounded-2xl border border-slate-200 dark:border-white/5">
+                  {PLATFORMS.map((p) => {
+                    const isActive = store.socialProfiles.some(profile => profile.platform === p.id);
+                    return (
+                      <button
+                        key={p.id}
+                        onClick={() => {
+                          if (!isActive) {
+                            store.setSocialProfiles([...store.socialProfiles, { platform: p.id as any, username: "", isVisible: true, style: 'badge' }]);
+                          }
+                          setOpenSection(`social-${p.id}`);
+                        }}
+                        className={cn(
+                          "w-10 h-10 rounded-xl flex items-center justify-center transition-all border relative group",
+                          isActive 
+                            ? "bg-rose-500 border-rose-500 shadow-lg shadow-rose-500/20" 
+                            : "bg-white dark:bg-zinc-800 border-slate-200 dark:border-white/10 hover:border-rose-500/50"
+                        )}
+                        title={`Add ${p.name}`}
+                      >
+                        <img 
+                          src={getPlatformIcon(p.id)} 
+                          alt={p.name} 
+                          className={cn("w-5 h-5 object-contain", isActive && "brightness-0 invert")} 
+                        />
+                        {isActive && (
+                          <div className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-white dark:bg-zinc-900 rounded-full flex items-center justify-center border border-rose-500">
+                            <Check className="w-2.5 h-2.5 text-rose-500" />
+                          </div>
+                        )}
+                        <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-zinc-900 text-[8px] text-white rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10 font-bold uppercase tracking-tighter">
+                          {p.name}
                         </div>
-                        <div className="space-y-1.5">
-                          <label className="text-[10px] font-bold text-slate-400 uppercase">Element Radius: {store.socialsConfig.elementRadius}px</label>
-                          <input
-                            type="range"
-                            min="0"
-                            max="20"
-                            step="1"
-                            value={store.socialsConfig.elementRadius || 10}
-                            onChange={(e) => store.setSocialsOption('elementRadius', parseInt(e.target.value))}
-                            className="w-full h-1 bg-slate-200 dark:bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-rose-500"
-                          />
-                        </div>
-                    </div>
-
-                    <div className="flex items-center justify-between pt-2">
-                        <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.8)]"></div>
-                          <span className="text-xs font-medium text-slate-700 dark:text-slate-300">Social Neon Engine</span>
-                        </div>
-                        <label className="relative inline-flex items-center cursor-pointer">
-                          <input 
-                            type="checkbox" 
-                            className="sr-only peer" 
-                            checked={store.socialsConfig.showGlow}
-                            onChange={(e) => store.setSocialsOption('showGlow', e.target.checked)}
-                          />
-                          <div className="w-9 h-5 bg-slate-200 dark:bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-rose-500"></div>
-                        </label>
-                    </div>
-                  </div>
-                )}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
 
-              {/* Connected Profiles */}
+              {/* Active Socials List */}
               <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                   <span className="text-[10px] font-black text-rose-500 uppercase tracking-widest">Connected Profiles</span>
-                   <button 
-                    onClick={() => {
-                      const platform = prompt('Enter platform (youtube, discord, twitter, instagram, linkedin, tiktok):') as any;
-                      const username = prompt('Enter handle/username:');
-                      if (platform && username) {
-                        store.setSocialProfiles([...store.socialProfiles, { platform, username, isVisible: true, style: 'badge' }]);
-                      }
-                    }}
-                    className="p-1.5 bg-rose-500/10 text-rose-500 rounded-lg hover:bg-rose-500 hover:text-white transition-all"
-                   >
-                     <Plus className="w-3.5 h-3.5" />
-                   </button>
+                <div className="flex items-center justify-between px-1">
+                   <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Active Socials ({store.socialProfiles.length})</span>
                 </div>
 
                 <div className="space-y-2">
                    {store.socialProfiles.map((profile) => {
-                     const Icon = profile.platform === 'youtube' ? Video :
-                                profile.platform === 'discord' ? Disc :
-                                profile.platform === 'twitter' ? Share2 :
-                                profile.platform === 'instagram' ? Camera :
-                                profile.platform === 'linkedin' ? ExternalLink :
-                                profile.platform === 'career' ? Zap : MessageSquare;
+                     const platformData = PLATFORMS.find(p => p.id === profile.platform);
+                     const isOpen = openSection === `social-${profile.platform}`;
                      
                      return (
-                       <div key={profile.platform} className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-white/10 rounded-2xl p-3 shadow-sm group hover:border-rose-500/30 transition-all">
-                          <div className="flex items-center justify-between">
+                       <div key={profile.platform} className={cn(
+                         "bg-white dark:bg-zinc-900 border transition-all rounded-2xl overflow-hidden",
+                         isOpen ? "border-rose-500/50 shadow-lg ring-1 ring-rose-500/10" : "border-slate-200 dark:border-white/10 hover:border-rose-500/30"
+                       )}>
+                          <div 
+                            onClick={() => toggleSection(`social-${profile.platform}`)}
+                            className="p-3 flex items-center justify-between cursor-pointer hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition-colors"
+                          >
                              <div className="flex items-center gap-3">
-                                <div className={cn("p-2 rounded-xl", profile.platform === 'youtube' ? "bg-rose-500/10 text-rose-500" : "bg-slate-100 dark:bg-zinc-800 text-slate-500")}>
-                                   <Icon className="w-4 h-4" />
+                                <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-zinc-800 flex items-center justify-center overflow-hidden border border-slate-200 dark:border-white/5">
+                                   <img src={getPlatformIcon(profile.platform)} alt="" className="w-4 h-4 object-contain" />
                                 </div>
                                 <div className="flex flex-col">
-                                   <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{profile.platform}</span>
-                                   <input 
-                                     type="text" 
-                                     value={profile.username}
-                                     onChange={(e) => store.updateSocialProfile(profile.platform, { username: e.target.value })}
-                                     className="bg-transparent text-xs font-bold text-slate-700 dark:text-slate-300 focus:outline-none"
-                                   />
+                                   <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">{profile.platform}</span>
+                                   <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                                     {profile.username || <span className="text-slate-400 italic">Enter handle...</span>}
+                                   </span>
                                 </div>
                              </div>
-                             <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                             <div className="flex items-center gap-2">
                                 <button 
-                                  onClick={() => store.updateSocialProfile(profile.platform, { style: profile.style === 'badge' ? 'counter' : profile.style === 'counter' ? 'activity' : 'badge' })}
-                                  className="px-2 py-1 bg-slate-100 dark:bg-zinc-800 text-[9px] font-black text-slate-500 rounded-lg hover:bg-rose-500 hover:text-white transition-all border border-slate-200 dark:border-white/5 uppercase"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    store.setSocialProfiles(store.socialProfiles.filter(p => p.platform !== profile.platform));
+                                  }}
+                                  className="p-1.5 hover:bg-rose-500/10 text-slate-300 hover:text-rose-500 rounded-lg transition-all"
                                 >
-                                  {profile.style}
+                                  <Trash2 className="w-3.5 h-3.5" />
                                 </button>
-                                <button 
-                                  onClick={() => store.updateSocialProfile(profile.platform, { isVisible: !profile.isVisible })}
-                                  className={cn("p-1.5 rounded-lg transition-all", profile.isVisible ? "bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white" : "bg-slate-500/10 text-slate-500")}
-                                >
-                                  {profile.isVisible ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
-                                </button>
+                                <ChevronDown className={cn("w-4 h-4 text-slate-400 transition-transform", isOpen && "rotate-180")} />
                              </div>
                           </div>
+
+                          <AnimatePresence>
+                            {isOpen && (
+                              <motion.div 
+                                initial={{ height: 0 }} 
+                                animate={{ height: 'auto' }} 
+                                exit={{ height: 0 }} 
+                                className="overflow-hidden border-t border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-zinc-950/20"
+                              >
+                                <div className="p-4 space-y-4">
+                                  <div className="space-y-1.5">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-tight">Username / Handle</label>
+                                    <input 
+                                      type="text" 
+                                      placeholder={`@username for ${profile.platform}`}
+                                      value={profile.username}
+                                      autoFocus
+                                      onChange={(e) => store.updateSocialProfile(profile.platform, { username: e.target.value })}
+                                      className="w-full px-3 py-2 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-white/10 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-rose-500 shadow-sm"
+                                    />
+                                  </div>
+
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-[10px] font-medium text-slate-400 uppercase">Profile Active</span>
+                                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                                    </div>
+                                    <button 
+                                      onClick={() => store.updateSocialProfile(profile.platform, { isVisible: !profile.isVisible })}
+                                      className={cn("p-1.5 rounded-lg transition-all", profile.isVisible ? "bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white" : "bg-slate-500/10 text-slate-500")}
+                                    >
+                                      {profile.isVisible ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+                                    </button>
+                                  </div>
+                                </div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
                        </div>
                      );
                    })}
+
+                   {store.socialProfiles.length === 0 && (
+                     <div className="py-12 flex flex-col items-center justify-center border-2 border-dashed border-slate-200 dark:border-white/5 rounded-3xl opacity-50">
+                        <Share2 className="w-8 h-8 text-slate-300 mb-2" />
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center px-6">
+                          No social links yet.<br />Click an icon above to start.
+                        </p>
+                     </div>
+                   )}
                 </div>
+              </div>
+
+              {/* Global Social Styling */}
+              <div className="pt-6 border-t border-slate-200 dark:border-white/10">
+                <button 
+                  onClick={() => toggleSection('social-global')}
+                  className="w-full flex items-center justify-between p-3 bg-slate-50 dark:bg-zinc-900/50 hover:bg-slate-100 dark:hover:bg-zinc-900 rounded-2xl border border-slate-200 dark:border-white/5 transition-all group"
+                >
+                  <div className="flex items-center gap-3">
+                    <Brush className="w-4 h-4 text-rose-500" />
+                    <span className="text-[10px] font-black text-slate-700 dark:text-slate-300 uppercase tracking-widest">Global Social Styling</span>
+                  </div>
+                  <ChevronDown className={cn("w-4 h-4 text-slate-400 transition-transform group-hover:text-rose-500", openSection === 'social-global' && "rotate-180")} />
+                </button>
+
+                <AnimatePresence>
+                  {openSection === 'social-global' && (
+                    <motion.div 
+                      initial={{ height: 0, opacity: 0 }} 
+                      animate={{ height: 'auto', opacity: 1 }} 
+                      exit={{ height: 0, opacity: 0 }} 
+                      className="overflow-hidden"
+                    >
+                      <div className="p-4 space-y-6 pt-6">
+                        <div className="space-y-2">
+                          <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Layout Architecture</label>
+                          <div className="flex p-1 bg-slate-100 dark:bg-zinc-900 rounded-xl gap-1">
+                            {[
+                              { id: 'list', label: 'List', icon: Layout },
+                              { id: 'bento', label: 'Bento', icon: Boxes },
+                              { id: 'inline', label: 'Inline', icon: Layers },
+                            ].map((layout) => (
+                              <button
+                                key={layout.id}
+                                onClick={() => store.setSocialsOption('layout', layout.id as any)}
+                                className={cn(
+                                  "flex-1 flex flex-col items-center justify-center gap-1 py-2 text-[9px] font-black rounded-lg transition-all uppercase tracking-tighter border",
+                                  store.socialsConfig.layout === layout.id
+                                    ? "bg-white dark:bg-zinc-800 text-rose-600 shadow-sm border-rose-500/20"
+                                    : "text-slate-500 border-transparent hover:text-slate-700"
+                                )}
+                              >
+                                <layout.icon className="w-3.5 h-3.5" />
+                                {layout.label}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Card Aesthetic</label>
+                          <div className="flex p-1 bg-slate-100 dark:bg-zinc-900 rounded-xl gap-1">
+                            {[
+                              { id: 'badge', label: 'Badge' },
+                              { id: 'counter', label: 'Counter' },
+                              { id: 'activity', label: 'Activity' },
+                            ].map((s) => (
+                              <button
+                                key={s.id}
+                                onClick={() => {
+                                  // Update all profiles to this style for simplicity, or just set as default for new ones
+                                  store.setSocialProfiles(store.socialProfiles.map(p => ({ ...p, style: s.id as any })));
+                                }}
+                                className={cn(
+                                  "flex-1 py-2 text-[9px] font-black rounded-lg transition-all uppercase tracking-tighter border",
+                                  store.socialProfiles[0]?.style === s.id
+                                    ? "bg-white dark:bg-zinc-800 text-rose-600 shadow-sm border-rose-500/20"
+                                    : "text-slate-500 border-transparent hover:text-slate-700"
+                                )}
+                              >
+                                {s.label}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="space-y-1.5">
+                              <label className="text-[10px] font-bold text-slate-400 uppercase">Block Radius: {store.socialsConfig.blockRadius}px</label>
+                              <input
+                                type="range"
+                                min="0"
+                                max="40"
+                                step="2"
+                                value={store.socialsConfig.blockRadius || 20}
+                                onChange={(e) => store.setSocialsOption('blockRadius', parseInt(e.target.value))}
+                                className="w-full h-1 bg-slate-200 dark:bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-rose-500"
+                              />
+                            </div>
+                            <div className="space-y-1.5">
+                              <label className="text-[10px] font-bold text-slate-400 uppercase">Element Radius: {store.socialsConfig.elementRadius}px</label>
+                              <input
+                                type="range"
+                                min="0"
+                                max="20"
+                                step="1"
+                                value={store.socialsConfig.elementRadius || 10}
+                                onChange={(e) => store.setSocialsOption('elementRadius', parseInt(e.target.value))}
+                                className="w-full h-1 bg-slate-200 dark:bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-rose-500"
+                              />
+                            </div>
+                        </div>
+
+                        <div className="flex items-center justify-between pt-2">
+                            <div className="flex items-center gap-2">
+                              <div className="w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.8)]"></div>
+                              <span className="text-xs font-medium text-slate-700 dark:text-slate-300">Social Neon Engine</span>
+                            </div>
+                            <label className="relative inline-flex items-center cursor-pointer">
+                              <input 
+                                type="checkbox" 
+                                className="sr-only peer" 
+                                checked={store.socialsConfig.showGlow}
+                                onChange={(e) => store.setSocialsOption('showGlow', e.target.checked)}
+                              />
+                              <div className="w-9 h-5 bg-slate-200 dark:bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-rose-500"></div>
+                            </label>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             </motion.div>
           )}
