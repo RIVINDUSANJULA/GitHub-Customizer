@@ -114,20 +114,17 @@ export function BuilderSidebar() {
       store.setWidgetOrder(['aboutme', ...store.widgetOrder]);
     }
 
-    // Repair socialsConfig if missing new fields
-    if (store.socialsConfig.useAvatar === undefined) {
-      store.setSocialsOption('useAvatar', true);
+    // Repair aboutMeConfig if missing new fields
+    if (store.aboutMeConfig) {
+      if (store.aboutMeConfig.borderOpacity === undefined) store.setAboutMeOption('borderOpacity', 0.3);
+      if (store.aboutMeConfig.borderStyle === undefined) store.setAboutMeOption('borderStyle', 'solid');
+      if (store.aboutMeConfig.glassBlur === undefined) store.setAboutMeOption('glassBlur', 12);
+      if (store.aboutMeConfig.glassOpacity === undefined) store.setAboutMeOption('glassOpacity', 0.4);
+      if (store.aboutMeConfig.headerLabel === undefined) store.setAboutMeOption('headerLabel', '// BIOGRAPHY');
+      if (store.aboutMeConfig.glowSpread === undefined) store.setAboutMeOption('glowSpread', 40);
+      if (store.aboutMeConfig.preset === undefined) store.setAboutMeOption('preset', 'none');
     }
-    if (store.socialsConfig.showBlurBackground === undefined) {
-      store.setSocialsOption('showBlurBackground', true);
-    }
-    if (!store.socialsConfig.layout) {
-      store.setSocialsOption('layout', 'bento');
-    }
-    if (!store.socialsConfig.cardStyle) {
-      store.setSocialsOption('cardStyle', 'glass');
-    }
-  }, [store.widgetOrder, store.setWidgetOrder, store.socialsConfig]);
+  }, [store.widgetOrder, store.setWidgetOrder, store.socialsConfig, store.aboutMeConfig]);
 
   // Auto-verification logic
   useEffect(() => {
@@ -347,7 +344,7 @@ export function BuilderSidebar() {
                             Context A: Rough Notes
                           </label>
                           <textarea
-                            value={store.aboutMeConfig.notes}
+                            value={store.aboutMeConfig.notes || ""}
                             onChange={(e) => store.setAboutMeOption('notes', e.target.value)}
                             placeholder="I built the Liyonta Tea app and love Next.js..."
                             className="w-full h-20 p-2.5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-white/10 rounded-xl text-[11px] focus:outline-none focus:ring-1 focus:ring-rose-500/50 transition-all custom-scrollbar resize-none"
@@ -362,7 +359,7 @@ export function BuilderSidebar() {
                           <div className="relative group">
                             <input
                               type="text"
-                              value={store.aboutMeConfig.repoUrl}
+                              value={store.aboutMeConfig.repoUrl || ""}
                               onChange={(e) => store.setAboutMeOption('repoUrl', e.target.value)}
                               placeholder="https://github.com/..."
                               className="w-full h-9 pl-8 pr-3 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-white/10 rounded-xl text-[11px] focus:outline-none focus:ring-1 focus:ring-rose-500/50 transition-all shadow-sm"
@@ -519,7 +516,7 @@ export function BuilderSidebar() {
                               </div>
                             </label>
                             <textarea
-                              value={store.aboutMe}
+                              value={store.aboutMe || ""}
                               onChange={(e) => store.updateAboutMe(e.target.value)}
                               placeholder="Describe your journey, passion, and expertise..."
                               className="w-full h-64 p-3 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-white/10 rounded-xl text-xs font-medium text-slate-600 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-rose-500/50 transition-all custom-scrollbar resize-none"
@@ -590,7 +587,7 @@ export function BuilderSidebar() {
                                   <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Header Label</label>
                                   <input 
                                     type="text"
-                                    value={store.aboutMeConfig.headerLabel}
+                                    value={store.aboutMeConfig.headerLabel || ""}
                                     onChange={(e) => store.setAboutMeOption('headerLabel', e.target.value)}
                                     placeholder="// ABOUT ME"
                                     className="w-full h-8 px-3 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-white/10 rounded-lg text-[10px] focus:outline-none focus:ring-1 focus:ring-rose-500/50"
