@@ -97,7 +97,10 @@ export function BuilderSidebar() {
         if (profile.username && profile.username.length > 3 && profile.isVerified === undefined) {
           const identity = await fetchSocialIdentity(profile.platform, profile.username);
           if (identity.verified) {
-            store.updateSocialProfile(profile.platform, { isVerified: true });
+            store.updateSocialProfile(profile.platform, { 
+              isVerified: true,
+              isDefault: identity.isDefault 
+            });
           }
         }
       }

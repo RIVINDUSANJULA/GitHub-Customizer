@@ -60,6 +60,7 @@ export interface SocialProfile {
   style?: 'badge' | 'counter' | 'activity' | 'identity';
   customColor?: string;
   isVerified?: boolean;
+  isDefault?: boolean;
   avatarUrl?: string;
   liveData?: {
     followers?: string;
