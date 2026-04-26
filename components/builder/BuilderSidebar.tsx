@@ -38,12 +38,17 @@ export function BuilderSidebar() {
     { id: 'instagram', name: 'Instagram', color: 'E4405F', icon: 'instagram' },
     { id: 'github', name: 'GitHub', color: '181717', icon: 'github' },
     { id: 'tiktok', name: 'TikTok', color: '000000', icon: 'tiktok' },
-    { id: 'career', name: 'Hire Me', color: '10b981', icon: 'briefcase' },
+    { id: 'gmail', name: 'Gmail', color: 'EA4335', icon: 'gmail' },
+    { id: 'career', name: 'Career / Hire', color: '10B981', icon: 'briefcase' },
   ];
 
   const getPlatformIcon = (platformId: string) => {
+    switch (platformId) {
+      case 'tiktok': return "https://cdn.simpleicons.org/tiktok/white";
+      case 'gmail': return "https://cdn.simpleicons.org/gmail/EA4335";
+      case 'career': return "https://cdn.jsdelivr.net/npm/lucide-static@0.321.0/icons/briefcase.svg";
+    }
     const p = PLATFORMS.find(pl => pl.id === platformId);
-    if (platformId === 'career') return `https://api.iconify.design/lucide:briefcase.svg?color=%2310b981`;
     return `https://api.iconify.design/simple-icons:${p?.icon || platformId}.svg?color=%23${p?.color || 'ffffff'}`;
   };
 

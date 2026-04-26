@@ -50,7 +50,7 @@ export interface SocialsConfig {
 }
 
 export interface SocialProfile {
-  platform: 'youtube' | 'discord' | 'twitter' | 'instagram' | 'linkedin' | 'github' | 'tiktok' | 'career';
+  platform: 'youtube' | 'discord' | 'twitter' | 'instagram' | 'linkedin' | 'github' | 'tiktok' | 'career' | 'gmail' | 'email';
   username: string;
   label?: string;
   isVisible: boolean;
@@ -178,7 +178,8 @@ export const useBuilderStore = create<BuilderState>()(
         shadowDepth: 5,
       },
       socialProfiles: [
-        { platform: 'career', username: 'Available for Hire', isVisible: true, style: 'badge', customColor: '10b981' }
+        { platform: 'career', username: 'Available for Hire', isVisible: true, style: 'badge', customColor: '10b981' },
+        { platform: 'gmail', username: 'your.email@gmail.com', isVisible: false, style: 'badge', customColor: 'ea4335' }
       ],
       manualSkills: [],
       hiddenLanguages: [],
