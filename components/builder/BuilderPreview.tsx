@@ -16,7 +16,7 @@ export function BuilderPreview() {
   const store = useBuilderStore();
   const markdownResult = generateMarkdown(store);
   const { header, widgets, full } = markdownResult;
-
+  
   const [copied, setCopied] = useState(false);
   const [activeTab, setActiveTab] = useState<'preview' | 'code'>('preview');
 
@@ -74,7 +74,7 @@ export function BuilderPreview() {
             Code
           </button>
         </div>
-
+        
         <div className="flex items-center gap-2">
           <button
             onClick={copyToClipboard}
@@ -99,59 +99,61 @@ export function BuilderPreview() {
           {activeTab === 'preview' ? (
             <div className="p-8 prose dark:prose-invert max-w-none">
               {store.username ? (
-                <div className="flex flex-col gap-8">
-
                   <div className="flex flex-col gap-8">
-                    <AnimatePresence mode="popLayout">
-                      {store.widgetOrder.map((id) => {
-                        const isVisible = id === 'languages' ? store.showLanguages :
-                          id === 'badges' ? store.showBadges :
-                            id === 'stats' ? store.showStats :
-                              id === 'streak' ? store.showStreak :
-                                id === 'trophies' ? store.showTrophies :
-                                  id === 'socials' ? store.showSocials :
-                                    id === 'aboutme' ? store.showAboutMe : false;
+                    <motion.div layout dangerouslySetInnerHTML={{ __html: header.replace(/\n/g, '<br/>') }} />
+                    
+                    <div className="flex flex-col gap-8">
+                      <AnimatePresence mode="popLayout">
+                        {store.widgetOrder.map((id) => {
+                          const isVisible = id === 'languages' ? store.showLanguages : 
+                                           id === 'badges' ? store.showBadges :
+                                           id === 'stats' ? store.showStats :
+                                           id === 'streak' ? store.showStreak :
+                                           id === 'trophies' ? store.showTrophies :
+                                           id === 'socials' ? store.showSocials : 
+                                           id === 'aboutme' ? store.showAboutMe : false;
 
-                        if (!isVisible) return null;
+                          if (!isVisible) return null;
 
-                        let themeParams = `&theme=${store.theme}`;
-                        if (store.theme === 'custom') {
-                          themeParams = `&bg_color=${store.customBgColor}&title_color=${store.customTextColor}&text_color=${store.customTextColor}&icon_color=${store.customIconColor}&border_color=${store.customBorderColor}`;
-                        }
-                        if (store.hideBorder) themeParams += '&hide_border=true';
+                          let themeParams = `&theme=${store.theme}`;
+                          if (store.theme === 'custom') {
+                            themeParams = `&bg_color=${store.customBgColor}&title_color=${store.customTextColor}&text_color=${store.customTextColor}&icon_color=${store.customIconColor}&border_color=${store.customBorderColor}`;
+                          }
+                          if (store.hideBorder) themeParams += '&hide_border=true';
 
-                        // Dynamic Component Mapper
-                        const WIDGETS: Record<string, React.ReactNode> = {
-                          aboutme: <AboutMePreview />,
-                          badges: <SkillBadgeGrid />,
-                          socials: <SocialHubPreview />,
-                          stats: <div dangerouslySetInnerHTML={{ __html: `<img src="https://github-readme-stats.vercel.app/api?username=${store.username}&show_icons=true${themeParams}" alt="Stats" />` }} />,
-                          streak: <div dangerouslySetInnerHTML={{ __html: `<img src="https://github-readme-streak-stats.herokuapp.com/?user=${store.username}${themeParams.replace('bg_color', 'background').replace('title_color', 'stroke').replace('text_color', 'currStreakNum').replace('icon_color', 'fire')}" alt="Streak" />` }} />,
-                          trophies: <div dangerouslySetInnerHTML={{ __html: `<img src="https://github-profile-trophy.vercel.app/?username=${store.username}&theme=${store.theme === 'custom' ? 'flat' : store.theme}&no-frame=false&no-bg=true&margin-w=15" alt="Trophies" />` }} />,
-                          languages: (
-                            <div className="flex justify-center w-full">
-                              <LanguageStats />
-                            </div>
-                          )
-                        };
-
-                        return (
-                          <motion.div
-                            key={id}
-                            layout
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95 }}
-                            transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                            className="w-full flex justify-center"
-                          >
-                            {WIDGETS[id]}
-                          </motion.div>
-                        );
-                      })}
-                    </AnimatePresence>
+                          return (
+                            <motion.div
+                              key={id}
+                              layout
+                              initial={{ opacity: 0, y: 20 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, scale: 0.95 }}
+                              transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                              className="w-full flex justify-center"
+                            >
+                              {id === 'languages' && (
+                                <div className="flex justify-center w-full">
+                                  <LanguageStats />
+                                </div>
+                              )}
+                              {id === 'badges' && <SkillBadgeGrid />}
+                              {id === 'socials' && <SocialHubPreview />}
+                              {id === 'aboutme' && <AboutMePreview />}
+                              {id === 'stats' && (
+                                <div dangerouslySetInnerHTML={{ __html: `<img src="https://github-readme-stats.vercel.app/api?username=${store.username}&show_icons=true${themeParams}" alt="Stats" />` }} />
+                              )}
+                              {id === 'streak' && (
+                                <div dangerouslySetInnerHTML={{ __html: `<img src="https://github-readme-streak-stats.herokuapp.com/?user=${store.username}${themeParams.replace('bg_color', 'background').replace('title_color', 'stroke').replace('text_color', 'currStreakNum').replace('icon_color', 'fire')}" alt="Streak" />` }} />
+                              )}
+                              {id === 'trophies' && (
+                                <div dangerouslySetInnerHTML={{ __html: `<img src="https://github-profile-trophy.vercel.app/?username=${store.username}&theme=${store.theme === 'custom' ? 'flat' : store.theme}&no-frame=false&no-bg=true&margin-w=15" alt="Trophies" />` }} />
+                              )}
+                            </motion.div>
+                          );
+                        })}
+                      </AnimatePresence>
+                    </div>
                   </div>
-                </div>
               ) : (
                 <div className="flex flex-col items-center justify-center h-64 text-slate-400 dark:text-slate-500">
                   <p>Enter your GitHub username to see the preview.</p>

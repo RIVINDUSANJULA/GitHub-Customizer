@@ -14,6 +14,8 @@ function getSlug(name: string) {
     'html5': 'html',
     'css3': 'css',
     'google cloud': 'gcp',
+    'c++': 'cpp',
+    'c#': 'csharp',
   };
 
   const lower = name.toLowerCase();
@@ -27,24 +29,24 @@ function getSlug(name: string) {
 
 export function SkillBadgeGrid() {
   const store = useBuilderStore();
-  const {
-    manualSkills,
-    autoLanguages,
-    hiddenLanguages,
-    hiddenSkills,
+  const { 
+    manualSkills, 
+    autoLanguages, 
+    autoSkills,
+    hiddenLanguages, 
+    hiddenSkills, 
     badgesConfig,
-    analyticsConfig,
     allSkillsOrder
   } = store;
 
-  const {
-    badgeSize,
-    elementRadius,
-    useOfficialColors,
-    badgeStyle,
-    skillIconTheme,
-    skillIconsPerRow,
-    artisticIconSize,
+  const { 
+    badgeSize, 
+    elementRadius, 
+    useOfficialColors, 
+    badgeStyle, 
+    skillIconTheme, 
+    skillIconsPerRow, 
+    artisticIconSize, 
     showGlow,
     customBgColor,
     customIconColor
@@ -54,22 +56,22 @@ export function SkillBadgeGrid() {
   
   // Filter visibility
   const visibleAutoLangs = autoLanguages.filter(l => !hiddenLanguages.includes(l.name));
-  const visibleAutoSkills = store.autoSkills.filter(s => !hiddenSkills.includes(s.name));
+  const visibleAutoSkills = autoSkills.filter(s => !hiddenSkills.includes(s.name));
   const visibleManualSkills = manualSkills.filter(s => !hiddenSkills.includes(s.name));
 
   // 1. Auto Languages
   visibleAutoLangs.forEach(l => {
-    skillMap.set(l.name.toLowerCase(), { name: l.name, type: 'auto' as const });
+    skillMap.set(l.name.toLowerCase(), { name: l.name, type: 'auto' as const, iconUrl: undefined, color: undefined });
   });
 
-  // 2. Auto Skills (Topics) - override if exists to preserve casing or just keep
+  // 2. Auto Skills (Topics)
   visibleAutoSkills.forEach(s => {
     if (!skillMap.has(s.name.toLowerCase())) {
-      skillMap.set(s.name.toLowerCase(), { name: s.name, type: 'auto' as const });
+      skillMap.set(s.name.toLowerCase(), { name: s.name, type: 'auto' as const, iconUrl: undefined, color: undefined });
     }
   });
 
-  // 3. Manual Skills - higher priority for custom colors/icons
+  // 3. Manual Skills
   visibleManualSkills.forEach(s => {
     skillMap.set(s.name.toLowerCase(), { name: s.name, type: 'manual' as const, iconUrl: s.iconUrl, color: s.color });
   });
@@ -97,15 +99,15 @@ export function SkillBadgeGrid() {
   if (badgeStyle === 'skillicons') {
     const slugs = sortedSkills.map(s => getSlug(s.name)).join(',');
     const url = `https://skillicons.dev/icons?i=${slugs}&theme=${skillIconTheme}&perline=${skillIconsPerRow}`;
-
+    
     return (
       <div className="flex justify-center w-full py-4">
-        <motion.img
+        <motion.img 
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           key={`skillicons-${url}`}
-          src={url}
-          alt="Skill Icons"
+          src={url} 
+          alt="Skill Icons" 
           className="max-w-full h-auto drop-shadow-xl"
         />
       </div>
@@ -117,7 +119,7 @@ export function SkillBadgeGrid() {
       <AnimatePresence mode="popLayout">
         {sortedSkills.map((skill) => {
           const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
-
+          
           let imgSrc = "";
           if (badgeStyle === 'shields') {
             const logoColor = useOfficialColors ? 'white' : customIconColor;
@@ -125,16 +127,11 @@ export function SkillBadgeGrid() {
             imgSrc = `https://img.shields.io/badge/${encodeURIComponent(skill.name)}-%23${shieldsColor}.svg?style=for-the-badge&logo=${getSlug(skill.name)}&logoColor=${logoColor}`;
           } else if (badgeStyle === 'artistic' || badgeStyle === 'premium') {
             const artisticParams = skill.iconUrl ? `&iconUrl=${encodeURIComponent(skill.iconUrl)}&iconSize=${artisticIconSize}` : "";
-
-            // Logic: 
-            // 1. If individual skill color exists, use it as background, keep white text
-            // 2. If Official Colors ON, use official background, white text
-            // 3. If Official Colors OFF, use customBgColor and customIconColor (for text/icon)
-
+            
             const bgColor = skill.color ? skill.color : (useOfficialColors ? '' : customBgColor);
             const textColor = useOfficialColors ? 'ffffff' : customIconColor;
             const useOfficialParam = useOfficialColors && !skill.color;
-
+            
             imgSrc = `${baseUrl}/api/badge?name=${encodeURIComponent(skill.name)}&color=${bgColor}&textColor=${textColor}&size=${badgeSize}&radius=${elementRadius}&useOfficialColor=${useOfficialParam}&showGlow=${showGlow}${artisticParams}`;
           }
 
@@ -147,8 +144,8 @@ export function SkillBadgeGrid() {
               exit={{ opacity: 0, scale: 0.8 }}
               transition={{ type: "spring", stiffness: 500, damping: 30 }}
             >
-              <img
-                src={imgSrc}
+              <img 
+                src={imgSrc} 
                 alt={skill.name}
                 loading="lazy"
                 className={cn(
