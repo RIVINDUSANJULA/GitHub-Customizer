@@ -27,9 +27,42 @@ export function BuilderSidebar() {
 
   const handleCopy = (e: React.MouseEvent, text: string, id: string) => {
     e.stopPropagation();
+    if (!text) return;
+    
     const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
-    const url = `${baseUrl}/api/social-card?platform=${id.split('-')[1]}&username=${text}`;
-    navigator.clipboard.writeText(url);
+    const platform = id.split('-')[1];
+    
+    const query = new URLSearchParams({
+      platform,
+      username: text,
+      style: store.socialProfiles.find(p => p.platform === platform)?.style || store.socialsConfig.cardStyle || 'badge',
+      blockRadius: store.socialsConfig.blockRadius.toString(),
+      elementRadius: store.socialsConfig.elementRadius.toString(),
+      showGlow: store.socialsConfig.showGlow.toString(),
+      useAvatar: store.socialsConfig.useAvatar.toString(),
+    });
+    
+    const profile = store.socialProfiles.find(p => p.platform === platform);
+    if (profile?.customColor) query.set('color', profile.customColor);
+
+    const url = `${baseUrl}/api/social-card?${query.toString()}`;
+    
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(url);
+    } else {
+      // Fallback for non-secure contexts
+      const textArea = document.createElement("textarea");
+      textArea.value = url;
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+      } catch (err) {
+        console.error('Fallback copy failed', err);
+      }
+      document.body.removeChild(textArea);
+    }
+
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 2000);
   };
