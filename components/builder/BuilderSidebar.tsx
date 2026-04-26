@@ -33,6 +33,7 @@ import {
   MessageSquare, 
   Plus, 
   ExternalLink,
+  RefreshCw,
   Image as ImageIcon
 } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
