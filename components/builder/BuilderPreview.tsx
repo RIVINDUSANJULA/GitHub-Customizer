@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { SkillBadgeGrid } from "./SkillBadgeGrid";
 import { SocialHubPreview } from "./SocialHubPreview";
 import AboutMePreview from "./AboutMePreview";
+import { LanguageStats } from "./LanguageStats";
 
 export function BuilderPreview() {
   const store = useBuilderStore();

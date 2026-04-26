@@ -263,9 +263,29 @@ export function BuilderSidebar() {
   };
 
   const combinedSkills = useMemo(() => {
-    const auto = store.autoLanguages.map(l => ({ name: l.name, isAuto: true, iconUrl: undefined }));
-    const manual = store.manualSkills.map(s => ({ name: s.name, isAuto: false, iconUrl: s.iconUrl }));
-    const all = [...auto, ...manual];
+    const skillMap = new Map<string, any>();
+
+    // 1. Auto Languages
+    const autoLangs = Array.isArray(store.autoLanguages) ? store.autoLanguages : [];
+    autoLangs.forEach(l => {
+      skillMap.set(l.name.toLowerCase(), { name: l.name, isAuto: true, iconUrl: undefined });
+    });
+
+    // 2. Auto Skills (Topics)
+    const autoSkills = Array.isArray(store.autoSkills) ? store.autoSkills : [];
+    autoSkills.forEach(s => {
+      if (!skillMap.has(s.name.toLowerCase())) {
+        skillMap.set(s.name.toLowerCase(), { name: s.name, isAuto: true, iconUrl: undefined });
+      }
+    });
+
+    // 3. Manual Skills (Override for custom icons/colors)
+    const manualSkills = Array.isArray(store.manualSkills) ? store.manualSkills : [];
+    manualSkills.forEach(s => {
+      skillMap.set(s.name.toLowerCase(), { name: s.name, isAuto: false, iconUrl: s.iconUrl });
+    });
+
+    const all = Array.from(skillMap.values());
 
     return all.sort((a, b) => {
       const idxA = store.allSkillsOrder.indexOf(a.name);
@@ -275,7 +295,7 @@ export function BuilderSidebar() {
       if (idxB === -1) return -1;
       return idxA - idxB;
     });
-  }, [store.autoLanguages, store.manualSkills, store.allSkillsOrder]);
+  }, [store.autoLanguages, store.autoSkills, store.manualSkills, store.allSkillsOrder]);
 
   return (
     <div className="w-full h-full bg-white dark:bg-zinc-950/50 backdrop-blur-xl border-r border-slate-200 dark:border-white/10 flex flex-col overflow-y-auto custom-scrollbar">
