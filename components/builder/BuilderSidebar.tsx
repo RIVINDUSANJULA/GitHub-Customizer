@@ -298,12 +298,12 @@ export function BuilderSidebar() {
                     <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} className="overflow-hidden border-t border-slate-200 dark:border-white/10">
                       <div className="p-4 space-y-6 bg-white dark:bg-zinc-950/20">
                         {/* Mode Toggle */}
-                        <div className="flex bg-slate-100 dark:bg-zinc-800 p-1 rounded-xl">
+                        <div className="flex bg-slate-100 dark:bg-zinc-800 p-1 rounded-xl relative z-10">
                           <button 
                             onClick={() => store.setAboutMeOption('mode', 'manual')}
                             className={cn(
                               "flex-1 flex items-center justify-center gap-2 py-1.5 text-[9px] font-black uppercase rounded-lg transition-all",
-                              store.aboutMeConfig.mode === 'manual' ? "bg-white dark:bg-zinc-700 text-rose-500 shadow-sm" : "text-slate-400"
+                              (store.aboutMeConfig?.mode || 'manual') === 'manual' ? "bg-white dark:bg-zinc-700 text-rose-500 shadow-sm" : "text-slate-400"
                             )}
                           >
                             <Brush className="w-3 h-3" />
@@ -313,7 +313,7 @@ export function BuilderSidebar() {
                             onClick={() => store.setAboutMeOption('mode', 'ai')}
                             className={cn(
                               "flex-1 flex items-center justify-center gap-2 py-1.5 text-[9px] font-black uppercase rounded-lg transition-all",
-                              store.aboutMeConfig.mode === 'ai' ? "bg-white dark:bg-zinc-700 text-rose-500 shadow-sm" : "text-slate-400"
+                              store.aboutMeConfig?.mode === 'ai' ? "bg-white dark:bg-zinc-700 text-rose-500 shadow-sm" : "text-slate-400"
                             )}
                           >
                             <Sparkles className="w-3 h-3" />
@@ -322,7 +322,7 @@ export function BuilderSidebar() {
                         </div>
 
                         <AnimatePresence mode="wait">
-                          {store.aboutMeConfig.mode === 'ai' ? (
+                          {(store.aboutMeConfig?.mode === 'ai') ? (
                             <motion.div 
                               key="ai-mode"
                               initial={{ opacity: 0, x: -10 }}
