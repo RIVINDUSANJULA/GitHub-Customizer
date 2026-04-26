@@ -47,6 +47,22 @@ export function SocialHubPreview() {
 
             const imgSrc = `${baseUrl}/api/social-card?${query.toString()}`;
 
+            const getProfileUrl = (platform: string, username: string) => {
+              const mapping: Record<string, string> = {
+                youtube: `https://youtube.com/@${username}`,
+                twitter: `https://x.com/${username}`,
+                linkedin: `https://linkedin.com/in/${username}`,
+                discord: `https://discord.com/users/${username}`,
+                instagram: `https://instagram.com/${username}`,
+                github: `https://github.com/${username}`,
+                tiktok: `https://tiktok.com/@${username}`,
+                gmail: `mailto:${username}`,
+              };
+              return mapping[platform] || '#';
+            };
+
+            const profileUrl = getProfileUrl(profile.platform, profile.username);
+
             return (
               <motion.div
                 key={profile.platform}
@@ -61,23 +77,25 @@ export function SocialHubPreview() {
                   socialsConfig.layout === 'header' ? "w-full" : ""
                 )}
               >
-                <div className="absolute inset-0 bg-rose-500/20 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-full"></div>
-                <img 
-                  src={imgSrc} 
-                  alt={profile.platform} 
-                  className={cn(
-                    "relative z-10 drop-shadow-2xl transition-all duration-500 group-hover:scale-[1.03] group-hover:-translate-y-1",
-                    socialsConfig.layout === 'header' ? "w-full" : "w-full h-auto"
+                <a href={profileUrl} target="_blank" rel="noopener noreferrer" className="block w-full h-full">
+                  <div className="absolute inset-0 bg-rose-500/20 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-full"></div>
+                  <img 
+                    src={imgSrc} 
+                    alt={profile.platform} 
+                    className={cn(
+                      "relative z-10 drop-shadow-2xl transition-all duration-500 group-hover:scale-[1.03] group-hover:-translate-y-1",
+                      socialsConfig.layout === 'header' ? "w-full" : "w-full h-auto"
+                    )}
+                  />
+                  
+                  {/* Status Indicator for Bento/Large cards */}
+                  {(profile.style === 'activity' || profile.platform === 'career' || profile.style === 'identity') && (
+                    <div className="absolute top-4 right-4 z-20 flex items-center gap-1.5 px-2 py-1 bg-black/40 backdrop-blur-md rounded-full border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                      <span className="text-[8px] font-black text-white uppercase tracking-tighter">Live</span>
+                    </div>
                   )}
-                />
-                
-                {/* Status Indicator for Bento/Large cards */}
-                {(profile.style === 'activity' || profile.platform === 'career' || profile.style === 'identity') && (
-                  <div className="absolute top-4 right-4 z-20 flex items-center gap-1.5 px-2 py-1 bg-black/40 backdrop-blur-md rounded-full border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                    <span className="text-[8px] font-black text-white uppercase tracking-tighter">Live</span>
-                  </div>
-                )}
+                </a>
               </motion.div>
             );
           })}

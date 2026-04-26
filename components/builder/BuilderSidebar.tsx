@@ -45,8 +45,23 @@ export function BuilderSidebar() {
     const profile = store.socialProfiles.find(p => p.platform === platform);
     if (profile?.customColor) query.set('color', profile.customColor);
 
+    const getProfileUrl = (platform: string, username: string) => {
+      const mapping: Record<string, string> = {
+        youtube: `https://youtube.com/@${username}`,
+        twitter: `https://x.com/${username}`,
+        linkedin: `https://linkedin.com/in/${username}`,
+        discord: `https://discord.com/users/${username}`,
+        instagram: `https://instagram.com/${username}`,
+        github: `https://github.com/${username}`,
+        tiktok: `https://tiktok.com/@${username}`,
+        gmail: `mailto:${username}`,
+      };
+      return mapping[platform] || '#';
+    };
+
     const imageUrl = `${baseUrl}/api/social-card?${query.toString()}`;
-    const markdown = `![${platform}](${imageUrl})`;
+    const profileUrl = getProfileUrl(platform, username);
+    const markdown = `[![${platform}](${imageUrl})](${profileUrl})`;
     
     if (navigator.clipboard && window.isSecureContext) {
       navigator.clipboard.writeText(markdown);

@@ -125,6 +125,20 @@ export function generateMarkdown(state: BuilderState): MarkdownResult {
       const visibleProfiles = state.socialProfiles.filter(p => p.isVisible);
       if (visibleProfiles.length > 0) {
         widgets += `<p align="center">\n`;
+        const getProfileUrl = (platform: string, username: string) => {
+          const mapping: Record<string, string> = {
+            youtube: `https://youtube.com/@${username}`,
+            twitter: `https://x.com/${username}`,
+            linkedin: `https://linkedin.com/in/${username}`,
+            discord: `https://discord.com/users/${username}`,
+            instagram: `https://instagram.com/${username}`,
+            github: `https://github.com/${username}`,
+            tiktok: `https://tiktok.com/@${username}`,
+            gmail: `mailto:${username}`,
+          };
+          return mapping[platform] || '#';
+        };
+
         visibleProfiles.forEach((profile) => {
           const query = new URLSearchParams({
             username: profile.username || 'username',
@@ -137,7 +151,10 @@ export function generateMarkdown(state: BuilderState): MarkdownResult {
           });
           if (profile.customColor) query.set('color', profile.customColor);
           
-          widgets += `  <img src="${baseUrl}/api/social-card?platform=${profile.platform}&${query.toString()}" alt="${profile.platform}" />\n`;
+          const imageUrl = `${baseUrl}/api/social-card?platform=${profile.platform}&${query.toString()}`;
+          const profileUrl = getProfileUrl(profile.platform, profile.username);
+          
+          widgets += `  <a href="${profileUrl}"><img src="${imageUrl}" alt="${profile.platform}" /></a>\n`;
         });
         widgets += `</p>\n\n`;
       }
