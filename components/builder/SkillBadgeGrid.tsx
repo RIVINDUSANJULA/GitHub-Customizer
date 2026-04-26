@@ -50,13 +50,31 @@ export function SkillBadgeGrid() {
     customIconColor
   } = badgesConfig;
 
+  const skillMap = new Map<string, any>();
+  
+  // Filter visibility
   const visibleAutoLangs = autoLanguages.filter(l => !hiddenLanguages.includes(l.name));
+  const visibleAutoSkills = store.autoSkills.filter(s => !hiddenSkills.includes(s.name));
   const visibleManualSkills = manualSkills.filter(s => !hiddenSkills.includes(s.name));
 
-  const allVisibleSkills = [
-    ...visibleAutoLangs.map(l => ({ name: l.name, type: 'auto' as const, iconUrl: undefined, color: undefined })),
-    ...visibleManualSkills.map(s => ({ name: s.name, type: 'manual' as const, iconUrl: s.iconUrl, color: s.color }))
-  ];
+  // 1. Auto Languages
+  visibleAutoLangs.forEach(l => {
+    skillMap.set(l.name.toLowerCase(), { name: l.name, type: 'auto' as const });
+  });
+
+  // 2. Auto Skills (Topics) - override if exists to preserve casing or just keep
+  visibleAutoSkills.forEach(s => {
+    if (!skillMap.has(s.name.toLowerCase())) {
+      skillMap.set(s.name.toLowerCase(), { name: s.name, type: 'auto' as const });
+    }
+  });
+
+  // 3. Manual Skills - higher priority for custom colors/icons
+  visibleManualSkills.forEach(s => {
+    skillMap.set(s.name.toLowerCase(), { name: s.name, type: 'manual' as const, iconUrl: s.iconUrl, color: s.color });
+  });
+
+  const allVisibleSkills = Array.from(skillMap.values());
 
   // Apply unified order
   const sortedSkills = [...allVisibleSkills].sort((a, b) => {

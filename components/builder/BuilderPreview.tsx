@@ -24,23 +24,21 @@ export function BuilderPreview() {
 
     const fetchData = async () => {
       try {
-        const res = await fetch(`/api/github-user-data?username=${store.username}&include_contribs=${store.analyticsConfig.includeContributions}`);
+        const isForceRefresh = store.refreshTrigger > 0;
+        const res = await fetch(`/api/github-user-data?username=${store.username}&include_contribs=${store.analyticsConfig.includeContributions}${isForceRefresh ? '&forceRefresh=true' : ''}`);
         if (res.ok) {
           const data = await res.json();
-          store.setAutoLanguages(data);
+          if (data.languages) store.setAutoLanguages(data.languages);
+          if (data.skills) store.setAutoSkills(data.skills);
         }
       } catch (err) {
         console.error("Failed to fetch auto languages:", err);
       }
     };
 
-    const fetchDataOnce = () => {
-      fetchData();
-    };
-
-    const timer = setTimeout(fetchDataOnce, 1000);
+    const timer = setTimeout(fetchData, 500);
     return () => clearTimeout(timer);
-  }, [store.username, store.analyticsConfig.includeContributions]);
+  }, [store.username, store.analyticsConfig.includeContributions, store.refreshTrigger]);
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(full);
@@ -115,7 +113,6 @@ export function BuilderPreview() {
 
                         if (!isVisible) return null;
 
-                        const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
                         let themeParams = `&theme=${store.theme}`;
                         if (store.theme === 'custom') {
                           themeParams = `&bg_color=${store.customBgColor}&title_color=${store.customTextColor}&text_color=${store.customTextColor}&icon_color=${store.customIconColor}&border_color=${store.customBorderColor}`;
@@ -132,14 +129,7 @@ export function BuilderPreview() {
                           trophies: <div dangerouslySetInnerHTML={{ __html: `<img src="https://github-profile-trophy.vercel.app/?username=${store.username}&theme=${store.theme === 'custom' ? 'flat' : store.theme}&no-frame=false&no-bg=true&margin-w=15" alt="Trophies" />` }} />,
                           languages: (
                             <div className="flex justify-center w-full">
-                              <object
-                                type="image/svg+xml"
-                                data={`${baseUrl}/api/github-languages?username=${store.username}&include_contribs=${store.analyticsConfig.includeContributions}&limit=${store.analyticsConfig.languageLimit}&layout=${store.analyticsConfig.layout}${themeParams}&blockRadius=${store.analyticsConfig.blockRadius}&elementRadius=${store.analyticsConfig.elementRadius}&showGlow=${store.analyticsConfig.showGlow}&animationSpeed=${store.analyticsConfig.animationSpeed}&donutHoleSize=${store.analyticsConfig.donutHoleSize}&startAngle=${store.analyticsConfig.startAngle}&barHeight=${store.analyticsConfig.barHeight}&lineThickness=${store.analyticsConfig.lineThickness}&cardsPerRow=${store.analyticsConfig.cardsPerRow}&shadowDepth=${store.analyticsConfig.shadowDepth}&bgType=${store.analyticsConfig.bgType}&bgColor2=${store.analyticsConfig.bgColor2}&pieShowHoverLabels=${store.analyticsConfig.pieShowHoverLabels}&pieLabelPosition=${store.analyticsConfig.pieLabelPosition}&pieHideLegend=${store.analyticsConfig.pieHideLegend}`}
-                                className="max-w-full pointer-events-auto"
-                                style={{ height: 'auto' }}
-                              >
-                                Languages
-                              </object>
+                              <LanguageStats />
                             </div>
                           )
                         };

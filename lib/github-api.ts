@@ -104,11 +104,12 @@ async function fetchResilientPublicData(username: string) {
     const repos = await reposRes.json();
     if (repos.length === 0) return { repositories: { nodes: [] }, status: 'no_public_data' };
 
-    // 2. Deep-dive into TOP 5 most active/recent repos for byte-precise data
-    const top5 = repos.slice(0, 5);
-    const otherRepos = repos.slice(5);
+    // Strategy: Deep-dive into top 3 repos for byte-precision, use primary data for rest
+    const deepDiveCount = 3;
+    const topRepos = repos.slice(0, deepDiveCount);
+    const otherRepos = repos.slice(deepDiveCount);
 
-    const topNodes = await Promise.all(top5.map(async (repo: any) => {
+    const topNodes = await Promise.all(topRepos.map(async (repo: any) => {
       try {
         const langRes = await fetch(repo.languages_url, { next: { revalidate: 3600 } });
         const langs = langRes.ok ? await langRes.json() : {};
