@@ -284,7 +284,6 @@ export function BuilderSidebar() {
                       <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Badge Aesthetic Engine</label>
                       <div className="flex p-1 bg-slate-100 dark:bg-zinc-900 rounded-xl gap-1">
                         {[
-                          { id: 'premium', label: 'GlassMorphic', icon: Boxes },
                           { id: 'shields', label: 'Classic', icon: Shield },
                           { id: 'skillicons', label: 'Dynamic', icon: Sparkles },
                           { id: 'artistic', label: 'Artistic', icon: Brush },
