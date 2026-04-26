@@ -21,25 +21,31 @@ export function BuilderPreview() {
   useEffect(() => {
     if (!store.username) return;
 
-    const fetchData = async () => {
+    const fetchData = async (force = false) => {
       try {
-        const res = await fetch(`/api/github-user-data?username=${store.username}&include_contribs=${store.analyticsConfig.includeContributions}`);
+        const res = await fetch(`/api/github-user-data?username=${store.username}&include_contribs=${store.analyticsConfig.includeContributions}${force ? '&forceRefresh=true' : ''}`);
         if (res.ok) {
           const data = await res.json();
           store.setAutoLanguages(data);
+          
+          // RECONCILE ORDER
+          const autoNames = data.map((l: any) => l.name);
+          const manualNames = store.manualSkills.map(s => s.name);
+          const currentOrder = store.allSkillsOrder;
+          
+          const newSkills = [...autoNames, ...manualNames].filter(name => !currentOrder.includes(name));
+          if (newSkills.length > 0) {
+            store.setAllSkillsOrder([...currentOrder, ...newSkills]);
+          }
         }
       } catch (err) {
         console.error("Failed to fetch auto languages:", err);
       }
     };
 
-    const fetchDataOnce = () => {
-      fetchData();
-    };
-
-    const timer = setTimeout(fetchDataOnce, 1000);
+    const timer = setTimeout(() => fetchData(store.refreshTrigger > 0), 1000);
     return () => clearTimeout(timer);
-  }, [store.username, store.analyticsConfig.includeContributions]);
+  }, [store.username, store.analyticsConfig.includeContributions, store.refreshTrigger]);
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(full);

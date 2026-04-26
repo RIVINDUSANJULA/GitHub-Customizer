@@ -421,13 +421,15 @@ export const useBuilderStore = create<BuilderState>()(
       setSocialProfiles: (socialProfiles) => set({ socialProfiles }),
 
       addManualSkill: (skill) => set((state) => ({
-        manualSkills: state.manualSkills.some(s => s.name === skill.name) ? state.manualSkills : [...state.manualSkills, skill]
+        manualSkills: state.manualSkills.some(s => s.name === skill.name) ? state.manualSkills : [...state.manualSkills, skill],
+        allSkillsOrder: state.allSkillsOrder.includes(skill.name) ? state.allSkillsOrder : [...state.allSkillsOrder, skill.name]
       })),
       updateManualSkill: (name, updates) => set((state) => ({
         manualSkills: state.manualSkills.map(s => s.name === name ? { ...s, ...updates } : s)
       })),
       removeManualSkill: (skillName) => set((state) => ({
-        manualSkills: state.manualSkills.filter(s => s.name !== skillName)
+        manualSkills: state.manualSkills.filter(s => s.name !== skillName),
+        allSkillsOrder: state.allSkillsOrder.filter(name => name !== skillName)
       })),
       toggleLanguageVisibility: (lang) => set((state) => ({
         hiddenLanguages: state.hiddenLanguages.includes(lang)
