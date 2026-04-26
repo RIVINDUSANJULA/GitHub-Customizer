@@ -33,11 +33,14 @@ export function BuilderPreview() {
           store.setAutoSkills(skills);
           
           // RECONCILE ORDER
-          const autoNames = [...languages.map((l: any) => l.name), ...skills.map((s: any) => s.name)];
+          const rawAutoNames = [...languages.map((l: any) => l.name), ...skills.map((s: any) => s.name)];
+          const autoNames = Array.from(new Set(rawAutoNames));
+          
           const manualNames = store.manualSkills.map(s => s.name);
           const currentOrder = store.allSkillsOrder;
           
-          const newSkills = [...autoNames, ...manualNames].filter(name => !currentOrder.includes(name));
+          const uniqueAllDetected = Array.from(new Set([...autoNames, ...manualNames]));
+          const newSkills = uniqueAllDetected.filter(name => !currentOrder.includes(name));
           if (newSkills.length > 0) {
             store.setAllSkillsOrder([...currentOrder, ...newSkills]);
           }

@@ -239,7 +239,18 @@ export function BuilderSidebar() {
         }))
       : [];
     const manual = store.manualSkills.map(s => ({ name: s.name, isAuto: false, iconUrl: s.iconUrl }));
-    const all = [...autoLangs, ...autoSkills, ...manual];
+    const allRaw = [...autoLangs, ...autoSkills, ...manual];
+    
+    // Unique-ify by name (Manual takes precedence)
+    const uniqueMap = new Map();
+    allRaw.forEach(item => {
+      const existing = uniqueMap.get(item.name);
+      if (!existing || (!item.isAuto && existing.isAuto)) {
+        uniqueMap.set(item.name, item);
+      }
+    });
+    
+    const all = Array.from(uniqueMap.values());
 
     return all.sort((a, b) => {
       const idxA = store.allSkillsOrder.indexOf(a.name);

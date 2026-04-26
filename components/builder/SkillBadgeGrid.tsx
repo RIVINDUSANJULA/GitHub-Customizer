@@ -66,7 +66,7 @@ export function SkillBadgeGrid() {
   const visibleAutoSkills = safeAutoSkills.filter(s => !hiddenSkills.includes(s.name));
   const visibleManualSkills = safeManualSkills.filter(s => !hiddenSkills.includes(s.name));
 
-  const allVisibleSkills = [
+  const allVisibleSkillsRaw = [
     ...visibleAutoLangs.map(l => ({ 
       name: l.name, 
       type: 'auto' as const, 
@@ -86,6 +86,18 @@ export function SkillBadgeGrid() {
       color: s.color 
     }))
   ];
+
+  // De-duplicate by name
+  const uniqueSkillsMap = new Map();
+  allVisibleSkillsRaw.forEach(skill => {
+    const existing = uniqueSkillsMap.get(skill.name);
+    // Priority: Manual > Auto-Language (w/ Color) > Auto-Skill (Topic)
+    if (!existing || skill.type === 'manual' || (skill.type === 'auto' && skill.color && !existing.color)) {
+      uniqueSkillsMap.set(skill.name, skill);
+    }
+  });
+
+  const allVisibleSkills = Array.from(uniqueSkillsMap.values());
 
   // Apply unified order
   const sortedSkills = [...allVisibleSkills].sort((a, b) => {
