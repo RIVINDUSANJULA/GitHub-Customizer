@@ -79,10 +79,30 @@ export function generateMarkdown(state: BuilderState): MarkdownResult {
     }
 
     if (id === 'badges' && showBadges) {
-      const allSkills = [
-        ...state.autoLanguages.filter(l => !hiddenLanguages.includes(l.name)).map(l => ({ name: l.name, iconUrl: undefined, color: undefined })),
-        ...manualSkills.filter(s => !hiddenSkills.includes(s.name))
-      ];
+      const skillMap = new Map<string, any>();
+      
+      const autoLangs = Array.isArray(state.autoLanguages) ? state.autoLanguages : [];
+      const autoSks = Array.isArray(state.autoSkills) ? state.autoSkills : [];
+      const manualSks = Array.isArray(manualSkills) ? manualSkills : [];
+
+      // 1. Auto Languages
+      autoLangs.filter(l => !hiddenLanguages.includes(l.name)).forEach(l => {
+        skillMap.set(l.name.toLowerCase(), { name: l.name, iconUrl: undefined, color: undefined });
+      });
+
+      // 2. Auto Skills (Topics)
+      autoSks.filter(s => !hiddenSkills.includes(s.name)).forEach(s => {
+        if (!skillMap.has(s.name.toLowerCase())) {
+          skillMap.set(s.name.toLowerCase(), { name: s.name, iconUrl: undefined, color: undefined });
+        }
+      });
+
+      // 3. Manual Skills
+      manualSks.filter(s => !hiddenSkills.includes(s.name)).forEach(s => {
+        skillMap.set(s.name.toLowerCase(), { name: s.name, iconUrl: s.iconUrl, color: s.color });
+      });
+
+      const allSkills = Array.from(skillMap.values());
 
       if (allSkills.length > 0) {
         widgets += `<div align="center">\n`;
