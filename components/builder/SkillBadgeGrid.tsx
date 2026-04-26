@@ -95,7 +95,8 @@ export function SkillBadgeGrid() {
     artisticIconSize, 
     showGlow,
     customBgColor,
-    customIconColor
+    customIconColor,
+    showIcons
   } = badgesConfig;
 
   const safeAutoLangs = Array.isArray(autoLanguages) ? autoLanguages : [];

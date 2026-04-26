@@ -130,6 +130,8 @@ export interface BuilderState {
   analyticsConfig: AnalyticsConfig;
   badgesConfig: BadgesConfig;
 
+  isSyncing: boolean;
+  setIsSyncing: (val: boolean) => void;
   refreshTrigger: number;
   triggerRefresh: () => void;
 
@@ -271,6 +273,8 @@ export const useBuilderStore = create<BuilderState>()(
         customIconColor: "ffffff",
       },
 
+      isSyncing: false,
+      setIsSyncing: (val) => set({ isSyncing: val }),
       refreshTrigger: 0,
       triggerRefresh: () => set((state) => ({ refreshTrigger: state.refreshTrigger + 1 })),
 

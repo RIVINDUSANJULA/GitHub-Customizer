@@ -524,7 +524,7 @@ export function BuilderSidebar() {
 
                               <div className="pt-2">
                                 <button
-                                  onClick={() => store.setRefreshTrigger(store.refreshTrigger + 1)}
+                                  onClick={() => store.triggerRefresh()}
                                   className="w-full py-3 bg-indigo-500 text-white rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] flex items-center justify-center gap-3 hover:bg-indigo-600 transition-all shadow-lg shadow-indigo-500/20 active:scale-[0.98]"
                                 >
                                   <RefreshCw className={cn("w-3 h-3", store.isSyncing && "animate-spin")} />
@@ -634,7 +634,6 @@ export function BuilderSidebar() {
                                     />
                                   </div>
                                   <div className="flex flex-col gap-4">
-                                      </label>
                                       <div className="space-y-1.5">
                                         <label className="text-[10px] font-bold text-slate-400 uppercase">Shadow Depth: {store.badgesConfig.shadowDepth || 0}px</label>
                                         <input

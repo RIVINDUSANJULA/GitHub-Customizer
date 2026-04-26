@@ -22,6 +22,7 @@ export function BuilderPreview() {
     if (!store.username) return;
 
     const fetchData = async (force = false) => {
+      store.setIsSyncing(true);
       try {
         const res = await fetch(`/api/github-user-data?username=${store.username}&include_contribs=${store.analyticsConfig.includeContributions}${force ? '&forceRefresh=true' : ''}`);
         if (res.ok) {
@@ -55,6 +56,8 @@ export function BuilderPreview() {
         }
       } catch (err) {
         console.error("Failed to fetch auto languages:", err);
+      } finally {
+        store.setIsSyncing(false);
       }
     };
 
