@@ -146,7 +146,7 @@ export default function AboutMePreview() {
               <div 
                 className="absolute inset-0 animate-flow-shimmer"
                 style={{
-                  background: `linear-gradient(45deg, transparent 25%, ${glowColor}20 50%, transparent 75%)`,
+                  background: `linear-gradient(45deg, transparent 25%, var(--bio-accent)20 50%, transparent 75%)`,
                   backgroundSize: '200% 200%'
                 }}
               />
@@ -228,11 +228,11 @@ export default function AboutMePreview() {
           <>
             <div 
               className="absolute -top-24 -right-24 w-64 h-64 blur-[100px] pointer-events-none opacity-[0.08]"
-              style={{ backgroundColor: glowColor }}
+              style={{ backgroundColor: 'var(--bio-accent)' }}
             />
             <div 
               className="absolute -bottom-24 -left-24 w-64 h-64 blur-[100px] pointer-events-none opacity-[0.05]"
-              style={{ backgroundColor: glowColor }}
+              style={{ backgroundColor: 'var(--bio-accent)' }}
             />
           </>
         )}
