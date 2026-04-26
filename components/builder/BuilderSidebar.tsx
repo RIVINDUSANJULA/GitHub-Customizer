@@ -36,9 +36,46 @@ export function BuilderSidebar() {
   };
 
   const mapToArtisticIcon = (name: string) => {
+    const mapping: Record<string, string> = {
+      'nodejs': 'nodejs-icon',
+      'react': 'react',
+      'typescript': 'typescript-icon',
+      'javascript': 'javascript',
+      'python': 'python',
+      'tailwind': 'tailwindcss-icon',
+      'next.js': 'nextjs-icon',
+      'mongodb': 'mongodb-icon',
+      'docker': 'docker-icon',
+      'git': 'git-icon',
+      'github': 'github-icon',
+      'vscode': 'visual-studio-code',
+      'figma': 'figma',
+      'firebase': 'firebase',
+      'mysql': 'mysql-icon',
+      'postgres': 'postgresql',
+      'redis': 'redis',
+      'graphql': 'graphql',
+      'rust': 'rust',
+      'go': 'go',
+      'swift': 'swift',
+      'kotlin': 'kotlin-icon',
+      'flutter': 'flutter',
+      'aws': 'aws',
+      'azure': 'azure-icon',
+      'gcp': 'google-cloud-icon',
+      'linux': 'linux-tux',
+      'nginx': 'nginx',
+      'html': 'html-5',
+      'css': 'css-3',
+      'sass': 'sass',
+      'npm': 'npm-icon',
+    };
+
     const slug = name.toLowerCase().replace(/[^a-z0-9]/g, '');
-    // DevIcon pattern: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/[slug]/[slug]-original.svg
-    return `https://cdn.jsdelivr.net/gh/devicons/devicon/icons/${slug}/${slug}-original.svg`;
+    const iconName = mapping[slug] || slug;
+    
+    // Iconify Logos set is extremely high quality and consistent
+    return `https://api.iconify.design/logos:${iconName}.svg`;
   };
 
   return (
