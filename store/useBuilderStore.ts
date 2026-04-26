@@ -40,6 +40,24 @@ export interface BadgesConfig {
   customIconColor: string;
 }
 
+export interface SocialsConfig {
+  blockRadius: number;
+  elementRadius: number;
+  showGlow: boolean;
+  layout: 'list' | 'bento' | 'inline';
+  cardStyle: 'standard' | 'glass' | 'minimal';
+  shadowDepth: number;
+}
+
+export interface SocialProfile {
+  platform: 'youtube' | 'discord' | 'twitter' | 'instagram' | 'linkedin' | 'github' | 'tiktok' | 'career';
+  username: string;
+  label?: string;
+  isVisible: boolean;
+  style?: 'badge' | 'counter' | 'activity';
+  customColor?: string;
+}
+
 export interface ManualSkill {
   name: string;
   iconUrl?: string;
@@ -63,6 +81,8 @@ export interface BuilderState {
   hiddenSkills: string[];
   autoLanguages: { name: string, color: string, percentage: number }[];
   allSkillsOrder: string[];
+  socialsConfig: SocialsConfig;
+  socialProfiles: SocialProfile[];
   widgetOrder: string[];
 
   theme: StatTheme;
@@ -83,6 +103,9 @@ export interface BuilderState {
   setWidgetOrder: (order: string[]) => void;
   setAnalyticsOption: <K extends keyof AnalyticsConfig>(key: K, value: AnalyticsConfig[K]) => void;
   setBadgesOption: <K extends keyof BadgesConfig>(key: K, value: BadgesConfig[K]) => void;
+  setSocialsOption: <K extends keyof SocialsConfig>(key: K, value: SocialsConfig[K]) => void;
+  updateSocialProfile: (platform: string, updates: Partial<SocialProfile>) => void;
+  setSocialProfiles: (profiles: SocialProfile[]) => void;
   addManualSkill: (skill: ManualSkill) => void;
   updateManualSkill: (name: string, updates: Partial<ManualSkill>) => void;
   removeManualSkill: (skillName: string) => void;
@@ -105,6 +128,7 @@ export const useBuilderStore = create<BuilderState>()(
       showTopRepos: false,
       showLanguages: true,
       showBadges: true,
+      showSocials: true,
       activeWidgetTab: 'stats',
 
       analyticsConfig: {
@@ -144,12 +168,23 @@ export const useBuilderStore = create<BuilderState>()(
         customIconColor: '79ff97',
       },
 
+      socialsConfig: {
+        blockRadius: 20,
+        elementRadius: 10,
+        showGlow: true,
+        layout: 'bento',
+        cardStyle: 'glass',
+        shadowDepth: 5,
+      },
+      socialProfiles: [
+        { platform: 'career', username: 'Available for Hire', isVisible: true, style: 'badge', customColor: '10b981' }
+      ],
       manualSkills: [],
       hiddenLanguages: [],
       hiddenSkills: [],
       autoLanguages: [],
       allSkillsOrder: [],
-      widgetOrder: ['stats', 'streak', 'trophies', 'languages', 'badges'],
+      widgetOrder: ['stats', 'streak', 'trophies', 'languages', 'badges', 'socials'],
 
       theme: 'default',
       customBgColor: '000000',
@@ -178,6 +213,15 @@ export const useBuilderStore = create<BuilderState>()(
         set((state) => ({
           badgesConfig: { ...state.badgesConfig, [key]: value }
         })),
+      setSocialsOption: (key, value) => 
+        set((state) => ({
+          socialsConfig: { ...state.socialsConfig, [key]: value }
+        })),
+      updateSocialProfile: (platform, updates) =>
+        set((state) => ({
+          socialProfiles: state.socialProfiles.map(p => p.platform === platform ? { ...p, ...updates } : p)
+        })),
+      setSocialProfiles: (socialProfiles) => set({ socialProfiles }),
 
       addManualSkill: (skill) => set((state) => ({
         manualSkills: state.manualSkills.some(s => s.name === skill.name) ? state.manualSkills : [...state.manualSkills, skill]

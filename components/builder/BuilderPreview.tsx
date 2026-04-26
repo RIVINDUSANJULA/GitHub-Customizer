@@ -6,14 +6,14 @@ import { Copy, Download, Check } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { getBrandData } from "@/lib/skills-data";
 
 import { SkillBadgeGrid } from "./SkillBadgeGrid";
+import { SocialHubPreview } from "./SocialHubPreview";
 
 export function BuilderPreview() {
   const store = useBuilderStore();
   const markdownResult = generateMarkdown(store);
-  const { header, customLanguages, widgets, footer, full } = markdownResult;
+  const { header, widgets, full } = markdownResult;
   
   const [copied, setCopied] = useState(false);
   const [activeTab, setActiveTab] = useState<'preview' | 'code'>('preview');
@@ -109,7 +109,8 @@ export function BuilderPreview() {
                                            id === 'badges' ? store.showBadges :
                                            id === 'stats' ? store.showStats :
                                            id === 'streak' ? store.showStreak :
-                                           id === 'trophies' ? store.showTrophies : false;
+                                           id === 'trophies' ? store.showTrophies :
+                                           id === 'socials' ? store.showSocials : false;
 
                           if (!isVisible) return null;
 
@@ -143,6 +144,7 @@ export function BuilderPreview() {
                                 </div>
                               )}
                               {id === 'badges' && <SkillBadgeGrid />}
+                              {id === 'socials' && <SocialHubPreview />}
                               {id === 'stats' && (
                                 <div dangerouslySetInnerHTML={{ __html: `<img src="https://github-readme-stats.vercel.app/api?username=${store.username}&show_icons=true${themeParams}" alt="Stats" />` }} />
                               )}
