@@ -294,110 +294,180 @@ export function BuilderSidebar() {
                   {isSectionOpen('aboutme') && (
                     <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} className="overflow-hidden border-t border-slate-200 dark:border-white/10">
                       <div className="p-4 space-y-6 bg-white dark:bg-zinc-950/20">
-                        {/* Generation Controls */}
-                        <div className="space-y-4">
-                          <div className="space-y-2">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Bio Vibe</label>
-                            <div className="grid grid-cols-2 gap-2">
-                              {['professional', 'creative', 'minimalist', 'technical'].map((v) => (
-                                <button
-                                  key={v}
-                                  onClick={() => store.setAboutMeOption('vibe', v as any)}
-                                  className={cn(
-                                    "px-2 py-1.5 text-[9px] font-bold uppercase rounded-lg border transition-all",
-                                    store.aboutMeConfig.vibe === v 
-                                      ? "bg-rose-500 border-rose-500 text-white shadow-lg shadow-rose-500/20" 
-                                      : "bg-slate-50 dark:bg-zinc-900 border-slate-200 dark:border-white/5 text-slate-400 hover:border-rose-500/30"
-                                  )}
-                                >
-                                  {v}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-
-                          <div className="space-y-2">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Structure</label>
-                            <div className="grid grid-cols-3 gap-2">
-                              {['paragraph', 'bullets', 'mixed'].map((f) => (
-                                <button
-                                  key={f}
-                                  onClick={() => store.setAboutMeOption('format', f as any)}
-                                  className={cn(
-                                    "px-2 py-1.5 text-[9px] font-bold uppercase rounded-lg border transition-all",
-                                    store.aboutMeConfig.format === f
-                                      ? "bg-rose-500 border-rose-500 text-white shadow-lg shadow-rose-500/20" 
-                                      : "bg-slate-50 dark:bg-zinc-900 border-slate-200 dark:border-white/5 text-slate-400 hover:border-rose-500/30"
-                                  )}
-                                >
-                                  {f}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-
-                          <div className="space-y-1.5">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Detail Level: {store.aboutMeConfig.length}</label>
-                            <input 
-                              type="range" 
-                              min="0" 
-                              max="2" 
-                              step="1" 
-                              value={store.aboutMeConfig.length === 'short' ? 0 : store.aboutMeConfig.length === 'medium' ? 1 : 2}
-                              onChange={(e) => {
-                                const val = parseInt(e.target.value);
-                                store.setAboutMeOption('length', val === 0 ? 'short' : val === 1 ? 'medium' : 'long');
-                              }}
-                              className="w-full h-1 bg-slate-200 dark:bg-zinc-800 rounded-full appearance-none cursor-pointer accent-rose-500"
-                            />
-                          </div>
-
-                          <button
-                            onClick={async () => {
-                              const btn = document.getElementById('gen-bio-btn');
-                              if (btn) btn.innerHTML = '<span class="animate-pulse">Generating...</span>';
-                              
-                              try {
-                                const res = await fetch('/api/generate-about', {
-                                  method: 'POST',
-                                  headers: { 'Content-Type': 'application/json' },
-                                  body: JSON.stringify({
-                                    username: store.username,
-                                    title: store.title,
-                                    skills: combinedSkills.map(s => s.name),
-                                    socials: store.socialProfiles.map(p => p.platform),
-                                    vibe: store.aboutMeConfig.vibe,
-                                    format: store.aboutMeConfig.format,
-                                    length: store.aboutMeConfig.length
-                                  })
-                                });
-                                const data = await res.json();
-                                if (data.content) {
-                                  store.updateAboutMe(data.content);
-                                }
-                              } catch (e) {
-                                console.error(e);
-                              } finally {
-                                if (btn) btn.innerHTML = 'Regenerate Bio';
-                              }
-                            }}
-                            id="gen-bio-btn"
-                            className="w-full py-3 bg-zinc-900 dark:bg-white text-white dark:text-black text-[10px] font-black uppercase tracking-widest rounded-xl hover:shadow-xl transition-all border border-white/10 flex items-center justify-center gap-2 group"
+                        {/* Mode Toggle */}
+                        <div className="flex bg-slate-100 dark:bg-zinc-800 p-1 rounded-xl">
+                          <button 
+                            onClick={() => store.setAboutMeOption('mode', 'manual')}
+                            className={cn(
+                              "flex-1 flex items-center justify-center gap-2 py-1.5 text-[9px] font-black uppercase rounded-lg transition-all",
+                              store.aboutMeConfig.mode === 'manual' ? "bg-white dark:bg-zinc-700 text-rose-500 shadow-sm" : "text-slate-400"
+                            )}
                           >
-                            <Bot className="w-3.5 h-3.5 group-hover:animate-spin" />
-                            {store.aboutMe ? 'Regenerate Bio' : 'Generate with AI'}
+                            <Brush className="w-3 h-3" />
+                            Manual
+                          </button>
+                          <button 
+                            onClick={() => store.setAboutMeOption('mode', 'ai')}
+                            className={cn(
+                              "flex-1 flex items-center justify-center gap-2 py-1.5 text-[9px] font-black uppercase rounded-lg transition-all",
+                              store.aboutMeConfig.mode === 'ai' ? "bg-white dark:bg-zinc-700 text-rose-500 shadow-sm" : "text-slate-400"
+                            )}
+                          >
+                            <Sparkles className="w-3 h-3" />
+                            AI Bio
                           </button>
                         </div>
 
-                        {/* Editable Area */}
-                        {store.aboutMe && (
-                          <div className="space-y-2 pt-4 border-t border-slate-100 dark:border-white/5">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Edit Generated Bio</label>
+                        {store.aboutMeConfig.mode === 'ai' ? (
+                          <div className="space-y-4 pt-2">
+                            <div className="space-y-1.5">
+                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Context A: Rough Notes</label>
+                              <textarea 
+                                value={store.aboutMeConfig.notes}
+                                onChange={(e) => store.setAboutMeOption('notes', e.target.value)}
+                                placeholder="I built the Liyonta Tea app and love Next.js..."
+                                className="w-full h-20 p-2.5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-white/10 rounded-xl text-[11px] focus:outline-none focus:ring-1 focus:ring-rose-500/50 transition-all custom-scrollbar resize-none"
+                              />
+                            </div>
+
+                            <div className="space-y-1.5">
+                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Context B: GitHub Repo</label>
+                              <div className="relative group">
+                                <input 
+                                  type="text" 
+                                  value={store.aboutMeConfig.repoUrl}
+                                  onChange={(e) => store.setAboutMeOption('repoUrl', e.target.value)}
+                                  placeholder="https://github.com/..."
+                                  className="w-full h-9 pl-8 pr-3 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-white/10 rounded-xl text-[11px] focus:outline-none focus:ring-1 focus:ring-rose-500/50 transition-all shadow-sm"
+                                />
+                                <ExternalLink className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 group-focus-within:text-rose-500 transition-colors" />
+                              </div>
+                              <p className="text-[7px] text-slate-400 uppercase tracking-tight italic">We'll scan the tech-stack & README for keywords.</p>
+                            </div>
+
+                            <div className="space-y-2">
+                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Bio Vibe</label>
+                              <div className="grid grid-cols-2 gap-2">
+                                {['professional', 'creative', 'minimalist', 'technical'].map((v) => (
+                                  <button
+                                    key={v}
+                                    onClick={() => store.setAboutMeOption('vibe', v as any)}
+                                    className={cn(
+                                      "px-2 py-1.5 text-[9px] font-bold uppercase rounded-lg border transition-all",
+                                      store.aboutMeConfig.vibe === v 
+                                        ? "bg-rose-500 border-rose-500 text-white shadow-lg shadow-rose-500/20" 
+                                        : "bg-slate-50 dark:bg-zinc-900 border-slate-200 dark:border-white/5 text-slate-400 hover:border-rose-500/30"
+                                    )}
+                                  >
+                                    {v}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+
+                            <div className="space-y-2">
+                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Structure</label>
+                              <div className="grid grid-cols-3 gap-2">
+                                {['paragraph', 'bullets', 'mixed'].map((f) => (
+                                  <button
+                                    key={f}
+                                    onClick={() => store.setAboutMeOption('format', f as any)}
+                                    className={cn(
+                                      "px-2 py-1.5 text-[9px] font-bold uppercase rounded-lg border transition-all",
+                                      store.aboutMeConfig.format === f
+                                        ? "bg-rose-500 border-rose-500 text-white shadow-lg shadow-rose-500/20" 
+                                        : "bg-slate-50 dark:bg-zinc-900 border-slate-200 dark:border-white/5 text-slate-400 hover:border-rose-500/30"
+                                    )}
+                                  >
+                                    {f}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+
+                            <div className="space-y-1.5 pb-2">
+                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Detail Level: {store.aboutMeConfig.length}</label>
+                              <input 
+                                type="range" 
+                                min="0" 
+                                max="2" 
+                                step="1" 
+                                value={store.aboutMeConfig.length === 'short' ? 0 : store.aboutMeConfig.length === 'medium' ? 1 : 2}
+                                onChange={(e) => {
+                                  const val = parseInt(e.target.value);
+                                  store.setAboutMeOption('length', val === 0 ? 'short' : val === 1 ? 'medium' : 'long');
+                                }}
+                                className="w-full h-1 bg-slate-200 dark:bg-zinc-800 rounded-full appearance-none cursor-pointer accent-rose-500"
+                              />
+                            </div>
+
+                            <button
+                              disabled={store.aboutMeConfig.isGenerating}
+                              onClick={async () => {
+                                store.setAboutMeOption('isGenerating', true);
+                                try {
+                                  const res = await fetch('/api/generate-about', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                      username: store.username,
+                                      title: store.title,
+                                      skills: combinedSkills.map(s => s.name),
+                                      socials: store.socialProfiles.map(p => p.platform),
+                                      vibe: store.aboutMeConfig.vibe,
+                                      format: store.aboutMeConfig.format,
+                                      length: store.aboutMeConfig.length,
+                                      notes: store.aboutMeConfig.notes,
+                                      repoUrl: store.aboutMeConfig.repoUrl
+                                    })
+                                  });
+                                  const data = await res.json();
+                                  if (data.content) {
+                                    store.updateAboutMe(data.content);
+                                    // Switch to manual mode so they can see/edit it
+                                    store.setAboutMeOption('mode', 'manual');
+                                  }
+                                } catch (e) {
+                                  console.error(e);
+                                } finally {
+                                  store.setAboutMeOption('isGenerating', false);
+                                }
+                              }}
+                              className={cn(
+                                "w-full py-3 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all border flex items-center justify-center gap-2 group",
+                                store.aboutMeConfig.isGenerating 
+                                  ? "bg-rose-500/10 text-rose-500 border-rose-500/30 cursor-not-allowed" 
+                                  : "bg-zinc-900 dark:bg-white text-white dark:text-black border-white/10 hover:shadow-xl active:scale-95"
+                              )}
+                            >
+                              {store.aboutMeConfig.isGenerating ? (
+                                <>
+                                  <Sparkles className="w-3.5 h-3.5 animate-spin" />
+                                  Synthesizing Bio...
+                                </>
+                              ) : (
+                                <>
+                                  <Bot className="w-3.5 h-3.5 group-hover:animate-bounce" />
+                                  {store.aboutMe ? 'Regenerate Bio' : 'Generate with AI'}
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="space-y-3 pt-2">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center justify-between">
+                              Manual Markdown Bio
+                              <span className="text-[8px] font-bold text-emerald-500 bg-emerald-500/10 px-1.5 py-0.5 rounded uppercase">Live Editor</span>
+                            </label>
                             <textarea
                               value={store.aboutMe}
                               onChange={(e) => store.updateAboutMe(e.target.value)}
-                              className="w-full h-40 p-3 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-white/10 rounded-xl text-xs font-medium text-slate-600 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-rose-500/50 transition-all custom-scrollbar resize-none"
+                              placeholder="Describe your journey, passion, and expertise..."
+                              className="w-full h-64 p-3 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-white/10 rounded-xl text-xs font-medium text-slate-600 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-rose-500/50 transition-all custom-scrollbar resize-none"
                             />
+                            <p className="text-[8px] text-slate-400 uppercase leading-relaxed">
+                              You can use **Bold**, *Italics*, [Links](https://...), and Emojis 🚀.
+                            </p>
                           </div>
                         )}
                       </div>

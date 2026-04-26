@@ -91,6 +91,10 @@ export interface BuilderState {
   aboutMe: string;
   aboutMeConfig: {
     content: string;
+    notes: string;
+    repoUrl: string;
+    mode: 'manual' | 'ai';
+    isGenerating: boolean;
     vibe: 'professional' | 'creative' | 'minimalist' | 'technical';
     format: 'paragraph' | 'bullets' | 'mixed';
     length: 'short' | 'medium' | 'long';
@@ -162,6 +166,10 @@ export const useBuilderStore = create<BuilderState>()(
       aboutMe: '',
       aboutMeConfig: {
         content: "Hi there! I'm a developer building cool things on GitHub.",
+        notes: "",
+        repoUrl: "",
+        mode: 'ai',
+        isGenerating: false,
         vibe: 'professional',
         format: 'mixed',
         length: 'medium',
