@@ -107,16 +107,37 @@ export function BuilderSidebar() {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  // Ensure socials is in the widget order and config is up to date
+  // Ensure core modules are in the widget order on mount
   useEffect(() => {
-    if (!store.widgetOrder.includes('socials')) {
-      store.setWidgetOrder([...store.widgetOrder, 'socials']);
+    let needsUpdate = false;
+    const newOrder = [...store.widgetOrder];
+    
+    if (!newOrder.includes('socials')) {
+      newOrder.push('socials');
+      needsUpdate = true;
     }
-    if (!store.widgetOrder.includes('aboutme')) {
-      store.setWidgetOrder(['aboutme', ...store.widgetOrder]);
+    if (!newOrder.includes('aboutme')) {
+      newOrder.unshift('aboutme');
+      needsUpdate = true;
+    }
+    
+    if (needsUpdate) {
+      store.setWidgetOrder(newOrder);
+    }
+  }, []);
+
+  // Repair missing state fields for legacy storage users
+  useEffect(() => {
+    // Socials Repair
+    if (store.socialsConfig) {
+      if (store.socialsConfig.useAvatar === undefined) store.setSocialsOption('useAvatar', true);
+      if (store.socialsConfig.showBlurBackground === undefined) store.setSocialsOption('showBlurBackground', true);
+      if (!store.socialsConfig.layout) store.setSocialsOption('layout', 'bento');
+      if (!store.socialsConfig.cardStyle) store.setSocialsOption('cardStyle', 'glass');
+      if (store.socialsConfig.syncAvatarColor === undefined) store.setSocialsOption('syncAvatarColor', true);
     }
 
-    // Repair aboutMeConfig if missing new fields
+    // About Me Repair
     if (store.aboutMeConfig) {
       if (store.aboutMeConfig.borderOpacity === undefined) store.setAboutMeOption('borderOpacity', 0.3);
       if (store.aboutMeConfig.borderStyle === undefined) store.setAboutMeOption('borderStyle', 'solid');
@@ -135,7 +156,7 @@ export function BuilderSidebar() {
       if (store.aboutMeConfig.useHoverTilt === undefined) store.setAboutMeOption('useHoverTilt', true);
       if (store.aboutMeConfig.preset === undefined) store.setAboutMeOption('preset', 'none');
     }
-  }, [store.widgetOrder, store.setWidgetOrder, store.socialsConfig, store.aboutMeConfig]);
+  }, []);
 
   // Auto-verification logic
   useEffect(() => {
@@ -573,7 +594,7 @@ export function BuilderSidebar() {
                                     ].map(p => (
                                       <button 
                                         key={p.id}
-                                        onClick={() => store.setAboutMeOption('preset', store.aboutMeConfig.preset === p.id ? 'none' : p.id as any)}
+                                        onClick={() => store.applyAboutMePreset(store.aboutMeConfig.preset === p.id ? 'none' : p.id as any)}
                                         className={cn(
                                           "py-2 text-[8px] font-black uppercase rounded-lg border transition-all flex flex-col items-center justify-center gap-1",
                                           store.aboutMeConfig.preset === p.id 

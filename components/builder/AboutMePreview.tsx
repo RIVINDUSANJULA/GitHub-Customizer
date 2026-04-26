@@ -50,18 +50,14 @@ export default function AboutMePreview() {
 
   if (!showAboutMe) return null;
 
-  // PRESET ENGINE
+  // PRESET ENGINE (Visual-only overrides)
   const p = aboutMeConfig.preset;
   const isMatrix = p === 'matrix';
   const isFrost = p === 'frost';
   const isEmber = p === 'ember';
   
   const glowColor = isMatrix ? '#00FF41' : (isFrost ? '#ffffff' : (isEmber ? '#f43f5e' : (theme === 'custom' ? `#${customIconColor}` : '#f43f5e')));
-  const headerLabel = isMatrix ? '[SECURE_ACCESS]' : (isFrost ? '// IDENTITY' : (isEmber ? '> SYSTEM_LOG' : aboutMeConfig.headerLabel));
   const fontClass = isMatrix ? "font-mono" : (isFrost ? "font-serif" : "font-sans");
-  const glassBlur = isFrost ? 40 : aboutMeConfig.glassBlur;
-  const glassOp = isFrost ? 0.05 : (isEmber ? 0.6 : aboutMeConfig.glassOpacity);
-  const borderStyle = isEmber ? 'double' : aboutMeConfig.borderStyle;
 
   const content = isGenerating 
     ? "Synthesizing your professional narrative... generating technical insights and career milestones based on your technical stack and manual notes."
@@ -78,9 +74,9 @@ export default function AboutMePreview() {
       style={{
         perspective: "1000px",
         '--bio-glow': glowColor,
-        '--bio-blur': `${glassBlur}px`,
+        '--bio-blur': `${aboutMeConfig.glassBlur}px`,
         '--bio-border-op': aboutMeConfig.borderOpacity,
-        '--bio-glass-op': glassOp,
+        '--bio-glass-op': aboutMeConfig.glassOpacity,
         '--bio-spread': `${aboutMeConfig.glowSpread}px`,
         '--bio-stroke': `${aboutMeConfig.strokeWeight}px`,
         '--bio-lh': aboutMeConfig.lineHeight,
@@ -100,7 +96,7 @@ export default function AboutMePreview() {
         )}
         style={{ 
           borderRadius: `${aboutMeConfig.blockRadius}px`,
-          border: `${borderStyle} var(--bio-stroke) var(--bio-glow)`,
+          border: `${aboutMeConfig.borderStyle} var(--bio-stroke) var(--bio-glow)`,
           borderColor: `rgba(${parseInt(glowColor.slice(1,3), 16)}, ${parseInt(glowColor.slice(3,5), 16)}, ${parseInt(glowColor.slice(5,7), 16)}, var(--bio-border-op))`,
           boxShadow: aboutMeConfig.showGlow ? `0 0 var(--bio-spread) -12px var(--bio-glow)` : undefined
         }}

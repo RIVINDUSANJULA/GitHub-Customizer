@@ -162,7 +162,8 @@ export interface BuilderState {
   setAllSkillsOrder: (order: string[]) => void;
   copyAnalyticsThemeToBadges: () => void;
   setActiveWidgetTab: (tab: string) => void;
-  setAboutMeOption: <K extends keyof BuilderState['aboutMeConfig']>(key: K, value: BuilderState['aboutMeConfig'][K]) => void;
+  setAboutMeOption: (key: keyof BuilderState['aboutMeConfig'], value: any) => void;
+  applyAboutMePreset: (preset: 'none' | 'matrix' | 'frost' | 'ember') => void;
   updateAboutMe: (content: string) => void;
   setTitle: (title: string) => void;
 }
@@ -306,6 +307,56 @@ export const useBuilderStore = create<BuilderState>()(
         set((state) => ({
           aboutMeConfig: { ...state.aboutMeConfig, [key]: value }
         })),
+      applyAboutMePreset: (preset) =>
+        set((state) => {
+          const config = { ...state.aboutMeConfig, preset };
+          
+          if (preset === 'matrix') {
+            config.headerLabel = '[SECURE_ACCESS]';
+            config.showGlow = true;
+            config.glowSpread = 40;
+            config.borderOpacity = 0.6;
+            config.glassBlur = 12;
+            config.glassOpacity = 0.4;
+            config.borderStyle = 'solid';
+            config.strokeWeight = 1;
+            config.showNoise = false;
+            config.showGrid = false;
+            config.lineHeight = 1.6;
+            config.letterSpacing = 2;
+            config.alignment = 'left';
+          } else if (preset === 'frost') {
+            config.headerLabel = '// IDENTITY';
+            config.showGlow = true;
+            config.glowSpread = 60;
+            config.borderOpacity = 0.2;
+            config.glassBlur = 40;
+            config.glassOpacity = 0.05;
+            config.borderStyle = 'solid';
+            config.strokeWeight = 0.5;
+            config.showNoise = true;
+            config.showGrid = false;
+            config.lineHeight = 1.8;
+            config.letterSpacing = 0;
+            config.alignment = 'center';
+          } else if (preset === 'ember') {
+            config.headerLabel = '> SYSTEM_LOG';
+            config.showGlow = true;
+            config.glowSpread = 50;
+            config.borderOpacity = 0.8;
+            config.glassBlur = 10;
+            config.glassOpacity = 0.6;
+            config.borderStyle = 'double';
+            config.strokeWeight = 2;
+            config.showNoise = false;
+            config.showGrid = true;
+            config.lineHeight = 1.6;
+            config.letterSpacing = 0.5;
+            config.alignment = 'left';
+          }
+          
+          return { aboutMeConfig: config };
+        }),
       updateAboutMe: (content) => set({ aboutMe: content }),
       updateSocialProfile: (platform, updates) =>
         set((state) => ({
