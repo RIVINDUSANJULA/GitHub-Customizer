@@ -6,7 +6,8 @@ export async function fetchUserLanguages(username: string, includeContribs: bool
     if (process.env.NODE_ENV === 'production') {
       throw new Error("GITHUB_TOKEN is not set");
     }
-    return getMockData();
+    // Fallback to REST API for public repos if no token
+    return fetchPublicData(username);
   }
 
   // Helper to fetch data via GraphQL
@@ -112,6 +113,44 @@ export async function fetchUserLanguages(username: string, includeContribs: bool
   }
 }
 
+async function fetchPublicData(username: string) {
+  try {
+    const reposRes = await fetch(`https://api.github.com/users/${username}/repos?per_page=100&sort=pushed`, {
+      next: { revalidate: 3600 }
+    });
+    
+    if (!reposRes.ok) {
+      if (reposRes.status === 404) throw new Error("User not found");
+      throw new Error("Failed to fetch from GitHub REST API");
+    }
+
+    const repos = await reposRes.json();
+    const nodes = await Promise.all(repos.map(async (repo: any) => {
+      const langRes = await fetch(repo.languages_url, {
+        next: { revalidate: 3600 }
+      });
+      const langs = langRes.ok ? await langRes.json() : {};
+      
+      return {
+        isPrivate: false,
+        languages: {
+          edges: Object.entries(langs).map(([name, size]) => ({
+            size,
+            node: { name, color: null } // REST API doesn't provide colors easily without extra steps
+          }))
+        }
+      };
+    }));
+
+    return {
+      repositories: { nodes }
+    };
+  } catch (error) {
+    console.error("Public Fetch Error:", error);
+    return getMockData();
+  }
+}
+
 export function aggregateLanguages(userData: any) {
   const languageMap: Record<string, { size: number; color: string }> = {};
 
@@ -122,7 +161,7 @@ export function aggregateLanguages(userData: any) {
     if (!repo.languages || !repo.languages.edges) return;
     repo.languages.edges.forEach((edge: any) => {
       const { name, color } = edge.node;
-      const size = edge.size;
+      const size = edge.size as number;
       if (languageMap[name]) {
         languageMap[name].size += size;
       } else {
