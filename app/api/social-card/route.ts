@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateSocialSVG } from "@/lib/social-generator";
+import { fetchSocialIdentity } from "@/lib/identity-fetcher";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl;
@@ -11,12 +12,16 @@ export async function GET(req: NextRequest) {
   const elementRadius = parseInt(searchParams.get("elementRadius") || "10");
   const showGlow = searchParams.get("showGlow") === "true";
   const themeColor = searchParams.get("color") || undefined;
+  const useAvatar = searchParams.get("useAvatar") === "true";
 
-  // In a real app, we would fetch live data here
-  // For the preview, we can mock some data or pass it via query
+  // Fetch real-time identity data
+  const identity = await fetchSocialIdentity(platform, username);
+  
   const data = {
-    subscribers: searchParams.get("subs") || "Live Data",
-    status: searchParams.get("status") || "Active",
+    followers: identity.followers || searchParams.get("subs") || null,
+    status: identity.status || searchParams.get("status") || "Active",
+    avatarUrl: useAvatar ? identity.avatar : null,
+    verified: identity.verified
   };
 
   const svg = generateSocialSVG({

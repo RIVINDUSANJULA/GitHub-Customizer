@@ -44,8 +44,10 @@ export interface SocialsConfig {
   blockRadius: number;
   elementRadius: number;
   showGlow: boolean;
-  layout: 'list' | 'bento' | 'inline';
-  cardStyle: 'standard' | 'glass' | 'minimal';
+  layout: 'list' | 'bento' | 'inline' | 'header';
+  cardStyle: 'standard' | 'glass' | 'minimal' | 'identity';
+  useAvatar: boolean;
+  showBlurBackground: boolean;
   shadowDepth: number;
 }
 
@@ -54,8 +56,15 @@ export interface SocialProfile {
   username: string;
   label?: string;
   isVisible: boolean;
-  style?: 'badge' | 'counter' | 'activity';
+  style?: 'badge' | 'counter' | 'activity' | 'identity';
   customColor?: string;
+  isVerified?: boolean;
+  avatarUrl?: string;
+  liveData?: {
+    followers?: string;
+    status?: string;
+    latestItem?: string;
+  };
 }
 
 export interface ManualSkill {
@@ -175,6 +184,8 @@ export const useBuilderStore = create<BuilderState>()(
         showGlow: true,
         layout: 'bento',
         cardStyle: 'glass',
+        useAvatar: true,
+        showBlurBackground: true,
         shadowDepth: 5,
       },
       socialProfiles: [

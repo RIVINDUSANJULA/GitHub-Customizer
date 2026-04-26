@@ -132,6 +132,8 @@ export function generateMarkdown(state: BuilderState): MarkdownResult {
             blockRadius: state.socialsConfig.blockRadius.toString(),
             elementRadius: state.socialsConfig.elementRadius.toString(),
             showGlow: state.socialsConfig.showGlow.toString(),
+            useAvatar: state.socialsConfig.useAvatar ? 'true' : 'false',
+            t: Date.now().toString()
           });
           if (profile.customColor) query.set('color', profile.customColor);
           

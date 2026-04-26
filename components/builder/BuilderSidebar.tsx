@@ -5,6 +5,7 @@ import { User, Palette, Settings, Layout, Check, ChevronDown, Code2, BarChart3, 
 import { useState, useMemo, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence, Reorder, LayoutGroup } from "framer-motion";
+import { fetchSocialIdentity } from "@/lib/identity-fetcher";
 
 const THEMES: { id: StatTheme; name: string }[] = [
   { id: "default", name: "Default" },
@@ -22,13 +23,39 @@ export function BuilderSidebar() {
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({ profile: true });
   const [skillInput, setSkillInput] = useState("");
   const [socialSearch, setSocialSearch] = useState("");
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  const handleCopy = (e: React.MouseEvent, text: string, id: string) => {
+    e.stopPropagation();
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+    const url = `${baseUrl}/api/social-card?platform=${id.split('-')[1]}&username=${text}`;
+    navigator.clipboard.writeText(url);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
   
-  // Ensure socials is in the widget order (for users with existing persisted state)
+  // Ensure socials is in the widget order
   useEffect(() => {
     if (!store.widgetOrder.includes('socials')) {
       store.setWidgetOrder([...store.widgetOrder, 'socials']);
     }
   }, [store.widgetOrder, store.setWidgetOrder]);
+
+  // Auto-verification logic
+  useEffect(() => {
+    const verifyProfiles = async () => {
+      for (const profile of store.socialProfiles) {
+        if (profile.username && profile.username.length > 3 && profile.isVerified === undefined) {
+          const identity = await fetchSocialIdentity(profile.platform, profile.username);
+          if (identity.verified) {
+            store.updateSocialProfile(profile.platform, { isVerified: true });
+          }
+        }
+      }
+    };
+    const timer = setTimeout(verifyProfiles, 2000);
+    return () => clearTimeout(timer);
+  }, [store.socialProfiles]);
 
   const PLATFORMS = [
     { id: 'youtube', name: 'YouTube', color: 'FF0000', icon: 'youtube' },
@@ -777,13 +804,39 @@ export function BuilderSidebar() {
                                           <img src={getPlatformIcon(profile.platform)} alt="" className="w-4 h-4 object-contain" />
                                        </div>
                                        <div className="flex flex-col">
-                                          <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">{profile.platform}</span>
+                                          <div className="flex items-center gap-2 mb-1">
+                                            <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest leading-none">{profile.platform}</span>
+                                            {profile.isVerified && (
+                                              <div className="flex items-center gap-0.5 px-1 bg-emerald-500/10 text-emerald-500 rounded text-[8px] font-bold uppercase tracking-tighter">
+                                                <Check className="w-2 h-2" />
+                                                Verified
+                                              </div>
+                                            )}
+                                          </div>
                                           <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
                                             {profile.username || <span className="text-slate-400 italic">Enter handle...</span>}
                                           </span>
                                        </div>
                                     </div>
                                     <div className="flex items-center gap-2">
+                                       <button 
+                                          onClick={(e) => handleCopy(e, profile.username, `copy-${profile.platform}`)}
+                                          className="p-1.5 hover:bg-indigo-500/10 text-slate-300 hover:text-indigo-500 rounded-lg transition-all relative"
+                                        >
+                                          {copiedId === `copy-${profile.platform}` ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                                          <AnimatePresence>
+                                            {copiedId === `copy-${profile.platform}` && (
+                                              <motion.div 
+                                                initial={{ opacity: 0, y: 10 }} 
+                                                animate={{ opacity: 1, y: 0 }} 
+                                                exit={{ opacity: 0 }}
+                                                className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-zinc-900 text-white text-[8px] font-black uppercase rounded shadow-xl whitespace-nowrap z-50"
+                                              >
+                                                Copied!
+                                              </motion.div>
+                                            )}
+                                          </AnimatePresence>
+                                        </button>
                                        <button 
                                          onClick={(e) => {
                                            e.stopPropagation();
@@ -859,7 +912,7 @@ export function BuilderSidebar() {
                                   <div className="space-y-2">
                                     <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Layout Architecture</label>
                                     <div className="flex p-1 bg-slate-100 dark:bg-zinc-900 rounded-xl gap-1">
-                                      {[{ id: 'list', label: 'List', icon: Layout }, { id: 'bento', label: 'Bento', icon: Boxes }, { id: 'inline', label: 'Inline', icon: Layers }].map((layout) => (
+                                      {[{ id: 'list', label: 'List', icon: Layout }, { id: 'bento', label: 'Bento', icon: Boxes }, { id: 'inline', label: 'Inline', icon: Layers }, { id: 'header', label: 'Suite Header', icon: Sparkles }].map((layout) => (
                                         <button key={layout.id} onClick={() => store.setSocialsOption('layout', layout.id as any)} className={cn("flex-1 flex flex-col items-center justify-center gap-1 py-2 text-[9px] font-black rounded-lg transition-all uppercase tracking-tighter border", store.socialsConfig.layout === layout.id ? "bg-white dark:bg-zinc-800 text-rose-600 shadow-sm border-rose-500/20" : "text-slate-500 border-transparent hover:text-slate-700")}>
                                           <layout.icon className="w-3.5 h-3.5" />
                                           {layout.label}
@@ -871,7 +924,7 @@ export function BuilderSidebar() {
                                   <div className="space-y-2">
                                     <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Card Aesthetic</label>
                                     <div className="flex p-1 bg-slate-100 dark:bg-zinc-900 rounded-xl gap-1">
-                                      {[{ id: 'badge', label: 'Badge' }, { id: 'counter', label: 'Counter' }, { id: 'activity', label: 'Activity' }].map((s) => (
+                                      {[{ id: 'badge', label: 'Badge' }, { id: 'counter', label: 'Counter' }, { id: 'activity', label: 'Activity' }, { id: 'identity', label: 'Identity' }].map((s) => (
                                         <button key={s.id} onClick={() => store.setSocialProfiles(store.socialProfiles.map(p => ({ ...p, style: s.id as any })))} className={cn("flex-1 py-2 text-[9px] font-black rounded-lg transition-all uppercase tracking-tighter border", store.socialProfiles[0]?.style === s.id ? "bg-white dark:bg-zinc-800 text-rose-600 shadow-sm border-rose-500/20" : "text-slate-500 border-transparent hover:text-slate-700")}>
                                           {s.label}
                                         </button>
@@ -890,10 +943,38 @@ export function BuilderSidebar() {
                                       </div>
                                   </div>
 
+                                  <div className="grid grid-cols-2 gap-4 border-t border-slate-100 dark:border-white/5 pt-6">
+                                    <label className="flex items-center justify-between cursor-pointer group">
+                                      <div className="flex flex-col">
+                                        <span className="text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-tighter">Use Profile Avatars</span>
+                                        <span className="text-[8px] text-slate-400 uppercase">Fetch real images</span>
+                                      </div>
+                                      <div className="relative">
+                                        <input type="checkbox" className="sr-only peer" checked={store.socialsConfig.useAvatar} onChange={(e) => store.setSocialsOption('useAvatar', e.target.checked)} />
+                                        <div className="w-8 h-4 bg-slate-200 dark:bg-zinc-800 rounded-full peer peer-checked:bg-rose-500 transition-colors"></div>
+                                        <div className="absolute top-0.5 left-0.5 w-3 h-3 bg-white rounded-full peer-checked:translate-x-4 transition-transform"></div>
+                                      </div>
+                                    </label>
+                                    
+                                    <label className="flex items-center justify-between cursor-pointer group">
+                                      <div className="flex flex-col">
+                                        <span className="text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-tighter">Blur Background</span>
+                                        <span className="text-[8px] text-slate-400 uppercase">Glassmorphism glow</span>
+                                      </div>
+                                      <div className="relative">
+                                        <input type="checkbox" className="sr-only peer" checked={store.socialsConfig.showBlurBackground} onChange={(e) => store.setSocialsOption('showBlurBackground', e.target.checked)} />
+                                        <div className="w-8 h-4 bg-slate-200 dark:bg-zinc-800 rounded-full peer peer-checked:bg-rose-500 transition-colors"></div>
+                                        <div className="absolute top-0.5 left-0.5 w-3 h-3 bg-white rounded-full peer-checked:translate-x-4 transition-transform"></div>
+                                      </div>
+                                    </label>
+                                  </div>
+
                                   <div className="flex items-center justify-between pt-2">
-                                      <div className="flex items-center gap-2">
-                                        <div className="w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.8)]"></div>
-                                        <span className="text-xs font-medium text-slate-700 dark:text-slate-300">Neon Glow</span>
+                                      <div className="flex items-col gap-2">
+                                        <div className="flex flex-col">
+                                          <span className="text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-tighter">Neon Engagement Glow</span>
+                                          <span className="text-[8px] text-slate-400 uppercase">Dynamic pulse effects</span>
+                                        </div>
                                       </div>
                                       <label className="relative inline-flex items-center cursor-pointer">
                                         <input type="checkbox" className="sr-only peer" checked={store.socialsConfig.showGlow} onChange={(e) => store.setSocialsOption('showGlow', e.target.checked)} />

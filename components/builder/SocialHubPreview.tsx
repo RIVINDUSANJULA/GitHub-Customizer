@@ -15,6 +15,7 @@ export function SocialHubPreview() {
   const containerClasses = cn(
     "w-full gap-6",
     socialsConfig.layout === 'bento' ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3" : 
+    socialsConfig.layout === 'header' ? "flex flex-col gap-2" :
     socialsConfig.layout === 'inline' ? "flex flex-wrap justify-center items-center" : 
     "flex flex-col items-center"
   );
@@ -24,7 +25,7 @@ export function SocialHubPreview() {
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
            <div className="w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.8)] animate-pulse"></div>
-           <span className="text-[10px] font-black uppercase text-rose-500 tracking-[0.3em]">Connectivity Matrix</span>
+           <span className="text-[10px] font-black uppercase text-rose-500 tracking-[0.3em]">{socialsConfig.layout === 'header' ? 'Identity Strip' : 'Connectivity Matrix'}</span>
         </div>
         <div className="h-px flex-1 bg-gradient-to-r from-rose-500/20 to-transparent ml-4"></div>
       </div>
@@ -40,6 +41,7 @@ export function SocialHubPreview() {
               blockRadius: socialsConfig.blockRadius.toString(),
               elementRadius: socialsConfig.elementRadius.toString(),
               showGlow: socialsConfig.showGlow.toString(),
+              useAvatar: socialsConfig.useAvatar.toString(),
               color: profile.customColor || ''
             });
 
@@ -55,18 +57,22 @@ export function SocialHubPreview() {
                 transition={{ type: "spring", stiffness: 300, damping: 25 }}
                 className={cn(
                   "relative group cursor-pointer",
-                  socialsConfig.layout === 'bento' && (profile.style === 'activity' || profile.platform === 'career') ? "md:col-span-2" : ""
+                  socialsConfig.layout === 'bento' && (profile.style === 'activity' || profile.platform === 'career' || profile.style === 'identity') ? "md:col-span-2" : "",
+                  socialsConfig.layout === 'header' ? "w-full" : ""
                 )}
               >
                 <div className="absolute inset-0 bg-rose-500/20 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-full"></div>
                 <img 
                   src={imgSrc} 
                   alt={profile.platform} 
-                  className="w-full h-auto relative z-10 drop-shadow-2xl transition-all duration-500 group-hover:scale-[1.03] group-hover:-translate-y-1"
+                  className={cn(
+                    "relative z-10 drop-shadow-2xl transition-all duration-500 group-hover:scale-[1.03] group-hover:-translate-y-1",
+                    socialsConfig.layout === 'header' ? "w-full" : "w-full h-auto"
+                  )}
                 />
                 
                 {/* Status Indicator for Bento/Large cards */}
-                {(profile.style === 'activity' || profile.platform === 'career') && (
+                {(profile.style === 'activity' || profile.platform === 'career' || profile.style === 'identity') && (
                   <div className="absolute top-4 right-4 z-20 flex items-center gap-1.5 px-2 py-1 bg-black/40 backdrop-blur-md rounded-full border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity">
                     <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
                     <span className="text-[8px] font-black text-white uppercase tracking-tighter">Live</span>
