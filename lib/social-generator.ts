@@ -37,6 +37,9 @@ function getSimpleIcon(name: string) {
 export function generateSocialSVG(options: SocialCardOptions) {
   const { platform, username, data, style, blockRadius, elementRadius, showGlow, themeColor } = options;
   
+  // Create a unique ID suffix to prevent collisions in browsers
+  const uid = Math.random().toString(36).substring(2, 8);
+  
   const brandIcon = getSimpleIcon(platform);
   const brandColor = themeColor || (brandIcon ? brandIcon.hex : '4f46e5');
   
@@ -47,14 +50,14 @@ export function generateSocialSVG(options: SocialCardOptions) {
   const useAvatar = !!options.data.avatarUrl;
 
   const glowFilter = showGlow ? `
-    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+    <filter id="glow_${uid}" x="-20%" y="-20%" width="140%" height="140%">
       <feGaussianBlur stdDeviation="5" result="blur" />
       <feComposite in="SourceGraphic" in2="blur" operator="over" />
     </filter>
   ` : '';
 
   const blurFilter = `
-    <filter id="bgBlur" x="-50%" y="-50%" width="200%" height="200%">
+    <filter id="bgBlur_${uid}" x="-50%" y="-50%" width="200%" height="200%">
       <feGaussianBlur stdDeviation="15" result="blur" />
       <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 0.3 0" />
     </filter>
@@ -87,10 +90,10 @@ export function generateSocialSVG(options: SocialCardOptions) {
       <rect width="${width}" height="${height}" rx="${blockRadius}" fill="#${brandColor}" fill-opacity="0.1" stroke="#${brandColor}" stroke-opacity="0.3"/>
       
       ${useAvatar ? `
-        <clipPath id="avatarClip">
+        <clipPath id="avatarClip_${uid}">
           <rect x="10" y="10" width="40" height="40" rx="${elementRadius}" />
         </clipPath>
-        <image x="10" y="10" width="40" height="40" href="${avatarUrl}" clip-path="url(#avatarClip)" />
+        <image x="10" y="10" width="40" height="40" href="${avatarUrl}" clip-path="url(#avatarClip_${uid})" />
       ` : `
         <g transform="translate(15, ${height/2 - 12}) scale(1)" fill="#${brandColor}">
           <path d="${iconPath}"/>
@@ -103,22 +106,22 @@ export function generateSocialSVG(options: SocialCardOptions) {
   } else {
     // Identity Style / Large Card
     content = `
-      <mask id="cardMask">
+      <mask id="cardMask_${uid}">
         <rect width="${width}" height="${height}" rx="${blockRadius}" fill="white" />
       </mask>
       
-      <g mask="url(#cardMask)">
+      <g mask="url(#cardMask_${uid})">
         <!-- Blur Background -->
-        <image href="${avatarUrl}" width="${width * 1.5}" height="${height * 1.5}" x="${-width * 0.25}" y="${-height * 0.25}" filter="url(#bgBlur)" />
+        <image href="${avatarUrl}" width="${width * 1.5}" height="${height * 1.5}" x="${-width * 0.25}" y="${-height * 0.25}" filter="url(#bgBlur_${uid})" />
         
         <rect width="${width}" height="${height}" fill="#${brandColor}" fill-opacity="0.1" stroke="#${brandColor}" stroke-opacity="0.3"/>
         
         <!-- Profile Section -->
         <g transform="translate(20, 25)">
-          <clipPath id="avatarCircle">
+          <clipPath id="avatarCircle_${uid}">
             <rect width="48" height="48" rx="${elementRadius}" />
           </clipPath>
-          <image width="48" height="48" href="${avatarUrl}" clip-path="url(#avatarCircle)" />
+          <image width="48" height="48" href="${avatarUrl}" clip-path="url(#avatarCircle_${uid})" />
           <rect width="48" height="48" rx="${elementRadius}" fill="none" stroke="#${brandColor}" stroke-width="2" />
         </g>
         
@@ -152,7 +155,7 @@ export function generateSocialSVG(options: SocialCardOptions) {
           text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
         </style>
       </defs>
-      <g ${showGlow ? 'filter="url(#glow)"' : ''}>
+      <g ${showGlow ? `filter="url(#glow_${uid})"` : ''}>
         ${content}
       </g>
     </svg>
