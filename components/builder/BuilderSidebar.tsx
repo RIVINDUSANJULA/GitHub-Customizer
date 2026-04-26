@@ -284,7 +284,7 @@ export function BuilderSidebar() {
                       <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Badge Aesthetic Engine</label>
                       <div className="flex p-1 bg-slate-100 dark:bg-zinc-900 rounded-xl gap-1">
                         {[
-                          { id: 'premium', label: 'Glassmorphic', icon: Diamond },
+                          { id: 'premium', label: 'GlassMorphic', icon: Boxes },
                           { id: 'shields', label: 'Classic', icon: Shield },
                           { id: 'skillicons', label: 'Dynamic', icon: Sparkles },
                           { id: 'artistic', label: 'Artistic', icon: Brush },
@@ -293,7 +293,7 @@ export function BuilderSidebar() {
                             key={provider.id}
                             onClick={() => store.setBadgesOption('badgeStyle', provider.id as any)}
                             className={cn(
-                              "flex-1 flex flex-col items-center justify-center gap-1 py-2 text-[8px] font-black rounded-lg transition-all uppercase tracking-tighter border",
+                              "flex-1 flex flex-col items-center justify-center gap-1 py-2 text-[7px] font-black rounded-lg transition-all uppercase tracking-tighter border",
                               store.badgesConfig.badgeStyle === provider.id
                                 ? "bg-white dark:bg-zinc-800 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 shadow-sm"
                                 : "text-slate-500 border-transparent hover:text-slate-700 dark:hover:text-slate-300"
@@ -356,13 +356,25 @@ export function BuilderSidebar() {
                                 <input 
                                   type="checkbox" 
                                   className="sr-only" 
-                                  checked={store.analyticsConfig.showGlow} 
+                                  checked={store.analyticsConfig.showGlow || false} 
                                   onChange={(e) => store.setAnalyticsOption('showGlow', e.target.checked)} 
                                 />
                                 <div className={cn("w-10 h-6 rounded-full transition-colors", store.analyticsConfig.showGlow ? "bg-emerald-500" : "bg-slate-300 dark:bg-zinc-700")}></div>
                                 <div className={cn("absolute top-1 bg-white w-4 h-4 rounded-full transition-transform shadow-sm", store.analyticsConfig.showGlow ? "translate-x-5" : "translate-x-1")}></div>
                               </div>
                             </label>
+                            <div className="space-y-1.5">
+                              <label className="text-[10px] font-bold text-slate-400 uppercase">Shadow Depth: {store.badgesConfig.shadowDepth || 0}px</label>
+                              <input
+                                type="range"
+                                min="0"
+                                max="10"
+                                step="1"
+                                value={store.badgesConfig.shadowDepth || 0}
+                                onChange={(e) => store.setBadgesOption('shadowDepth', parseInt(e.target.value))}
+                                className="w-full h-1 bg-slate-200 dark:bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-emerald-500"
+                              />
+                            </div>
                           </div>
                         </motion.div>
                       )}

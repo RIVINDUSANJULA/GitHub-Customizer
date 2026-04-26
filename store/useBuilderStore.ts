@@ -34,6 +34,7 @@ export interface BadgesConfig {
   skillIconTheme: 'dark' | 'light';
   skillIconsPerRow: number;
   artisticIconSize: number;
+  shadowDepth: number;
 }
 
 export interface ManualSkill {
@@ -129,6 +130,7 @@ export const useBuilderStore = create<BuilderState>()(
         skillIconTheme: 'dark',
         skillIconsPerRow: 10,
         artisticIconSize: 24,
+        shadowDepth: 5,
       },
 
       manualSkills: [],
