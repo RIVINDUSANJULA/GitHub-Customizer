@@ -41,6 +41,7 @@ export interface BadgesConfig {
 export interface ManualSkill {
   name: string;
   iconUrl?: string;
+  color?: string;
 }
 
 export interface BuilderState {

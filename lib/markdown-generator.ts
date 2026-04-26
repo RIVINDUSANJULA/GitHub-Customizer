@@ -93,13 +93,13 @@ export function generateMarkdown(state: BuilderState): MarkdownResult {
           allSkills.forEach(skill => {
             if (badgesConfig.badgeStyle === 'shields') {
               const slug = getSlug(skill.name);
-              const color = badgesConfig.useOfficialColors ? '20232a' : customIconColor;
+              const shieldsColor = skill.color ? skill.color : (badgesConfig.useOfficialColors ? '20232a' : customIconColor);
               const logoColor = badgesConfig.useOfficialColors ? 'white' : customTextColor;
-              widgets += `  <img src="https://img.shields.io/badge/${encodeURIComponent(skill.name)}-%23${color}.svg?style=for-the-badge&logo=${slug}&logoColor=${logoColor}" alt="${skill.name}" loading="lazy" />\n`;
+              widgets += `  <img src="https://img.shields.io/badge/${encodeURIComponent(skill.name)}-%23${shieldsColor}.svg?style=for-the-badge&logo=${slug}&logoColor=${logoColor}" alt="${skill.name}" loading="lazy" />\n`;
             } else {
-              const color = badgesConfig.badgeColorMode === 'brand' ? '' : `&color=${customIconColor}`;
               const artisticParams = skill.iconUrl ? `&iconUrl=${encodeURIComponent(skill.iconUrl)}&iconSize=${badgesConfig.artisticIconSize}` : "";
-              widgets += `  <img src="${baseUrl}/api/badge?name=${encodeURIComponent(skill.name)}${color}&size=${badgesConfig.badgeSize}&radius=${badgesConfig.elementRadius}&useOfficialColor=${badgesConfig.useOfficialColors}&showGlow=${badgesConfig.showGlow}${artisticParams}" alt="${skill.name}" loading="lazy" />\n`;
+              const apiColorParam = skill.color ? `&color=${skill.color}` : (badgesConfig.useOfficialColors ? '' : `&color=${customIconColor}`);
+              widgets += `  <img src="${baseUrl}/api/badge?name=${encodeURIComponent(skill.name)}${apiColorParam}&size=${badgesConfig.badgeSize}&radius=${badgesConfig.elementRadius}&useOfficialColor=${badgesConfig.useOfficialColors && !skill.color}&showGlow=${badgesConfig.showGlow}${artisticParams}" alt="${skill.name}" loading="lazy" />\n`;
             }
           });
         }

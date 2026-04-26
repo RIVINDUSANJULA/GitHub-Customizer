@@ -561,7 +561,18 @@ export function BuilderSidebar() {
                                           {skill.isAuto && <span className="text-[8px] text-indigo-500 font-bold uppercase tracking-widest">GitHub Auto</span>}
                                         </div>
                                       </div>
-                                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                      <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        {!skill.isAuto && (
+                                          <div className="flex items-center gap-1 bg-slate-100 dark:bg-zinc-800 rounded-lg p-0.5 border border-slate-200 dark:border-white/5">
+                                            <input 
+                                              type="color" 
+                                              value={store.manualSkills.find(s => s.name === skill.name)?.color ? `#${store.manualSkills.find(s => s.name === skill.name)?.color}` : `#${store.customIconColor}`}
+                                              onChange={(e) => store.updateManualSkill(skill.name, { color: e.target.value.replace('#', '') })}
+                                              className="w-4 h-4 p-0 border-0 rounded cursor-pointer bg-transparent"
+                                              title="Custom Skill Color"
+                                            />
+                                          </div>
+                                        )}
                                         {skill.isAuto ? (
                                           <button 
                                             onClick={() => store.toggleLanguageVisibility(skill.name)}
