@@ -89,6 +89,7 @@ export default function AboutMePreview() {
         '--bio-glow-op': config.glowOpacity,
         '--bio-spread': `${config.glowSpread}px`,
         '--bio-stroke': `${config.strokeWeight}px`,
+        '--bio-glow': accent,
         '--bio-lh': config.lineHeight,
         '--bio-ls': `${config.letterSpacing}px`,
       } as any}

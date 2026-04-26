@@ -202,6 +202,7 @@ export const useBuilderStore = create<BuilderState>()(
         blockRadius: 20,
         borderOpacity: 0.3,
         borderStyle: 'solid',
+        strokeWeight: 1,
         accentColor: 'f43f5e',
         headerTextColor: 'ffffff',
         glassTint: '000000',

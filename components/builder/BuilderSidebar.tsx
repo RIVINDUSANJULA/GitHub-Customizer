@@ -646,7 +646,7 @@ export function BuilderSidebar() {
                                         />
                                         <input 
                                           type="text"
-                                          value={store.aboutMeConfig.accentColor}
+                                          value={store.aboutMeConfig.accentColor || ""}
                                           onChange={(e) => store.setAboutMeOption('accentColor', e.target.value)}
                                           className="flex-1 h-8 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-white/10 rounded-lg px-2 text-[9px] font-mono"
                                         />
@@ -663,7 +663,7 @@ export function BuilderSidebar() {
                                         />
                                         <input 
                                           type="text"
-                                          value={store.aboutMeConfig.headerTextColor}
+                                          value={store.aboutMeConfig.headerTextColor || ""}
                                           onChange={(e) => store.setAboutMeOption('headerTextColor', e.target.value)}
                                           className="flex-1 h-8 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-white/10 rounded-lg px-2 text-[9px] font-mono"
                                         />
@@ -682,7 +682,7 @@ export function BuilderSidebar() {
                                       />
                                       <input 
                                         type="text"
-                                        value={store.aboutMeConfig.glassTint}
+                                        value={store.aboutMeConfig.glassTint || ""}
                                         onChange={(e) => store.setAboutMeOption('glassTint', e.target.value)}
                                         className="flex-1 h-8 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-white/10 rounded-lg px-2 text-[9px] font-mono"
                                       />
@@ -738,7 +738,7 @@ export function BuilderSidebar() {
                                         />
                                         <input 
                                           type="text"
-                                          value={store.aboutMeConfig.borderGradientColor2}
+                                          value={store.aboutMeConfig.borderGradientColor2 || ""}
                                           onChange={(e) => store.setAboutMeOption('borderGradientColor2', e.target.value)}
                                           className="flex-1 h-8 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-white/10 rounded-lg px-2 text-[9px] font-mono"
                                         />
