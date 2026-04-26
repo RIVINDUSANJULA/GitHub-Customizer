@@ -19,7 +19,7 @@ const THEMES: { id: StatTheme; name: string }[] = [
 
 export function BuilderSidebar() {
   const store = useBuilderStore();
-  const [openSection, setOpenSection] = useState<string>("profile");
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({ profile: true });
   const [skillInput, setSkillInput] = useState("");
   const [socialSearch, setSocialSearch] = useState("");
   
@@ -48,8 +48,10 @@ export function BuilderSidebar() {
   };
 
   const toggleSection = (section: string) => {
-    setOpenSection(openSection === section ? "" : section);
+    setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
   };
+
+  const isSectionOpen = (section: string) => !!openSections[section];
 
   const mapToArtisticIcon = (name: string) => {
     const mapping: Record<string, string> = {
@@ -134,10 +136,10 @@ export function BuilderSidebar() {
                     <User className="w-5 h-5 text-indigo-500" />
                     <span className="font-semibold text-slate-900 dark:text-white">Profile</span>
                   </div>
-                  <ChevronDown className={cn("w-5 h-5 text-slate-500 transition-transform", openSection === 'profile' && "rotate-180")} />
+                  <ChevronDown className={cn("w-5 h-5 text-slate-500 transition-transform", isSectionOpen('profile') && "rotate-180")} />
                 </button>
 
-                {openSection === 'profile' && (
+                {isSectionOpen('profile') && (
                   <div className="p-4 border-t border-slate-200 dark:border-white/10">
                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">GitHub Username</label>
                     <input
@@ -166,12 +168,12 @@ export function BuilderSidebar() {
                       onClick={(e) => e.stopPropagation()}
                       className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
                     />
-                    <ChevronDown className={cn("w-5 h-5 text-slate-500 transition-transform", openSection === 'analytics' && "rotate-180")} />
+                    <ChevronDown className={cn("w-5 h-5 text-slate-500 transition-transform", isSectionOpen('analytics') && "rotate-180")} />
                   </div>
                 </button>
 
                 <AnimatePresence>
-                  {openSection === 'analytics' && (
+                  {isSectionOpen('analytics') && (
                     <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} className="overflow-hidden border-t border-slate-200 dark:border-white/10">
                       <div className="p-4 space-y-6 bg-white dark:bg-zinc-950/20">
                         <div className="space-y-4">
@@ -347,12 +349,12 @@ export function BuilderSidebar() {
                       onClick={(e) => e.stopPropagation()}
                       className="w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
                     />
-                    <ChevronDown className={cn("w-5 h-5 text-slate-500 transition-transform", openSection === 'badges' && "rotate-180")} />
+                    <ChevronDown className={cn("w-5 h-5 text-slate-500 transition-transform", isSectionOpen('badges') && "rotate-180")} />
                   </div>
                 </button>
 
                 <AnimatePresence>
-                  {openSection === 'badges' && (
+                  {isSectionOpen('badges') && (
                     <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} className="overflow-hidden border-t border-slate-200 dark:border-white/10">
                       <LayoutGroup>
                         <div className="p-4 space-y-6 bg-white dark:bg-zinc-950/20">
@@ -704,12 +706,12 @@ export function BuilderSidebar() {
                       onClick={(e) => e.stopPropagation()}
                       className="w-4 h-4 rounded border-slate-300 text-rose-600 focus:ring-rose-500"
                     />
-                    <ChevronDown className={cn("w-5 h-5 text-slate-500 transition-transform", openSection === 'socials' && "rotate-180")} />
+                    <ChevronDown className={cn("w-5 h-5 text-slate-500 transition-transform", isSectionOpen('socials') && "rotate-180")} />
                   </div>
                 </button>
 
                 <AnimatePresence>
-                  {openSection === 'socials' && (
+                  {isSectionOpen('socials') && (
                     <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} className="overflow-hidden border-t border-slate-200 dark:border-white/10">
                       <div className="p-4 space-y-6 bg-white dark:bg-zinc-950/20">
                         {/* Quick-Add Bar */}
@@ -754,7 +756,7 @@ export function BuilderSidebar() {
                         {/* Active Socials List */}
                         <div className="space-y-2">
                           {store.socialProfiles.map((profile) => {
-                            const isOpen = openSection === `social-${profile.platform}`;
+                            const isOpen = isSectionOpen(`social-${profile.platform}`);
                             
                             return (
                               <div key={profile.platform} className={cn(
@@ -842,11 +844,11 @@ export function BuilderSidebar() {
                               <Brush className="w-4 h-4 text-rose-500" />
                               <span className="text-[10px] font-black text-slate-700 dark:text-slate-300 uppercase tracking-widest">Aesthetic Settings</span>
                             </div>
-                            <ChevronDown className={cn("w-4 h-4 text-slate-400 transition-transform group-hover:text-rose-500", openSection === 'social-global' && "rotate-180")} />
+                            <ChevronDown className={cn("w-4 h-4 text-slate-400 transition-transform group-hover:text-rose-500", isSectionOpen('social-global') && "rotate-180")} />
                           </button>
 
                           <AnimatePresence>
-                            {openSection === 'social-global' && (
+                            {isSectionOpen('social-global') && (
                               <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
                                 <div className="p-4 space-y-6 pt-6 bg-white dark:bg-zinc-950/20 rounded-b-2xl border-x border-b border-slate-100 dark:border-white/5">
                                   <div className="space-y-2">
@@ -909,10 +911,10 @@ export function BuilderSidebar() {
                     <Layers className="w-5 h-5 text-amber-500" />
                     <span className="font-semibold text-slate-900 dark:text-white">Layout Engine</span>
                   </div>
-                  <ChevronDown className={cn("w-5 h-5 text-slate-500 transition-transform", openSection === 'layout' && "rotate-180")} />
+                  <ChevronDown className={cn("w-5 h-5 text-slate-500 transition-transform", isSectionOpen('layout') && "rotate-180")} />
                 </button>
 
-                {openSection === 'layout' && (
+                {isSectionOpen('layout') && (
                   <div className="p-4 border-t border-slate-200 dark:border-white/10 space-y-6">
                     {/* Overall Pattern */}
                     <div>
@@ -984,10 +986,10 @@ export function BuilderSidebar() {
                     <Palette className="w-5 h-5 text-rose-500" />
                     <span className="font-semibold text-slate-900 dark:text-white">Global Appearance</span>
                   </div>
-                  <ChevronDown className={cn("w-5 h-5 text-slate-500 transition-transform", openSection === 'appearance' && "rotate-180")} />
+                  <ChevronDown className={cn("w-5 h-5 text-slate-500 transition-transform", isSectionOpen('appearance') && "rotate-180")} />
                 </button>
 
-                {openSection === 'appearance' && (
+                {isSectionOpen('appearance') && (
                   <div className="p-4 border-t border-slate-200 dark:border-white/10 space-y-6">
                     <div>
                       <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Theme Ecosystem</label>
