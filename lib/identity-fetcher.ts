@@ -11,12 +11,26 @@ async function toBase64(url: string) {
   }
 }
 
+// Detect if an avatar is a platform-default placeholder
+function isDefaultAvatar(url: string, platform: string): boolean {
+  if (!url) return true;
+  const lower = url.toLowerCase();
+  
+  // Platform-specific default detection
+  if (lower.includes('default_profile') || lower.includes('default-avatar')) return true;
+  if (platform === 'github' && lower.includes('/identicons/')) return true;
+  if (platform === 'google' && lower.includes('lh3.googleusercontent.com/a/default-user')) return true;
+  
+  return false;
+}
+
 export async function fetchSocialIdentity(platform: string, username: string) {
   try {
     let avatarUrl = `https://unavatar.io/${platform}/${username}`;
     let followers = null;
     let status = "Active";
     let verified = false;
+    let isDefault = false;
 
     switch (platform.toLowerCase()) {
       case 'discord': {
@@ -26,6 +40,7 @@ export async function fetchSocialIdentity(platform: string, username: string) {
           avatarUrl = `https://cdn.discordapp.com/avatars/${data.discord_user.id}/${data.discord_user.avatar}.png`;
           status = data.discord_status;
           verified = true;
+          isDefault = !data.discord_user.avatar;
         }
         break;
       }
@@ -35,7 +50,10 @@ export async function fetchSocialIdentity(platform: string, username: string) {
         const html = await res.text();
         const avatarMatch = html.match(/"avatar":{"thumbnails":\[{"url":"([^"]+)"/);
         const subsMatch = html.match(/"subscriberCountText":{"simpleText":"([^"]+)"/);
-        if (avatarMatch) avatarUrl = avatarMatch[1].replace(/=s[0-9]+.*$/, '=s96-c-k-c0x00ffffff-no-rj');
+        if (avatarMatch) {
+          avatarUrl = avatarMatch[1].replace(/=s[0-9]+.*$/, '=s96-c-k-c0x00ffffff-no-rj');
+          isDefault = avatarUrl.includes('googleusercontent.com/a/default-user');
+        }
         followers = subsMatch ? subsMatch[1] : null;
         verified = !!avatarMatch;
         break;
@@ -47,9 +65,13 @@ export async function fetchSocialIdentity(platform: string, username: string) {
         avatarUrl = data.avatar_url;
         followers = `${data.followers} followers`;
         verified = true;
+        isDefault = isDefaultAvatar(avatarUrl, 'github');
         break;
       }
     }
+
+    // Final check for default avatar across all sources
+    if (isDefaultAvatar(avatarUrl, platform)) isDefault = true;
 
     const base64Avatar = await toBase64(avatarUrl);
 
@@ -57,7 +79,8 @@ export async function fetchSocialIdentity(platform: string, username: string) {
       avatar: base64Avatar || avatarUrl,
       followers,
       status,
-      verified
+      verified,
+      isDefault
     };
   } catch (e) {
     console.error("Identity fetch failed:", e);
@@ -68,6 +91,7 @@ export async function fetchSocialIdentity(platform: string, username: string) {
 
   return {
     avatar: base64Fallback || fallback,
-    verified: false
+    verified: false,
+    isDefault: true
   };
 }

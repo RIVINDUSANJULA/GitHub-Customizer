@@ -52,6 +52,7 @@ export function SocialHubPreview() {
               elementRadius: (socialsConfig.elementRadius ?? 10).toString(),
               showGlow: (socialsConfig.showGlow ?? true).toString(),
               useAvatar: (socialsConfig.useAvatar ?? true).toString(),
+              syncAvatarColor: (socialsConfig.syncAvatarColor ?? true).toString(),
               color: profile.customColor || '',
               v: Date.now().toString() // Local cache bust
             });

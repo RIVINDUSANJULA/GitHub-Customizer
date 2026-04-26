@@ -13,6 +13,7 @@ export async function GET(req: NextRequest) {
   const showGlow = searchParams.get("showGlow") === "true";
   const themeColor = searchParams.get("color") || undefined;
   const useAvatar = searchParams.get("useAvatar") === "true";
+  const syncAvatarColor = searchParams.get("syncAvatarColor") === "true";
 
   // Fetch real-time identity data
   const identity = await fetchSocialIdentity(platform, username);
@@ -21,7 +22,8 @@ export async function GET(req: NextRequest) {
     followers: identity.followers || searchParams.get("subs") || null,
     status: identity.status || searchParams.get("status") || "Active",
     avatarUrl: useAvatar ? identity.avatar : null,
-    verified: identity.verified
+    verified: identity.verified,
+    isDefault: identity.isDefault
   };
 
   const svg = generateSocialSVG({
@@ -32,7 +34,8 @@ export async function GET(req: NextRequest) {
     blockRadius,
     elementRadius,
     showGlow,
-    themeColor
+    themeColor,
+    syncAvatarColor
   });
 
   return new NextResponse(svg, {

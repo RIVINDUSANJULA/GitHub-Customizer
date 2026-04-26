@@ -35,7 +35,7 @@ function getSimpleIcon(name: string) {
 }
 
 export function generateSocialSVG(options: SocialCardOptions) {
-  const { platform, username, data, style, blockRadius, elementRadius, showGlow, themeColor } = options;
+  const { platform, username, data, style, blockRadius, elementRadius, showGlow, themeColor, syncAvatarColor } = options;
   
   // Create a unique ID suffix to prevent collisions in browsers
   const uid = Math.random().toString(36).substring(2, 8);
@@ -46,8 +46,12 @@ export function generateSocialSVG(options: SocialCardOptions) {
   const width = style === 'activity' ? 400 : 220;
   const height = style === 'badge' ? 60 : 130;
   
-  const avatarUrl = options.data.avatarUrl || `https://unavatar.io/${platform}/${username}`;
-  const useAvatar = !!options.data.avatarUrl;
+  // FALLBACK HIERARCHY LOGIC
+  const isDefault = data.isDefault || !data.avatarUrl;
+  const avatarUrl = data.avatarUrl;
+  
+  const neonColor = brandColor;
+  const avatarThemeColor = syncAvatarColor ? neonColor : brandColor;
 
   const glowFilter = showGlow ? `
     <filter id="glow_${uid}" x="-20%" y="-20%" width="140%" height="140%">
@@ -65,6 +69,23 @@ export function generateSocialSVG(options: SocialCardOptions) {
 
   const iconPath = brandIcon ? brandIcon.path : "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z";
   
+  const renderAvatar = (x: number, y: number, size: number, clipId: string) => {
+    if (!isDefault && avatarUrl) {
+      return `<image x="${x}" y="${y}" width="${size}" height="${size}" href="${avatarUrl}" clip-path="url(#${clipId})" />`;
+    }
+    
+    // CUSTOM STYLIZED AVATAR
+    const initial = (username[0] || '?').toUpperCase();
+    return `
+      <g clip-path="url(#${clipId})" transform="translate(${x}, ${y})">
+        <rect width="${size}" height="${size}" fill="#${avatarThemeColor}" fill-opacity="0.1" />
+        <circle cx="${size/2}" cy="${size/2}" r="${size/2.5}" fill="#${avatarThemeColor}" fill-opacity="0.2" class="pulse-ring" />
+        <text x="${size/2}" y="${size/2 + (size/10)}" fill="#${avatarThemeColor}" font-family="Arial" font-size="${size/2}" font-weight="900" text-anchor="middle" dominant-baseline="middle" opacity="0.8">${initial}</text>
+        <path d="M ${size/2} ${size/4} A ${size/8} ${size/8} 0 1 1 ${size/2} ${size/2} M ${size/4} ${size*0.8} A ${size/4} ${size/4} 0 0 1 ${size*0.75} ${size*0.8}" stroke="#${avatarThemeColor}" stroke-width="2" fill="none" opacity="0.5" />
+      </g>
+    `;
+  };
+
   let content = "";
 
   if (platform === 'career') {
@@ -89,18 +110,12 @@ export function generateSocialSVG(options: SocialCardOptions) {
     content = `
       <rect width="${width}" height="${height}" rx="${blockRadius}" fill="#${brandColor}" fill-opacity="0.1" stroke="#${brandColor}" stroke-opacity="0.3"/>
       
-      ${useAvatar ? `
-        <clipPath id="avatarClip_${uid}">
-          <rect x="10" y="10" width="40" height="40" rx="${elementRadius}" />
-        </clipPath>
-        <image x="10" y="10" width="40" height="40" href="${avatarUrl}" clip-path="url(#avatarClip_${uid})" />
-      ` : `
-        <g transform="translate(15, ${height/2 - 12}) scale(1)" fill="#${brandColor}">
-          <path d="${iconPath}"/>
-        </g>
-      `}
+      <clipPath id="avatarClip_${uid}">
+        <rect x="10" y="10" width="40" height="40" rx="${elementRadius}" />
+      </clipPath>
+      ${renderAvatar(10, 10, 40, `avatarClip_${uid}`)}
       
-      <text x="${useAvatar ? 60 : 50}" y="${height/2 + 6}" fill="white" font-family="Arial" font-size="14" font-weight="900">${username}</text>
+      <text x="60" y="${height/2 + 6}" fill="white" font-family="Arial" font-size="14" font-weight="900">${username}</text>
       <text x="${width - 15}" y="${height/2 + 5}" fill="#${brandColor}" font-family="Arial" font-size="9" font-weight="black" text-anchor="end" opacity="0.6">${platform.toUpperCase()}</text>
     `;
   } else {
@@ -111,8 +126,12 @@ export function generateSocialSVG(options: SocialCardOptions) {
       </mask>
       
       <g mask="url(#cardMask_${uid})">
-        <!-- Blur Background -->
-        <image href="${avatarUrl}" width="${width * 1.5}" height="${height * 1.5}" x="${-width * 0.25}" y="${-height * 0.25}" filter="url(#bgBlur_${uid})" />
+        <!-- Blur Background (Still using stylized colors if default) -->
+        ${isDefault ? `
+          <rect width="${width}" height="${height}" fill="#${avatarThemeColor}" fill-opacity="0.05" filter="url(#bgBlur_${uid})" />
+        ` : `
+          <image href="${avatarUrl}" width="${width * 1.5}" height="${height * 1.5}" x="${-width * 0.25}" y="${-height * 0.25}" filter="url(#bgBlur_${uid})" />
+        `}
         
         <rect width="${width}" height="${height}" fill="#${brandColor}" fill-opacity="0.1" stroke="#${brandColor}" stroke-opacity="0.3"/>
         
@@ -121,7 +140,7 @@ export function generateSocialSVG(options: SocialCardOptions) {
           <clipPath id="avatarCircle_${uid}">
             <rect width="48" height="48" rx="${elementRadius}" />
           </clipPath>
-          <image width="48" height="48" href="${avatarUrl}" clip-path="url(#avatarCircle_${uid})" />
+          ${renderAvatar(0, 0, 48, `avatarCircle_${uid}`)}
           <rect width="48" height="48" rx="${elementRadius}" fill="none" stroke="#${brandColor}" stroke-width="2" />
         </g>
         
@@ -147,6 +166,7 @@ export function generateSocialSVG(options: SocialCardOptions) {
         <style>
           .pulse-ring {
             animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            transform-origin: center;
           }
           @keyframes pulse {
             0%, 100% { opacity: 0.3; transform: scale(1); }

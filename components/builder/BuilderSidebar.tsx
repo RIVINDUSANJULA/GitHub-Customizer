@@ -1016,6 +1016,17 @@ export function BuilderSidebar() {
                                         <div className="absolute top-0.5 left-0.5 w-3 h-3 bg-white rounded-full peer-checked:translate-x-4 transition-transform"></div>
                                       </div>
                                     </label>
+                                    <label className="flex items-center justify-between cursor-pointer group">
+                                      <div className="flex flex-col">
+                                        <span className="text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-tighter">Sync Avatar with Theme</span>
+                                        <span className="text-[8px] text-slate-400 uppercase">Match fallback colors</span>
+                                      </div>
+                                      <div className="relative">
+                                        <input type="checkbox" className="sr-only peer" checked={store.socialsConfig.syncAvatarColor ?? true} onChange={(e) => store.setSocialsOption('syncAvatarColor', e.target.checked)} />
+                                        <div className="w-8 h-4 bg-slate-200 dark:bg-zinc-800 rounded-full peer peer-checked:bg-rose-500 transition-colors"></div>
+                                        <div className="absolute top-0.5 left-0.5 w-3 h-3 bg-white rounded-full peer-checked:translate-x-4 transition-transform"></div>
+                                      </div>
+                                    </label>
                                   </div>
 
                                   <div className="flex items-center justify-between pt-2">

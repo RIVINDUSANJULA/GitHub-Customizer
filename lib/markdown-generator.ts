@@ -138,6 +138,7 @@ export function generateMarkdown(state: BuilderState): MarkdownResult {
             elementRadius: state.socialsConfig.elementRadius.toString(),
             showGlow: state.socialsConfig.showGlow.toString(),
             useAvatar: state.socialsConfig.useAvatar ? 'true' : 'false',
+            syncAvatarColor: state.socialsConfig.syncAvatarColor ? 'true' : 'false',
             v: cacheKey, // Content-based versioning
             t: Date.now().toString()
           });

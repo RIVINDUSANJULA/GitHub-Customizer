@@ -49,6 +49,7 @@ export interface SocialsConfig {
   useAvatar: boolean;
   showBlurBackground: boolean;
   shadowDepth: number;
+  syncAvatarColor: boolean;
 }
 
 export interface SocialProfile {
@@ -187,6 +188,7 @@ export const useBuilderStore = create<BuilderState>()(
         useAvatar: true,
         showBlurBackground: true,
         shadowDepth: 5,
+        syncAvatarColor: true,
       },
       socialProfiles: [
         { platform: 'career', username: 'Available for Hire', isVisible: true, style: 'badge', customColor: '10b981' },
