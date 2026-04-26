@@ -1,6 +1,6 @@
 /**
- * GitInfo Narrative Engine v3.0 (Universal Identity Architect)
- * Generates elite GitHub biographies across five distinct strategic styles.
+ * GitInfo Narrative Engine v4.0 (Zero-Hallucination Architect)
+ * Generates elite GitHub biographies with strict architectural constraints and high-signal data mapping.
  */
 
 interface BioOptions {
@@ -16,14 +16,14 @@ interface BioOptions {
 }
 
 export function generateBio(options: BioOptions): string {
-  const { username, title, skills, vibe, format, length, notes, repoStack } = options;
+  const { username, title, skills, vibe, notes, repoStack } = options;
   
   const name = username || "Developer";
-  const role = title || "Software Architect";
+  const role = title || "Systems Architect";
   const rawSkills = skills.length > 0 ? skills : ["Next.js", "React 19", "Tailwind v4", "TypeScript", "Zustand v5"];
   const stack = (repoStack && repoStack.length > 0) ? repoStack : rawSkills;
 
-  // British English Dictionary
+  // British English Standard
   const BE = {
     optimised: "optimised",
     visualising: "visualising",
@@ -31,95 +31,89 @@ export function generateBio(options: BioOptions): string {
     synthesising: "Synthesising",
     abstracting: "Abstracting",
     deploying: "Deploying",
-    modelling: "modelling"
+    modelling: "modelling",
+    analysing: "analysing"
   };
 
-  // Categorised Tech Stack
-  const categories = {
-    frontend: rawSkills.filter(s => /next|react|tailwind|css|html|framer|three|ui|ux/i.test(s)).slice(0, 4),
-    logic: rawSkills.filter(s => /zustand|redux|state|kafka|mq|api|graphql|rest/i.test(s)).slice(0, 4),
-    core: rawSkills.filter(s => /java|node|python|go|rust|c|typescript|js/i.test(s)).slice(0, 4),
-    tools: rawSkills.filter(s => /docker|git|aws|gcp|vercel|supabase|firebase/i.test(s)).slice(0, 4)
+  const context = {
+    gitinfo: "**GitInfo** — a zero-config identity suite engineered to bypass GitHub caching via server-side proxy architecture.",
+    education: "**IIT Sri Lanka / University of Westminster** — BEng (Hons) Software Engineering (Current).",
+    career: "Specialising in Enterprise Architecture and **Cybersecurity (SOC Analyst)** path."
   };
 
-  const commonContext = {
-    gitinfo: "Iterating on **GitInfo** — a zero-config identity suite engineered to bypass GitHub's server-side caching limitations via deterministic proxy architecture.",
-    education: "Academic research at **IIT Sri Lanka / University of Westminster**, specialising in Enterprise Architecture and Cybersecurity (SOC Analyst path)."
-  };
-
-  // STYLE 1: [💼 PROFESSIONAL]
+  // 💼 [PROFESSIONAL MODE]
+  // Focus: Career growth and institutional credibility.
   if (vibe === 'professional') {
     const sections = [
       `# Professional Summary`,
-      `I am a **${role}** dedicated to delivering high-impact, ${BE.optimised} digital solutions. My approach combines technical excellence with industry-standard patterns to build scalable architectures.`,
-      `## Key Expertise`,
-      rawSkills.slice(0, 6).map(s => `* **${s}** — Implementation & Optimisation`).join('\n'),
-      `## Current Focus`,
-      `* **${commonContext.gitinfo}**`,
-      `* **${commonContext.education}**`
+      `As a **${role}**, I focus on engineering high-performance digital ecosystems through ${BE.optimised} system design. My methodology prioritises scalability, architectural integrity, and the implementation of industry-standard patterns.`,
+      `## Education & Certifications`,
+      `* ${context.education}`,
+      `* Focus: Enterprise Architecture & Information Security`,
+      `## Technical Leadership`,
+      `* **Project Lead:** ${context.gitinfo}`,
+      `* **Research:** ${BE.synthesising} modern web mechanics with secure infrastructure.`
     ];
     return sections.join('\n\n');
   }
 
-  // STYLE 2: [🎨 CREATIVE]
+  // 🎨 [CREATIVE MODE]
+  // Focus: Visual identity and UI/UX philosophy.
   if (vibe === 'creative') {
     const sections = [
-      `# 🚀 The Intersection of Art & Logic`,
-      `I don't just write code; I am **${BE.visualising}** the future of the web. As a **${role}**, I believe that software should be as beautiful as it is functional.`,
-      `My work is a process of **${BE.synthesising}** raw data into immersive, glassmorphic experiences. I am currently ${BE.modelling} high-performance environments where pixels and logic dance in perfect harmony.`,
-      `### The Toolkit`,
-      `Building interactive reality with **${stack.slice(0, 5).join(" + ")}**.`,
-      `### The Journey`,
-      `Currently architecting **GitInfo** to solve the limitations of static profiles, bringing dynamic, real-time identity to the developer community.`
+      `# ✨ Designing Through the Glass Prism`,
+      `I operate at the intersection of aesthetic brilliance and technical precision. As a **${role}**, I am **${BE.visualising}** environments where code is not just logic, but an art form.`,
+      `## The Aesthetic Engine`,
+      `* **Glassmorphism:** Depth, transparency, and blurred boundaries.`,
+      `* **Neon Accents:** Defining clarity within high-contrast digital spaces.`,
+      `* **Identity:** Architecting **GitInfo** as a living, breathing developer narrative.`,
+      `## Vision`,
+      `Code is the medium; performance is the masterpiece.`
     ];
     return sections.join('\n\n');
   }
 
-  // STYLE 3: [☁️ MINIMALIST]
+  // ☁️ [MINIMALIST MODE]
+  // Focus: Maximum signal, zero noise. (Strict 4-line limit)
   if (vibe === 'minimalist') {
-    const sections = [
+    return [
       `# ${name.toUpperCase()}`,
-      `**${role}**`,
-      `> ${BE.abstracting} complexity. ${BE.optimised} for performance.`,
-      `## TECH`,
-      stack.slice(0, 8).join(' • '),
-      `## FOCUS`,
-      `Architecting **GitInfo** • Bypassing cache limitations • Zero-config logic.`
-    ];
-    return sections.join('\n\n');
+      `**${role}** | ${context.education}`,
+      `Architecting **GitInfo** • ${BE.abstracting} complexity • ${BE.optimised} output.`,
+      `${stack.slice(0, 6).join(' • ')}`
+    ].join('\n');
   }
 
-  // STYLE 4: [⚙️ TECHNICAL]
+  // ⚙️ [TECHNICAL MODE]
+  // Focus: Architecture, Logic, and Performance.
   if (vibe === 'technical') {
     const sections = [
-      `### // SYSTEM_SPECIFICATION`,
-      `**Title:** ${role}\n**Focus:** System Design / Deterministic Engines\n**Location:** Colombo, LK (IIT / Westminster)`,
-      `### // TECHNOLOGY_STACK`,
-      `**Frontend:** ${categories.frontend.join(', ') || 'React 19, Next.js'}\n**Logic/MQ:** ${categories.logic.join(', ') || 'Zustand v5, Kafka'}\n**Core:** ${categories.core.join(', ') || 'TypeScript, Java'}`,
-      `### // ACTIVE_BRANCH`,
-      `Developing **GitInfo** (v1.0). Addressing the "GitHub Caching Bottleneck" by implementing server-side proxying for deterministic identity rendering.`,
-      `### // ARCHITECTURAL_GOALS`,
-      `Transitioning towards **SOC Analyst** operations and high-availability enterprise infrastructure.`
+      `### // STACK_TRACE`,
+      `\`\`\`text\n${stack.join(" | ")}\n\`\`\``,
+      `### // LOG_DUMP`,
+      `* **Subsystem:** \`GitInfo v1.0\``,
+      `* **Architecture:** Server-side proxying for deterministic identity rendering.`,
+      `* **Optimisation:** Addressing GitHub's caching bottleneck through ${BE.optimised} API gateways.`,
+      `### // CURRENT_THREAD`,
+      `* **Education:** ${context.education}`,
+      `* **Vector:** ${context.career}`,
+      `* **Status:** \`Active Process\``
     ];
     return sections.join('\n\n');
   }
 
-  // STYLE 5: [👑 ELITE - THE TITAN]
-  const eliteSections = {
-    identity: `## // IDENTITY_ROOT\n${BE.architecting} high-performance digital ecosystems as a **${role}**. Engineered for the 2026 technical landscape.`,
-    
-    logic: `## // CORE_LOGIC\nMy work revolves around ${BE.abstracting} complex requirements into scalable architectures. Focused on the next generation of web mechanics, ensuring every deployment is ${BE.optimised} for peak performance and glassmorphic elegance.`,
-    
+  // 👑 [ELITE MODE]
+  // Focus: The "Industry Leader" blend.
+  const elite = {
+    root: `## // IDENTITY_ROOT\n${BE.architecting} high-availability digital ecosystems as a **${role}**. Engineered for the 2026 technical landscape.`,
+    logic: `## // CORE_LOGIC\n${BE.abstracting} complex requirements into scalable architectures. I am ${BE.analysing} the next generation of web mechanics, ensuring every deployment is ${BE.optimised} for peak performance and glassmorphic elegance.`,
     stack: `## // STACK_TRACE\n\`\`\`text\n${stack.join(" | ")}\n\`\`\``,
-    
-    process: `## // ACTIVE_PROCESS\n${commonContext.gitinfo}`,
-    
-    future: `## // FUTURE_STATE\n${commonContext.education}`,
-    
+    process: `## // ACTIVE_PROCESS\nCurrently iterating on **GitInfo** — ${context.gitinfo}`,
+    future: `## // FUTURE_STATE\nAdvancing academic research at **IIT Sri Lanka / University of Westminster**. Navigating towards a future in **SOC Analyst** operations.`,
     status: `Status: Currently iterating on GitInfo v1.0`
   };
 
-  let bio = `${eliteSections.identity}\n\n${eliteSections.logic}\n\n${eliteSections.stack}\n\n${eliteSections.process}\n\n${eliteSections.future}\n\n---\n${eliteSections.status}`;
+  let bio = `${elite.root}\n\n${elite.logic}\n\n${elite.stack}\n\n${elite.process}\n\n${elite.future}\n\n---\n${elite.status}`;
   
   if (notes) {
     bio += `\n\n## // SUPPLEMENTARY_CONTEXT\n${notes}`;
