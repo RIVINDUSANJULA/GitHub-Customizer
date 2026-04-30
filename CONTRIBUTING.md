@@ -36,8 +36,8 @@ To contribute code, follow this standard GitHub workflow:
 1. **Fork the Repository** to your own GitHub account.
 2. **Clone the Project** to your local machine.
    ```bash
-   git clone [https://github.com/YOUR-USERNAME/identity-suite.git](https://github.com/YOUR-USERNAME/identity-suite.git)
-   cd identity-suite
+   git clone [https://github.com/RIVINDUSANJULA/GitInfo.git]
+   cd GitInfo
    ```
 3. **Create a Branch** for your feature or bug fix. Use a descriptive name:
    ```bash
